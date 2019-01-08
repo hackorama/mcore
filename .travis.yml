@@ -1,14 +1,7 @@
 language: java
-env:
-    global:
-          - CODECOV_TOKEN=:b4655322-ad2f-429d-940b-1d5e2dd3e599
-jdk:
-  - oraclejdk8
+sudo: false
 before_script:
   - chmod +x gradlew
-script:
-  - ./gradlew check
-  - ./gradlew jacocoTestReport
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
