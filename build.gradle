@@ -1,0 +1,75 @@
+plugins {
+    id 'application'
+    id 'java-library'
+    id 'eclipse'
+    id 'jacoco'
+    id "com.diffplug.gradle.spotless" version "3.16.0"
+    id "com.github.spotbugs" version "1.6.8"
+    id "com.github.johnrengelman.shadow" version "4.0.3"
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-simple:1.7.21' // logging
+    implementation 'org.apache.commons:commons-lang3:3.8.1' // number and string utils
+    implementation 'org.aeonbits.owner:owner:1.0.8' // configuration file handling
+    implementation 'com.google.guava:guava:21.0' // multimap implementation for many to many
+    implementation 'com.google.code.gson:gson:2.8.5' // json library 
+    implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
+    implementation 'org.apache.httpcomponents:httpclient-cache:4.3.6' // rest client caching 
+    implementation 'org.mapdb:mapdb:3.0.4' // embedded database 
+    implementation 'com.sparkjava:spark-core:2.7.2' // rest framework
+
+    testImplementation 'junit:junit:4.12'
+}
+
+// code formatting
+
+spotless {
+    java {
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+        importOrder 'java', 'javax', 'org', 'com', 'com.hackorama'
+        removeUnusedImports() 
+    }
+}
+
+// code coverage 
+
+jacoco {
+    toolVersion = "0.8.2"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true 
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+spotbugs {
+    toolVersion = '3.1.10'
+    ignoreFailures = true
+}
+
+// code quality
+
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+application {
+    mainClassName = "com.hackorama.mcore.Main"
+}
