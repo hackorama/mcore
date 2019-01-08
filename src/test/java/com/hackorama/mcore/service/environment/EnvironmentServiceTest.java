@@ -65,6 +65,7 @@ public class EnvironmentServiceTest {
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/environment").asJson();
+        System.out.println(jsonResponse.getBody().toString());
         if (idOne.equals(jsonResponse.getBody().getArray().getJSONObject(0).getString("id"))) {
             assertEquals("one", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(1).getString("name"));

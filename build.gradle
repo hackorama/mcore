@@ -55,6 +55,8 @@ jacocoTestReport {
 test {
     maxParallelForks = 1
     finalizedBy jacocoTestReport
+    dependsOn cleanTest
+    testLogging.showStandardStreams = true
 }
 
 spotbugs {
