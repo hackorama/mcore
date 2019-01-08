@@ -67,7 +67,7 @@ public class EnvironmentServiceTest {
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/environment").asJson();
-        /* TODO FIXME Timing error only on Travis automation builds 
+        /* TODO FIXME Timing error only on Travis automation builds
         if (idOne.equals(jsonResponse.getBody().getArray().getJSONObject(0).getString("id"))) {
             assertEquals("one", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(1).getString("name"));
