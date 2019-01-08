@@ -53,6 +53,7 @@ jacocoTestReport {
 }
 
 test {
+    maxParallelForks = 1
     finalizedBy jacocoTestReport
 }
 
