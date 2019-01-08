@@ -243,11 +243,11 @@ NOTE: Singular naming used throughout API for entities, could switch to plural n
 ## Environment Allows standard CRUD operations for Environment. 
 
 | Method | URL | Request | Response |
-+--------+-----+---------+----------+
+|--------|-----|---------|----------|
 | GET | /environment/:id |  | {"name":"env-one", "id":"f2743bdc-9775-4a9f-9201-3484259ee885"} |
 | POST | /environment | {"name":"env-one"} | {"name":"env-one", "id":"f2743bdc-9775-4a9f-9201-3484259ee885"}  |
 | PUT | /environment/:id | {"name"":"env-one"} |{"name":"env-one", "id":"f2743bdc-9775-4a9f-9201-3484259ee885"}  |
-| DELETE | /environment/:id | 
+| DELETE | /environment/:id | | | 
   
 ## Workspace 
 
@@ -280,14 +280,48 @@ GET  /component/:id  For components allowing children:
 Approach Pragmatic adoption of Twelve-Factor App, SOLID, YAGNI, DRY principles in the design.  
 
 
-Service design Complete separation of each service from underlying web framework and data store framework through interfaces.  So different web frameworks and data stores can be easily used without changing the service code at all.  Services are composed fluently by injecting web, data and client implementation as needed.  
+## Service design 
+
+Complete separation of each service from underlying web framework and data store framework through interfaces.
+So different web frameworks and data stores can be easily used without changing the service code at all.  
+
+Services are composed fluently by injecting web, data and client implementation as needed.  
 
 
 ```
 Service groupService = new GroupService().configureUsing(new SparkServer("group")).configureUsing(new MapdbDataStore()); 
 ```
 
-A service manager based on external configuration automatically starts each service or out of the box without and configuration starts all services in the same server for quick testing. Data design Since each entity runs its own separate service we are using separate data store for each service and only workspace service keeps the relation tables that it depends own. Work Space to Environment is One to Many association. Work Space to Groups is Many to Many association. Both association allows zero or one/many since each service operates independently from each other. Instead of a monolithic single data store with foreign keys we are using a key value approach with entities stored as json document keyed using unique key. Instead of auto incrementing sequence we are using application generated UUID as the key which will be better for distributed servers. Using an in memory data store implementation now. A MapDB based implementation is next. Distributed service design Workspaces depends on other two services for association lookups. During creation of association we try to validate the dependent entities if service is available, if not we optimistically do the association anyway.  Associations are also checked during the read of workspace to see if the associated entity is still valid and associations are updated. This is also only if the service is available. Proposed Design Improvements Instead of workspace directly talking to other services introduces a message queue where other services can publish changes so workspace service can update the associations based on these entity change events. Introduce the data repository separation in each service implementation. Clustering of services with proxy in the front. Separate Data Store with its own clustering.
+A service manager based on external configuration automatically starts each service or out of the box without and configuration starts all services in the same server for quick testing. 
+
+## Data design 
+
+Since each entity runs its own separate service we are using separate data store for each service and only workspace service keeps the relation tables that it depends own. 
+
+Work Space to Environment is One to Many association. Work Space to Groups is Many to Many association. 
+
+Both association allows zero or one/many since each service operates independently from each other. 
+
+Instead of a monolithic single data store with foreign keys we are using a key value approach with entities stored as json document keyed using unique key. 
+
+Instead of auto incrementing sequence we are using application generated UUID as the key which will be better for distributed servers. 
+
+Using an in memory data store implementation now. A MapDB based implementation is next. 
+
+## Distributed service design 
+
+Workspaces depends on other two services for association lookups. 
+During creation of association we try to validate the dependent entities if service is available, if not we optimistically do the association anyway.  
+Associations are also checked during the read of workspace to see if the associated entity is still valid and associations are updated. 
+This is also only if the service is available. 
+
+## Proposed Design Improvements 
+
+Instead of workspace directly talking to other services introduces a message queue where other services can publish changes so workspace service can update the associations based on these entity change events.
+
+- Introduce the data repository separation in each service initializedmplementation. 
+- Clustering of services with proxy in the front. 
+- Separate Data Store with its own clustering.
 
 # Testing 
 
