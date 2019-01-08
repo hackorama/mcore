@@ -7,7 +7,8 @@ Distributed Micro Service Design
 Requires Java 8 or later in path and web access for pulling in the maven dependencies. 
 
 ```
-$ tar –xzvf mcore.tar.gz $ cd mcore 
+$ git clone git@github.com:hackorama/mcore.git
+$ cd mcore
 ```
  
 If you are behind a corp web proxy, please uncomment and add the proxy servers in gradle.properties.
