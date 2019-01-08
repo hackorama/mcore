@@ -31,13 +31,15 @@ public class GroupServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        server = new SparkServer("group");
+        TestUtil.waitForService();
+        server = new SparkServer("group", 4567);
         service = new GroupService().configureUsing(server);
         TestUtil.waitForService();
     }
 
     @After
     public void tearDown() throws Exception {
+        TestUtil.waitForService();
         if (service != null) {
             service.stop();
         }
@@ -140,7 +142,6 @@ public class GroupServiceTest {
         jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
 
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
-        System.out.println(jsonResponse.getBody().toString());
         assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getArray().getJSONObject(0).getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getArray().getJSONObject(0).getString("id"));

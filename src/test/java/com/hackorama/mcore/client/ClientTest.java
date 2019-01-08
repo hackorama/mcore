@@ -34,13 +34,15 @@ public class ClientTest {
 
     @Before
     public void setUp() throws Exception {
-        server = new SparkServer("workspace");
+        TestUtil.waitForService();
+        server = new SparkServer("workspace", 4567);
         workspaceService = new WorkspaceService().configureUsing(server);
         TestUtil.waitForService();
     }
 
     @After
     public void tearDown() throws Exception {
+        TestUtil.waitForService();
         if (server != null) {
             server.stop();
         }

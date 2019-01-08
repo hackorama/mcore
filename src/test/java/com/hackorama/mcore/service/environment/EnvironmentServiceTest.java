@@ -31,13 +31,15 @@ public class EnvironmentServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        server = new SparkServer("environment");
+        TestUtil.waitForService();
+        server = new SparkServer("environment", 4567);
         service = new EnvironmentService().configureUsing(server);
         TestUtil.waitForService();
     }
 
     @After
     public void tearDown() throws Exception {
+        TestUtil.waitForService();
         if (service != null) {
             service.stop();
         }
@@ -65,7 +67,6 @@ public class EnvironmentServiceTest {
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/environment").asJson();
-        System.out.println(jsonResponse.getBody().toString());
         if (idOne.equals(jsonResponse.getBody().getArray().getJSONObject(0).getString("id"))) {
             assertEquals("one", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(1).getString("name"));
