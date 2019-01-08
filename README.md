@@ -26,7 +26,9 @@ $ vi gradle.properties
 $ ./gradlew build 
 ```
  
-# Develop  Build an Eclipse project  
+# Develop  
+
+Build an Eclipse project  
 
 ```
 $ ./gradlew eclipse 
