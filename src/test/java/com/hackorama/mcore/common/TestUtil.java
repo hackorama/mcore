@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TestUtil {
 
-    private static final long DEFUALT_WAIT_SECONDS = 1;
+    private static final long DEFUALT_WAIT_SECONDS = 5;
 
     // Don't let anyone else instantiate this class
     private TestUtil() {
