@@ -4,6 +4,7 @@ package com.hackorama.mcore.service.group;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +14,8 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.data.DataStore;
+import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
@@ -26,23 +29,32 @@ import com.hackorama.mcore.service.Service;
 public class GroupServiceTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567" ;
-    private Server server;
+    private static Server server;
     private Service service;
+    private DataStore dataStore;
 
     @Before
     public void setUp() throws Exception {
         TestUtil.waitForService();
-        server = new SparkServer("group", 4567);
-        service = new GroupService().configureUsing(server);
-        TestUtil.waitForService();
+        if (server == null) {
+            server = new SparkServer("group", 4567);
+            TestUtil.waitForService();
+        }
+        if (dataStore == null) {
+            dataStore = new MemoryDataStore();
+        }
+        if (service == null) {
+            service = new GroupService().configureUsing(server).configureUsing(dataStore);
+        }
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtil.waitForService();
-        if (service != null) {
-            service.stop();
-        }
+        dataStore.clear();
+    }
+
+    @AfterClass
+    public static void afterAllTests() throws Exception {
         if (server != null) {
             server.stop();
         }
@@ -142,11 +154,9 @@ public class GroupServiceTest {
         jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
 
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
-        /* TODO FIXME Timing error only on Travis automation builds
         assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getArray().getJSONObject(0).getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getArray().getJSONObject(0).getString("id"));
-        */
     }
 
     @Test

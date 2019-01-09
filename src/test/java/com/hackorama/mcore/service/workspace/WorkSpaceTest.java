@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +18,8 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.data.DataStore;
+import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
@@ -32,23 +35,32 @@ import com.hackorama.mcore.service.group.GroupService;
 public class WorkSpaceTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
-    private Server server;
+    private static Server server;
     private Service service;
+    private DataStore dataStore;
 
     @Before
     public void setUp() throws Exception {
         TestUtil.waitForService();
-        server = new SparkServer("workspace", 4567);
-        service = new WorkspaceService().configureUsing(server);
-        TestUtil.waitForService();
+        if (server == null) {
+            server = new SparkServer("workspace", 4567);
+            TestUtil.waitForService();
+        }
+        if (dataStore == null) {
+            dataStore = new MemoryDataStore();
+        }
+        if (service == null) {
+            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
+        }
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtil.waitForService();
-        if (service != null) {
-            service.stop();
-        }
+        dataStore.clear();
+    }
+
+    @AfterClass
+    public static void afterAllTests() throws Exception {
         if (server != null) {
             server.stop();
         }
@@ -283,15 +295,20 @@ public class WorkSpaceTest {
         String workspaceId = jsonResponse.getBody().getObject().getString("id");
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/workspace/" + workspaceId + "/group/invalid-group-id")
                 .header("accept", "application/json").asJson();
+        boolean notAccepted = jsonResponse.getBody().toString().contains("error");
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/workspace/" + workspaceId)
                 .header("accept", "application/json").asJson();
-        assertEquals(1, jsonResponse.getBody().getObject().getJSONArray("owners").length());
+        if (notAccepted) {
+            assertEquals(0, jsonResponse.getBody().getObject().getJSONArray("owners").length());
+        } else {
+            assertEquals(1, jsonResponse.getBody().getObject().getJSONArray("owners").length());
+        }
     }
 
     @Test
     public void workspaceService_invalidGroupWithService_expectsLinkValidated() throws UnirestException {
         // Add group service to existing server
-        new GroupService().configureUsing(server);
+        Service groupService = new GroupService().configureUsing(server);
         TestUtil.waitForService();
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/workspace").header("accept", "application/json")
@@ -303,6 +320,7 @@ public class WorkSpaceTest {
         jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/workspace/" + workspaceId)
                 .header("accept", "application/json").asJson();
         assertEquals(0, jsonResponse.getBody().getObject().getJSONArray("owners").length());
+        groupService.stop();
     }
 
     @Test
@@ -356,7 +374,7 @@ public class WorkSpaceTest {
     public void workspaceService_withGroupsinWorkspace_expectsWorkspaceResponseToIncludeGroupData()
             throws UnirestException {
         // Add group service to existing server
-        new GroupService().configureUsing(server);
+        Service groupService = new GroupService().configureUsing(server);
         TestUtil.waitForService();
         // Create some groups
         HttpResponse<JsonNode> jsonResponse;
@@ -404,5 +422,6 @@ public class WorkSpaceTest {
         } else {
             fail("Unexpected group id " + id);
         }
+        groupService.stop();
     }
 }
