@@ -1,7 +1,6 @@
 # MCore
 
 [![Build Status](https://travis-ci.org/hackorama/mcore.svg?branch=master)](https://travis-ci.org/hackorama/mcore)
-[![codecov.io](https://codecov.io/github/hackorama/mcore/mcore.svg?branch=master)](https://codecov.io/github/hackorama/mcore?branch=master)
 
 Distributed Micro Service Design 
 
