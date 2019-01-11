@@ -7,7 +7,8 @@ import java.io.IOException;
 /**
  * Main application entry point
  *
- * @author KITHO
+ * @author Kishan Thomas (kishan.thomas@gmail.com)
+ *
  */
 public class Main {
 

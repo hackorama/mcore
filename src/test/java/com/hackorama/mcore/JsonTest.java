@@ -11,8 +11,6 @@ import com.hackorama.mcore.common.Util;
 
 public class JsonTest {
 
-
-
     @Test
     public void jsonGeneralaFormattingTests() {
         List<String> listOne = new ArrayList<>();

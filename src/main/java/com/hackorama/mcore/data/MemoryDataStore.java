@@ -31,6 +31,7 @@ public class MemoryDataStore  implements DataStore {
     public void clear() {
         singleKeyStores = new HashMap<>();
         multiKeyStores = new HashMap<>();
+        stores = new HashSet<>();
         logger.info("The data store is reset to empty");
     }
 

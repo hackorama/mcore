@@ -23,7 +23,7 @@ import com.hackorama.mcore.service.workspace.WorkspaceService;
  * The service manager that builds and starts one or more services based on
  * external configuration
  *
- * @author KITHO
+ * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
 public class ServiceManager {

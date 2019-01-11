@@ -6,7 +6,7 @@ import com.hackorama.mcore.common.Response;
 /**
  * HTTP client interface
  *
- * @author KITHO
+ * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
 public interface Client {

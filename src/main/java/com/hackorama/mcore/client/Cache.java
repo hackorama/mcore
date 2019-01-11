@@ -3,7 +3,7 @@ package com.hackorama.mcore.client;
 /**
  * Client cache interface
  *
- * @author KITHO
+ * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
 public interface Cache {

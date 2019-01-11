@@ -18,10 +18,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.TestUtil;
-import com.hackorama.mcore.data.DataStore;
-import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
-import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
 import com.hackorama.mcore.service.environment.EnvironmentService;
 import com.hackorama.mcore.service.group.GroupService;
@@ -34,37 +31,23 @@ import com.hackorama.mcore.service.group.GroupService;
  */
 public class WorkSpaceTest {
 
-    private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
-    private static Server server;
-    private Service service;
-    private DataStore dataStore;
+    private static final String DEFAULT_SERVER_ENDPOINT = TestUtil.defaultServerEndpoint();
+    private Server server;
 
     @Before
     public void setUp() throws Exception {
-        TestUtil.waitForService();
-        if (server == null) {
-            server = new SparkServer("workspace", 4567);
-            TestUtil.waitForService();
-        }
-        if (dataStore == null) {
-            dataStore = new MemoryDataStore();
-        }
-        if (service == null) {
-            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
-        }
+        TestUtil.initWorkSpaceServiceInstance();
+        server = TestUtil.getServer();
     }
 
     @After
     public void tearDown() throws Exception {
-        dataStore.clear();
+        TestUtil.clearDataOfServiceInstance();
     }
 
     @AfterClass
     public static void afterAllTests() throws Exception {
-        if (server != null) {
-            server.stop();
-        }
-        TestUtil.waitForService();
+        TestUtil.stopServiceInstance();
     }
 
     @Test
