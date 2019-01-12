@@ -18,11 +18,13 @@ public class TestUtil {
 
     private static Logger logger = LoggerFactory.getLogger(TestUtil.class);
 
-    private static final long DEFUALT_WAIT_SECONDS = 3;
+    private static final long DEFUALT_WAIT_SECONDS = 1;
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
-    private static volatile Server server = null;
+
+    private static final int DEFAULT_SERVER_PORT = 4567;
+    private static Server server = null;
     private static volatile Service service = null;
-    private static volatile DataStore dataStore = null;
+    private static DataStore dataStore = null;
 
     public static void clearDataOfServiceInstance() {
         if (dataStore != null) {
@@ -44,6 +46,7 @@ public class TestUtil {
         if (service == null) {
             service = new EnvironmentService().configureUsing(server).configureUsing(dataStore);
             TestUtil.waitForService();
+            logger.info("Started Environment Service on server {}", server.getName());
         }
         return service;
     }
@@ -53,14 +56,16 @@ public class TestUtil {
         if (service == null) {
             service = new GroupService().configureUsing(server).configureUsing(dataStore);
             TestUtil.waitForService();
+            logger.info("Started Group Service on server {}", server.getName());
         }
         return service;
     }
 
-    private static void initServer() {
+    private static synchronized void initServer() {
         if (server == null) {
-            server = new SparkServer("testserver", 4567);
+            server = new SparkServer("testserver", DEFAULT_SERVER_PORT);
             server.start();
+            logger.info("Started Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
         }
         if (dataStore == null) {
             dataStore = new MemoryDataStore();
@@ -76,6 +81,7 @@ public class TestUtil {
         if (service == null) {
             service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
             TestUtil.waitForService();
+            logger.info("Started Workspace Service on server {}", server.getName());
         }
         return service;
     }
