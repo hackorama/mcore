@@ -76,7 +76,6 @@ public class SparkServer implements Server {
     public SparkServer(String name, int port) {
         this.name = name;
         this.port = port;
-        Spark.port(port);
     }
 
     @Override
@@ -122,6 +121,7 @@ public class SparkServer implements Server {
 
     @Override
     public void stop() {
+        Spark.awaitInitialization();
         Spark.stop();
     }
 

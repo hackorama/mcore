@@ -2,6 +2,9 @@ package com.hackorama.mcore.common;
 
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
@@ -13,7 +16,9 @@ import com.hackorama.mcore.service.workspace.WorkspaceService;
 
 public class TestUtil {
 
-    private static final long DEFUALT_WAIT_SECONDS = 2;
+    private static Logger logger = LoggerFactory.getLogger(TestUtil.class);
+
+    private static final long DEFUALT_WAIT_SECONDS = 3;
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
     private static volatile Server server = null;
     private static volatile Service service = null;
@@ -38,6 +43,7 @@ public class TestUtil {
         initServer();
         if (service == null) {
             service = new EnvironmentService().configureUsing(server).configureUsing(dataStore);
+            TestUtil.waitForService();
         }
         return service;
     }
@@ -46,6 +52,7 @@ public class TestUtil {
         initServer();
         if (service == null) {
             service = new GroupService().configureUsing(server).configureUsing(dataStore);
+            TestUtil.waitForService();
         }
         return service;
     }
@@ -53,7 +60,7 @@ public class TestUtil {
     private static void initServer() {
         if (server == null) {
             server = new SparkServer("testserver", 4567);
-            TestUtil.waitForService();
+            server.start();
         }
         if (dataStore == null) {
             dataStore = new MemoryDataStore();
@@ -68,6 +75,7 @@ public class TestUtil {
         initServer();
         if (service == null) {
             service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
+            TestUtil.waitForService();
         }
         return service;
     }
