@@ -29,7 +29,7 @@ public class WorkspaceService implements Service {
 
     private static Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
     private static final String WORKSPACE_STORE = "WORKSPACE";
-    private static final String GROUPS_WORKSPACES_MULTI_STORE = "GROUPS_WORKSPACES";
+    private static final String WORKSPACES_GROUPS_STORE = "WORKSPACES_GROUPS";
     private static final String ENIVRNONMENTS_WORKSPACE_STORE = "ENVIRONMENTS_WORKSPACE";
     private static final Gson GSON = new Gson();
     private static DataStore dataStore = new MemoryDataStore();
@@ -43,7 +43,7 @@ public class WorkspaceService implements Service {
         String groupId = request.getParams().get(":groupid");
         if (workspaceId != null && groupId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)
                 && !serviceAvailableAndIsAnInvalidGroup(groupId)) {
-            dataStore.putDuplicate(GROUPS_WORKSPACES_MULTI_STORE, groupId, workspaceId); // Many to Many
+            dataStore.putMultiKey(WORKSPACES_GROUPS_STORE, workspaceId, groupId); // Many to Many
             return new Response(
                     Util.toJsonString("message", "Added Group " + groupId + " to Workspace " + workspaceId));
         }
@@ -131,7 +131,7 @@ public class WorkspaceService implements Service {
 
     private static Workspace insertOwnerGroups(Workspace workspace) {
         List<String> notFoundGroups = new ArrayList<>();
-        dataStore.getByValue(GROUPS_WORKSPACES_MULTI_STORE, workspace.getId()).forEach(groupId -> {
+        dataStore.getMultiKey(WORKSPACES_GROUPS_STORE, workspace.getId()).forEach(groupId -> {
             Group group = getGroup(groupId);
             if (group != null) { // If group service available and found a valid group insert it
                 workspace.getOwners().add(group);
@@ -180,7 +180,7 @@ public class WorkspaceService implements Service {
 
     private static boolean removeGroup(String workspaceId, String groupId) {
         if (workspaceId != null && groupId != null) {
-            dataStore.remove(GROUPS_WORKSPACES_MULTI_STORE, groupId, workspaceId);
+            dataStore.remove(WORKSPACES_GROUPS_STORE, workspaceId, groupId);
             return true;
         }
         return false;

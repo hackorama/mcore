@@ -20,11 +20,10 @@ public class TestUtil {
 
     private static final long DEFUALT_WAIT_SECONDS = 1;
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
-
     private static final int DEFAULT_SERVER_PORT = 4567;
     private static Server server = null;
-    private static volatile Service service = null;
     private static DataStore dataStore = null;
+    private static volatile Service service = null;
 
     public static void clearDataOfServiceInstance() {
         if (dataStore != null) {

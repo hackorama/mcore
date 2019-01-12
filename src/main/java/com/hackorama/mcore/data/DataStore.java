@@ -10,9 +10,9 @@ public interface DataStore {
     public List<String> get(String store);
     public String get(String store, String key);
     public List<String> getByValue(String store, String value);
-    public List<String> getDuplicate(String store, String key);
+    public List<String> getMultiKey(String store, String key);
     public void put(String store, String key, String value);
-    public void putDuplicate(String store, String key, String value);
+    public void putMultiKey(String store, String key, String value);
     public void remove(String store, String key);
     public void remove(String store, String key, String value);
     public Set<String> getKeys(String store);

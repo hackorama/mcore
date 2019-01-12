@@ -55,7 +55,7 @@ public class MapdbDataStore implements DataStore {
     }
 
     @Override
-    public List<String> getDuplicate(String store, String key) {
+    public List<String> getMultiKey(String store, String key) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -67,7 +67,7 @@ public class MapdbDataStore implements DataStore {
     }
 
     @Override
-    public void putDuplicate(String store, String key, String value) {
+    public void putMultiKey(String store, String key, String value) {
         // TODO Auto-generated method stub
 
     }
