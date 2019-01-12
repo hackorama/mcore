@@ -58,6 +58,8 @@ test {
     dependsOn cleanTest
 }
 
+check.dependsOn jacocoTestReport
+
 spotbugs {
     toolVersion = '3.1.10'
     ignoreFailures = true
