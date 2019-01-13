@@ -91,7 +91,7 @@ public class MemoryDataStore  implements DataStore {
             if(multiKeyStores.containsKey(store)) {
                 throw new RuntimeException("Another multi key store already exists with the same name " + store);
             }
-            logger.info("Creatred data store {}", store);
+            logger.info("Created data store {}", store);
             singleKeyStores.put(store, new HashMap<String, String>());
         }
         singleKeyStores.get(store).put(key, value);
@@ -99,7 +99,7 @@ public class MemoryDataStore  implements DataStore {
 
     @Override
     public void putMultiKey(String store, String key, String value) {
-            if(!multiKeyStores.containsKey(store)) {
+        if (!multiKeyStores.containsKey(store)) {
             if (singleKeyStores.containsKey(store)) {
                 throw new RuntimeException("Another store already exists with the same name " + store);
             }
