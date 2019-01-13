@@ -4,13 +4,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 
-public class MemoryDataStoreTest extends DataStoreTest {
+public class MapdbDataStoreTest extends DataStoreTest {
 
     @Before
     public void setUp() throws Exception {
         if (dataStore == null) {
-            dataStore = new MemoryDataStore();
+            dataStore = new MapdbDataStore();
         }
     }
 
