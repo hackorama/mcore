@@ -22,8 +22,13 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient-cache:4.3.6' // rest client caching 
     implementation 'org.mapdb:mapdb:3.0.4' // embedded database 
     implementation 'com.sparkjava:spark-core:2.7.2' // rest framework
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.0.3.RELEASE' // rest framework
 
     testImplementation 'junit:junit:4.12'
+}
+
+configurations {
+    all*.exclude module : 'spring-boot-starter-logging'
 }
 
 // code formatting
