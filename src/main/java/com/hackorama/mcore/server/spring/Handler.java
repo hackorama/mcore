@@ -11,9 +11,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class Handler {
 
-	public Mono<ServerResponse> all(ServerRequest request) {
-		return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).body(
-				BodyInserters.fromObject(request.methodName() + " " + request.path() + " " + request.pathVariables()));
-	}
+    public Mono<ServerResponse> all(ServerRequest request) {
+        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).body(
+                BodyInserters.fromObject(request.methodName() + " " + request.path() + " " + request.pathVariables()));
+    }
 
 }

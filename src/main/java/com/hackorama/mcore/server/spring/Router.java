@@ -11,17 +11,17 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @Configuration
 public class Router {
 
-	@Bean
-	public RouterFunction<ServerResponse> route(Handler handler) {
+    @Bean
+    public RouterFunction<ServerResponse> route(Handler handler) {
 
-		return RouterFunctions
-				.route(RequestPredicates.GET("/one").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)), handler::all)
-				.andRoute(RequestPredicates.GET("/two").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
-						handler::all)
-				.andRoute(RequestPredicates.GET("/three").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
-						handler::all)
-				.andRoute(RequestPredicates.GET("/three/{id}").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
-						handler::all);
-	}
+        return RouterFunctions
+                .route(RequestPredicates.GET("/one").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)), handler::all)
+                .andRoute(RequestPredicates.GET("/two").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
+                        handler::all)
+                .andRoute(RequestPredicates.GET("/three").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
+                        handler::all)
+                .andRoute(RequestPredicates.GET("/three/{id}").and(RequestPredicates.accept(MediaType.TEXT_PLAIN)),
+                        handler::all);
+    }
 
 }
