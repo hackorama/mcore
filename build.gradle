@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.mapdb:mapdb:3.0.4' // embedded database 
     implementation 'com.sparkjava:spark-core:2.7.2' // rest framework
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.0.3.RELEASE' // rest framework
+    implementation 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
 
     testImplementation 'junit:junit:4.12'
 }
