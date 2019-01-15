@@ -3,6 +3,7 @@ package com.hackorama.mcore.server.spark;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.glassfish.jersey.uri.UriTemplate;
 
 import spark.Request;
 import spark.Response;
@@ -21,34 +26,40 @@ import com.hackorama.mcore.server.Server;
 
 public class SparkServer implements Server {
 
-    int port = 8080;
-    String name;
-
     private static Map<HttpMethod, Map<String, Method>> handlerMap = new HashMap<>();
+    private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
+
+    private int port = 8080;
+    private String name;
+
     {
         handlerMap.put(HttpMethod.GET, new HashMap<>());
         handlerMap.put(HttpMethod.POST, new HashMap<>());
         handlerMap.put(HttpMethod.PUT, new HashMap<>());
         handlerMap.put(HttpMethod.DELETE, new HashMap<>());
     }
-    private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
 
-    public static String router(Request req, Response res)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        // res.type("application/json");
-        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(req.body(), req.params()); // TODO
-        String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
-                req.params());
-        if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
-                    .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).invoke(null, request);
-            res.status(response.getStatus());
-            res.body(response.getBody());
-        } else {
-            res.status(HttpURLConnection.HTTP_NOT_FOUND);
-            res.body(Util.toJsonString("message", "404 Not found"));
-        }
-        return res.body();
+    private static Map<String, String> formatParams(Map<String, String> params) {
+        Map<String, String> parameters = new HashMap<>();
+        params.forEach((k, v) -> {
+            if (k.startsWith(":")) {
+                parameters.put(k.substring(1), v);
+            } else {
+                parameters.put(k, v);
+            }
+        });
+        return parameters;
+    }
+
+    public static String formatPathVariable(String path) {
+        UriTemplate uriTemplate = new UriTemplate(path);
+        Map<String, String> parameters = new HashMap<>();
+        uriTemplate.getTemplateVariables().forEach(e -> {
+            parameters.put(e, ":" + e);
+        });
+        UriBuilder builder = UriBuilder.fromPath(path);
+        URI output = builder.buildFromMap(parameters);
+        return output.toString();
     }
 
     private static String getMatchingPath(Map<String, Method> paths, String path, Map<String, String> paramValues) {
@@ -69,6 +80,23 @@ public class SparkServer implements Server {
         return null;
     }
 
+    public static String router(Request req, Response res)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(req.body(), formatParams(req.params())); // TODO
+        String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
+                req.params());
+        if (matchingPath != null) {
+            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
+                    .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).invoke(null, request);
+            res.status(response.getStatus());
+            res.body(response.getBody());
+        } else {
+            res.status(HttpURLConnection.HTTP_NOT_FOUND);
+            res.body(Util.toJsonString("message", "404 Not found"));
+        }
+        return res.body();
+    }
+
     public SparkServer(String name) {
         this.name = name;
     }
@@ -84,25 +112,46 @@ public class SparkServer implements Server {
     }
 
     @Override
+    public void removeRoutes(String path) {
+        handlerMap.get(HttpMethod.GET).entrySet().removeIf(e -> e.getKey().startsWith(path));
+        handlerMap.get(HttpMethod.POST).entrySet().removeIf(e -> e.getKey().startsWith(path));
+        handlerMap.get(HttpMethod.PUT).entrySet().removeIf(e -> e.getKey().startsWith(path));
+        handlerMap.get(HttpMethod.DELETE).entrySet().removeIf(e -> e.getKey().startsWith(path));
+    }
+
+    @Override
     public void setRoutes(HttpMethod method, String path, Method handler) {
-        handlerMap.get(method).put(path, handler);
-        trackParamList(path);
+        String sparkPath = formatPathVariable(path);
+        handlerMap.get(method).put(sparkPath, handler);
+        trackParamList(sparkPath);
         switch (method) {
         case GET:
-            Spark.get(path, SparkServer::router);
+            Spark.get(sparkPath, SparkServer::router);
             break;
         case POST:
-            Spark.post(path, SparkServer::router);
+            Spark.post(sparkPath, SparkServer::router);
             break;
         case PUT:
-            Spark.put(path, SparkServer::router);
+            Spark.put(sparkPath, SparkServer::router);
             break;
         case DELETE:
-            Spark.delete(path, SparkServer::router);
+            Spark.delete(sparkPath, SparkServer::router);
             break;
         default:
             break;
         }
+    };
+
+    @Override
+    public boolean start() {
+        Spark.port(port);
+        return true;
+    }
+
+    @Override
+    public void stop() {
+        Spark.awaitInitialization();
+        Spark.stop();
     }
 
     private void trackParamList(String path) {
@@ -111,26 +160,6 @@ public class SparkServer implements Server {
         if (!params.isEmpty()) {
             paramListMap.put(path, params);
         }
-    }
-
-    @Override
-    public boolean start() {
-        Spark.port(port);
-        return true;
-    };
-
-    @Override
-    public void stop() {
-        Spark.awaitInitialization();
-        Spark.stop();
-    }
-
-    @Override
-    public void removeRoutes(String path) {
-        handlerMap.get(HttpMethod.GET).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.POST).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.PUT).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.DELETE).entrySet().removeIf(e -> e.getKey().startsWith(path));
     }
 
 }

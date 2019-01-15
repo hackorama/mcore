@@ -27,14 +27,14 @@ public class GroupService implements Service {
     }
 
     public static Response deleteGroup(Request request) {
-        dataStore.remove(STORE_NAME, request.getParams().get(":id"));
+        dataStore.remove(STORE_NAME, request.getParams().get("id"));
         return new Response("");
     }
 
     public static Response editGroup(Request request) {
         Gson gson = GSON;
         Group group = gson.fromJson(request.getBody(), Group.class);
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if (id != null) { // updating existing
             group.setId(id);
         } else { // adding as new
@@ -45,7 +45,7 @@ public class GroupService implements Service {
     }
 
     public static Response getGroup(Request request) {
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if (id == null) {
             List<Group> groups = new ArrayList<>();
             for (String data : dataStore.get(STORE_NAME)) {
@@ -79,10 +79,10 @@ public class GroupService implements Service {
         ;
         try {
             server.setRoutes(HttpMethod.GET, "/group", GroupService.class.getMethod("getGroup", Request.class));
-            server.setRoutes(HttpMethod.GET, "/group/:id", GroupService.class.getMethod("getGroup", Request.class));
+            server.setRoutes(HttpMethod.GET, "/group/{id}", GroupService.class.getMethod("getGroup", Request.class));
             server.setRoutes(HttpMethod.POST, "/group", GroupService.class.getMethod("createGroup", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/group/:id", GroupService.class.getMethod("editGroup", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/group/:id",
+            server.setRoutes(HttpMethod.PUT, "/group/{id}", GroupService.class.getMethod("editGroup", Request.class));
+            server.setRoutes(HttpMethod.DELETE, "/group/{id}",
                     GroupService.class.getMethod("deleteGroup", Request.class));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace(); // TODO implement checked exception

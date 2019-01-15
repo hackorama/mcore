@@ -26,14 +26,14 @@ public class EnvironmentService implements Service {
     }
 
     public static Response deleteEnvironment(Request request) {
-        dataStore.remove(STORE_NAME, request.getParams().get(":id"));
+        dataStore.remove(STORE_NAME, request.getParams().get("id"));
         return new Response("");
     }
 
     public static Response editEnvironment(Request request) {
         Gson gson = GSON;
         Environment environment = gson.fromJson(request.getBody(), Environment.class);
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if(id != null) { // updating existing
             environment.setId(id);
         } else { // adding as new
@@ -44,9 +44,9 @@ public class EnvironmentService implements Service {
     }
 
     public static Response getEnvironment(Request request) {
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if(id != null) {
-            return new Response(dataStore.get(STORE_NAME, request.getParams().get(":id")));
+            return new Response(dataStore.get(STORE_NAME, request.getParams().get("id")));
         } else {
             List<Environment> environments = new ArrayList<>(); //TODO use gson parsing
             for(String data : dataStore.get(STORE_NAME)) {
@@ -75,10 +75,10 @@ public class EnvironmentService implements Service {
         EnvironmentService.setServer(server);
         try {
             server.setRoutes(HttpMethod.GET, "/environment", EnvironmentService.class.getMethod("getEnvironment", Request.class));
-            server.setRoutes(HttpMethod.GET, "/environment/:id", EnvironmentService.class.getMethod("getEnvironment", Request.class));
+            server.setRoutes(HttpMethod.GET, "/environment/{id}", EnvironmentService.class.getMethod("getEnvironment", Request.class));
             server.setRoutes(HttpMethod.POST, "/environment", EnvironmentService.class.getMethod("createEnvironment", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/environment/:id", EnvironmentService.class.getMethod("editEnvironment", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/environment/:id", EnvironmentService.class.getMethod("deleteEnvironment", Request.class));
+            server.setRoutes(HttpMethod.PUT, "/environment/{id}", EnvironmentService.class.getMethod("editEnvironment", Request.class));
+            server.setRoutes(HttpMethod.DELETE, "/environment/{id}", EnvironmentService.class.getMethod("deleteEnvironment", Request.class));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace(); //TODO implement checked exception
         }

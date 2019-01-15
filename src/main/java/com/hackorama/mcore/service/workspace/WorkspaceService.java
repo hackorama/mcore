@@ -39,8 +39,8 @@ public class WorkspaceService implements Service {
     private static String groupServiceURL;
 
     public static Response addGroup(Request request) {
-        String workspaceId = request.getParams().get(":id");
-        String groupId = request.getParams().get(":groupid");
+        String workspaceId = request.getParams().get("id");
+        String groupId = request.getParams().get("groupid");
         if (workspaceId != null && groupId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)
                 && !serviceAvailableAndIsAnInvalidGroup(groupId)) {
             dataStore.putMultiKey(WORKSPACES_GROUPS_STORE, workspaceId, groupId); // Many to Many
@@ -56,14 +56,14 @@ public class WorkspaceService implements Service {
     }
 
     public static Response deleteWorkspace(Request request) {
-        dataStore.remove(WORKSPACE_STORE, request.getParams().get(":id"));
+        dataStore.remove(WORKSPACE_STORE, request.getParams().get("id"));
         return new Response("");
     }
 
     public static Response editWorkspace(Request request) {
         Gson gson = GSON;
         Workspace workspace = gson.fromJson(request.getBody(), Workspace.class);
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if (id == null) { // adding as new
             workspace.setId();
         } else if (dataStore.contains(WORKSPACE_STORE, id)) { // updating existing
@@ -76,7 +76,7 @@ public class WorkspaceService implements Service {
     }
 
     public static Response getComponent(Request request) {
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if (id != null) {
             Map<String, List<String>> nodes = new HashMap<>();
             if (dataStore.contains(WORKSPACE_STORE, id)) {
@@ -102,7 +102,7 @@ public class WorkspaceService implements Service {
     }
 
     public static Response getWorkspace(Request request) {
-        String id = request.getParams().get(":id");
+        String id = request.getParams().get("id");
         if (id == null) {
             List<Workspace> workspaces = new ArrayList<>(); // TODO use gson parsing
             for (String data : dataStore.get(WORKSPACE_STORE)) {
@@ -117,7 +117,7 @@ public class WorkspaceService implements Service {
     }
 
     public static Response getWorkspaceEnvironments(Request request) {
-        String workspaceId = request.getParams().get(":id");
+        String workspaceId = request.getParams().get("id");
         if (workspaceId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)) {
             List<String> environmentList = dataStore.getByValue(ENIVRNONMENTS_WORKSPACE_STORE, workspaceId);
             environmentList.forEach(envId -> {
@@ -155,8 +155,8 @@ public class WorkspaceService implements Service {
     }
 
     public static Response linkEnvironment(Request request) {
-        String workspaceId = request.getParams().get(":id");
-        String envId = request.getParams().get(":envid");
+        String workspaceId = request.getParams().get("id");
+        String envId = request.getParams().get("envid");
         if (workspaceId != null && envId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)
                 && !serviceAvailableAndIsAnInvalidEnvironment(envId)) {
             dataStore.put(ENIVRNONMENTS_WORKSPACE_STORE, envId, workspaceId); // Many to One
@@ -168,8 +168,8 @@ public class WorkspaceService implements Service {
     }
 
     public static Response removeGroup(Request request) {
-        String workspaceId = request.getParams().get(":id");
-        String groupId = request.getParams().get(":groupid");
+        String workspaceId = request.getParams().get("id");
+        String groupId = request.getParams().get("groupid");
         if (removeGroup(workspaceId, groupId)) {
             return new Response(
                     Util.toJsonString("message", "Removed Group " + groupId + " from Workspace " + workspaceId));
@@ -205,8 +205,8 @@ public class WorkspaceService implements Service {
     }
 
     public static Response unlinkEnvironment(Request request) {
-        String workspaceId = request.getParams().get(":id");
-        String environmentId = request.getParams().get(":envid");
+        String workspaceId = request.getParams().get("id");
+        String environmentId = request.getParams().get("envid");
         if (workspaceId != null && environmentId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)) {
             dataStore.remove(ENIVRNONMENTS_WORKSPACE_STORE, environmentId);
             return new Response(Util.toJsonString("message",
@@ -261,27 +261,27 @@ public class WorkspaceService implements Service {
         try {
             server.setRoutes(HttpMethod.GET, "/workspace",
                     WorkspaceService.class.getMethod("getWorkspace", Request.class));
-            server.setRoutes(HttpMethod.GET, "/workspace/:id",
+            server.setRoutes(HttpMethod.GET, "/workspace/{id}",
                     WorkspaceService.class.getMethod("getWorkspace", Request.class));
-            server.setRoutes(HttpMethod.GET, "/workspace/:id/environment",
+            server.setRoutes(HttpMethod.GET, "/workspace/{id}/environment",
                     WorkspaceService.class.getMethod("getWorkspaceEnvironments", Request.class));
             server.setRoutes(HttpMethod.POST, "/workspace",
                     WorkspaceService.class.getMethod("createWorkspace", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/workspace/:id",
+            server.setRoutes(HttpMethod.PUT, "/workspace/{id}",
                     WorkspaceService.class.getMethod("editWorkspace", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/:id",
+            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}",
                     WorkspaceService.class.getMethod("deleteWorkspace", Request.class));
-            server.setRoutes(HttpMethod.POST, "/workspace/:id/group/:groupid",
+            server.setRoutes(HttpMethod.POST, "/workspace/{id}/group/{groupid}",
                     WorkspaceService.class.getMethod("addGroup", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/:id/group/:groupid",
+            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/group/{groupid}",
                     WorkspaceService.class.getMethod("removeGroup", Request.class));
-            server.setRoutes(HttpMethod.POST, "/workspace/:id/environment/:envid",
+            server.setRoutes(HttpMethod.POST, "/workspace/{id}/environment/{envid}",
                     WorkspaceService.class.getMethod("linkEnvironment", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/:id/environment/:envid",
+            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/environment/{envid}",
                     WorkspaceService.class.getMethod("unlinkEnvironment", Request.class));
             server.setRoutes(HttpMethod.GET, "/component",
                     WorkspaceService.class.getMethod("getComponent", Request.class));
-            server.setRoutes(HttpMethod.GET, "/component/:id",
+            server.setRoutes(HttpMethod.GET, "/component/{id}",
                     WorkspaceService.class.getMethod("getComponent", Request.class));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace(); // TODO implement checked exception
