@@ -13,17 +13,22 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-simple:1.7.21' // logging
+    implementation 'org.slf4j:slf4j-simple:1.7.25' // logging
     implementation 'org.apache.commons:commons-lang3:3.8.1' // number and string utils
-    implementation 'org.aeonbits.owner:owner:1.0.8' // configuration file handling
-    implementation 'com.google.guava:guava:21.0' // multimap implementation for many to many
-    implementation 'com.google.code.gson:gson:2.8.5' // json library 
-    implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
-    implementation 'org.apache.httpcomponents:httpclient-cache:4.3.6' // rest client caching 
-    implementation 'org.mapdb:mapdb:3.0.4' // embedded database 
-    implementation 'com.sparkjava:spark-core:2.7.2' // rest framework
-    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.0.3.RELEASE' // rest framework
     implementation 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
+    implementation 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
+    implementation 'com.google.guava:guava:27.0.1-jre' // multimap implementation for many to many
+    implementation 'com.google.code.gson:gson:2.8.5' // json library 
+
+    implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
+    implementation 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
+
+    implementation 'org.mapdb:mapdb:3.0.7' // embedded database
+    implementation 'redis.clients:jedis:3.0.1'  // redis client
+
+    implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
+
 
     testImplementation 'junit:junit:4.12'
 }
