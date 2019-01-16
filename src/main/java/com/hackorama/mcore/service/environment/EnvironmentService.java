@@ -21,6 +21,12 @@ public class EnvironmentService implements Service {
     private static Server server;
     private static DataStore dataStore = new MemoryDataStore();
 
+    @Override
+    public Service attach(Service service) {
+        service.configureUsing(server);
+        return this;
+    }
+
     public static Response createEnvironment(Request request) {
        return editEnvironment(request);
     }
@@ -86,9 +92,19 @@ public class EnvironmentService implements Service {
     }
 
     @Override
+    public Service start() {
+        if(server == null) {
+            throw new RuntimeException("Please configure a server before starting the servoce");
+        }
+        server.start();
+        return this;
+    }
+
+    @Override
     public void stop() {
-        dataStore.clear(); //TODO FIXME
-        server.removeRoutes("environment"); //TOD FIXME
+        if(server != null) {
+            server.stop();
+        }
     }
 
 }

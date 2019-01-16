@@ -35,6 +35,12 @@ public class WorkspaceService implements Service {
     private static DataStore dataStore = new MemoryDataStore();
     private static Server server;
     private static Client client = new CachingUnirestClient();
+    @Override
+    public Service attach(Service service) {
+        service.configureUsing(server);
+        return this;
+    }
+
     private static String environmentServiceURL;
     private static String groupServiceURL;
 
@@ -256,7 +262,7 @@ public class WorkspaceService implements Service {
     }
 
     @Override
-    public WorkspaceService configureUsing(Server server) {
+    public Service configureUsing(Server server) {
         WorkspaceService.setServer(server);
         try {
             server.setRoutes(HttpMethod.GET, "/workspace",
@@ -291,9 +297,19 @@ public class WorkspaceService implements Service {
     }
 
     @Override
+    public Service start() {
+        if(server == null) {
+            throw new RuntimeException("Please configure a server before starting the servoce");
+        }
+        server.start();
+        return this;
+    }
+
+    @Override
     public void stop() {
-        dataStore.clear(); // TODO FIXME
-        server.removeRoutes("workspace"); // TOD FIXME
+        if(server != null) {
+            server.stop();
+        }
     }
 
 }

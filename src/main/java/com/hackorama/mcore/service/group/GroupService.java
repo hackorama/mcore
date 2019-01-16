@@ -22,6 +22,12 @@ public class GroupService implements Service {
     private static DataStore dataStore = new MemoryDataStore();
     private static Server server;
 
+    @Override
+    public Service attach(Service service) {
+        service.configureUsing(server);
+        return this;
+    }
+
     public static Response createGroup(Request request) {
         return editGroup(request);
     }
@@ -91,9 +97,19 @@ public class GroupService implements Service {
     }
 
     @Override
+    public Service start() {
+        if(server == null) {
+            throw new RuntimeException("Please configure a server before starting the servoce");
+        }
+        server.start();
+        return this;
+    }
+
+    @Override
     public void stop() {
-        dataStore.clear(); // TODO FIXME
-        server.removeRoutes("group"); // TOD FIXME
+        if(server != null) {
+            server.stop();
+        }
     }
 
 }
