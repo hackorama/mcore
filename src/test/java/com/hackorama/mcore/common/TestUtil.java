@@ -19,8 +19,12 @@ public class TestUtil {
     private static Logger logger = LoggerFactory.getLogger(TestUtil.class);
 
     private static final long DEFUALT_WAIT_SECONDS = 1;
-    private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:4567";
     private static final int DEFAULT_SERVER_PORT = 4567;
+    private static final int DEFAULT_GROUP_SERVER_PORT = 4568;
+    private static final int DEFAULT_ENV_SERVER_PORT = 4569;
+    private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_SERVER_PORT;
+    private static final String DEFAULT_GROUP_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_GROUP_SERVER_PORT;
+    private static final String DEFAULT_ENV_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_ENV_SERVER_PORT;
     private static Server server = null;
     private static DataStore dataStore = null;
     private static volatile Service service = null;
@@ -43,7 +47,7 @@ public class TestUtil {
     public static Service initEnvServiceInstance() {
         initServer();
         if (service == null) {
-            service = new EnvironmentService().configureUsing(server).configureUsing(dataStore);
+            service = new EnvironmentService().configureUsing(server).configureUsing(dataStore).start();
             TestUtil.waitForService();
             logger.info("Started Environment Service on server {}", server.getName());
         }
@@ -53,7 +57,7 @@ public class TestUtil {
     public static Service initGroupServiceInstance() {
         initServer();
         if (service == null) {
-            service = new GroupService().configureUsing(server).configureUsing(dataStore);
+            service = new GroupService().configureUsing(server).configureUsing(dataStore).start();
             TestUtil.waitForService();
             logger.info("Started Group Service on server {}", server.getName());
         }
@@ -63,8 +67,7 @@ public class TestUtil {
     private static synchronized void initServer() {
         if (server == null) {
             server = new SparkServer("testserver", DEFAULT_SERVER_PORT);
-            server.start();
-            logger.info("Started Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
         }
         if (dataStore == null) {
             dataStore = new MemoryDataStore();
@@ -75,10 +78,21 @@ public class TestUtil {
         return initWorkSpaceServiceInstance();
     }
 
+    public static Service initWorkSpaceGroupEnvServiceInstance() {
+        initServer();
+        if (service == null) {
+            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore).attach(new GroupService())
+                    .attach(new EnvironmentService()).start();
+            TestUtil.waitForService();
+            logger.info("Started Workspace Service on server {}", server.getName());
+        }
+        return service;
+    }
+
     public static Service initWorkSpaceServiceInstance() {
         initServer();
         if (service == null) {
-            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
+            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore).start();
             TestUtil.waitForService();
             logger.info("Started Workspace Service on server {}", server.getName());
         }
@@ -110,6 +124,22 @@ public class TestUtil {
 
     // Don't let anyone else instantiate this class
     private TestUtil() {
+    }
+
+    public static String defaultGroupServerEndpoint() {
+        return DEFAULT_GROUP_SERVER_ENDPOINT;
+    }
+
+    public static String defaultEnvServerEndpoint() {
+        return DEFAULT_ENV_SERVER_ENDPOINT;
+    }
+
+    public static int defaultGroupServerPort() {
+        return DEFAULT_GROUP_SERVER_PORT;
+    }
+
+    public static int defaultEnvServerPort() {
+        return DEFAULT_ENV_SERVER_PORT;
     }
 
 }
