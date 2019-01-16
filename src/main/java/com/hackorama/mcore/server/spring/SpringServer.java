@@ -38,11 +38,6 @@ public class SpringServer implements Server {
     }
 
     @Override
-    public void removeRoutes(String path) {
-        new RuntimeException("Removing routes is not supported with this server implementation");
-    }
-
-    @Override
     public void setRoutes(HttpMethod method, String path, Method handler) {
         Handler.getHandlerMap().get(method).put(path, handler);
         trackParamList(path);

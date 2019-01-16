@@ -50,7 +50,6 @@ public class SparkServer implements Server {
         });
         return parameters;
     }
-
     public static String formatPathVariable(String path) {
         UriTemplate uriTemplate = new UriTemplate(path);
         Map<String, String> parameters = new HashMap<>();
@@ -106,17 +105,24 @@ public class SparkServer implements Server {
         this.port = port;
     }
 
-    @Override
-    public String getName() {
-        return name;
+    private void activateRoutes() {
+        handlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
+            Spark.get(path, SparkServer::router);
+        });
+        handlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
+            Spark.post(path, SparkServer::router);
+        });
+        handlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
+            Spark.put(path, SparkServer::router);
+        });
+        handlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
+            Spark.delete(path, SparkServer::router);
+        });
     }
 
     @Override
-    public void removeRoutes(String path) {
-        handlerMap.get(HttpMethod.GET).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.POST).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.PUT).entrySet().removeIf(e -> e.getKey().startsWith(path));
-        handlerMap.get(HttpMethod.DELETE).entrySet().removeIf(e -> e.getKey().startsWith(path));
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -124,27 +130,13 @@ public class SparkServer implements Server {
         String sparkPath = formatPathVariable(path);
         handlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);
-        switch (method) {
-        case GET:
-            Spark.get(sparkPath, SparkServer::router);
-            break;
-        case POST:
-            Spark.post(sparkPath, SparkServer::router);
-            break;
-        case PUT:
-            Spark.put(sparkPath, SparkServer::router);
-            break;
-        case DELETE:
-            Spark.delete(sparkPath, SparkServer::router);
-            break;
-        default:
-            break;
-        }
-    };
+
+    }
 
     @Override
     public boolean start() {
         Spark.port(port);
+        activateRoutes();
         return true;
     }
 

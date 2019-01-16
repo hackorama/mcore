@@ -15,6 +15,4 @@ public interface Server {
 
     public void setRoutes(HttpMethod method, String path, Method handler);
 
-    public void removeRoutes(String path);
-
 }
