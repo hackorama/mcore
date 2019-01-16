@@ -9,6 +9,7 @@ import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
+import com.hackorama.mcore.server.spring.SpringServer;
 import com.hackorama.mcore.service.Service;
 import com.hackorama.mcore.service.environment.EnvironmentService;
 import com.hackorama.mcore.service.group.GroupService;
@@ -66,8 +67,15 @@ public class TestUtil {
 
     private static synchronized void initServer() {
         if (server == null) {
-            server = new SparkServer("testserver", DEFAULT_SERVER_PORT);
-            logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            String serverType = System.getenv("SERVER_TYPE");
+            logger.info("Using server type = {}", serverType);
+            if ("SPRING".equalsIgnoreCase(serverType)) {
+                server = new SpringServer("Spring Server", DEFAULT_SERVER_PORT);
+                logger.info("Created Spring Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            } else {
+                server = new SparkServer("Spark Server", DEFAULT_SERVER_PORT);
+                logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            }
         }
         if (dataStore == null) {
             dataStore = new MemoryDataStore();
