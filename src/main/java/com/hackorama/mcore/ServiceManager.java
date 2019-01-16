@@ -2,8 +2,6 @@ package com.hackorama.mcore;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,7 @@ import com.hackorama.mcore.service.workspace.WorkspaceService;
 public class ServiceManager {
 
     private static Logger logger = LoggerFactory.getLogger(ServiceManager.class);
-    private static List<Service> services = new ArrayList<>();
+    private static Service service;
     private static Server server;
 
     /**
@@ -58,35 +56,36 @@ public class ServiceManager {
                     Configuration.serviceConfig().environmentServerPort());
             ServiceManager.server = new SparkServer("environment",
                     Configuration.serviceConfig().environmentServerPort());
-            ServiceManager.services.add(new EnvironmentService().configureUsing(server).configureUsing(dataStore));
+            ServiceManager.service = new EnvironmentService().configureUsing(server).configureUsing(dataStore);
         } else if (Configuration.serviceConfig().groupServerPort() != 0) {
             logger.info("Starting Group Service server on 0.0.0.0:{} ...",
                     Configuration.serviceConfig().groupServerPort());
             ServiceManager.server = new SparkServer("group", Configuration.serviceConfig().groupServerPort());
-            ServiceManager.services.add(new GroupService().configureUsing(server).configureUsing(dataStore));
+            ServiceManager.service = new GroupService().configureUsing(server).configureUsing(dataStore);
         } else {
             int port = Configuration.serviceConfig().workspaceServerPort() != 0
                     ? Configuration.serviceConfig().workspaceServerPort()
                     : Configuration.defaultConfig().workspaceServerPort();
             logger.info("Starting Workspace Service server on 0.0.0.0:{} ...", port);
             ServiceManager.server = new SparkServer("workspace", port);
-            ServiceManager.services.add(new WorkspaceService().configureUsing(server).configureUsing(dataStore));
+            ServiceManager.service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
             if (Configuration.serviceConfig().groupServiceURL() == null) {
                 logger.warn(
                         "No service url configured for Group Service, so starting a group service on the same server as Workspace Service ...");
-                ServiceManager.services.add(new GroupService().configureUsing(server).configureUsing(dataStore));
+                ServiceManager.service.attach(new GroupService().configureUsing(dataStore));
             } else {
                 logger.info("Using external Group Service at {}", Configuration.serviceConfig().groupServiceURL());
             }
             if (Configuration.serviceConfig().environmentServiceURL() == null) {
                 logger.warn(
                         "No service url configured for Environment Service, so starting an Environment Service on the same server as Workspace Service ...");
-                ServiceManager.services.add(new EnvironmentService().configureUsing(server).configureUsing(dataStore));
+                ServiceManager.service.attach(new EnvironmentService().configureUsing(dataStore));
             } else {
                 logger.info("Using external Environment Service at {}",
                         Configuration.serviceConfig().environmentServiceURL());
             }
         }
+        ServiceManager.service.start();
     }
 
     /**
@@ -103,10 +102,7 @@ public class ServiceManager {
      * Stop the Service Manager
      */
     public static void stop() {
-        services.stream().forEach(Service::stop);
-        if (server != null) {
-            server.stop();
-        }
+        ServiceManager.service.stop();
     }
 
 }
