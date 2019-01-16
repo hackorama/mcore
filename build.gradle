@@ -66,12 +66,11 @@ test {
 
 check.dependsOn jacocoTestReport
 
+// code quality
+
 spotbugs {
     toolVersion = '3.1.10'
-    ignoreFailures = true
 }
-
-// code quality
 
 tasks.withType(com.github.spotbugs.SpotBugsTask) {
     reports {
