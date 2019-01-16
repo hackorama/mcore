@@ -59,11 +59,18 @@ jacocoTestReport {
 }
 
 test {
+    environment 'SERVER_TYPE', 'SPARK' // Default tests using Spark server
     maxParallelForks = 1
     finalizedBy jacocoTestReport
     dependsOn cleanTest
 }
 
+task testSpring(type: Test) {
+    environment 'SERVER_TYPE', 'SPRING' // Repeat all the tests with Spring server
+    dependsOn cleanTest
+}
+
+test.dependsOn testSpring
 check.dependsOn jacocoTestReport
 
 // code quality
