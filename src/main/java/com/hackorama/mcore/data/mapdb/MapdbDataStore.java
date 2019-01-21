@@ -65,7 +65,6 @@ public class MapdbDataStore implements DataStore {
         return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().get(key);
     }
 
-    @SuppressWarnings("unchecked") // Object to String conversion
     @Override
     public List<String> getByValue(String store, String value) {
         if (multiKeyStoreNames.contains(store)) {
@@ -84,7 +83,6 @@ public class MapdbDataStore implements DataStore {
                 .stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Set<String> getKeys(String store) {
         return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().keySet();
