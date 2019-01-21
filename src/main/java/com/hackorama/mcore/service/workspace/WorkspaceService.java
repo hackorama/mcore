@@ -264,34 +264,18 @@ public class WorkspaceService implements Service {
     @Override
     public Service configureUsing(Server server) {
         WorkspaceService.setServer(server);
-        try {
-            server.setRoutes(HttpMethod.GET, "/workspace",
-                    WorkspaceService.class.getMethod("getWorkspace", Request.class));
-            server.setRoutes(HttpMethod.GET, "/workspace/{id}",
-                    WorkspaceService.class.getMethod("getWorkspace", Request.class));
-            server.setRoutes(HttpMethod.GET, "/workspace/{id}/environment",
-                    WorkspaceService.class.getMethod("getWorkspaceEnvironments", Request.class));
-            server.setRoutes(HttpMethod.POST, "/workspace",
-                    WorkspaceService.class.getMethod("createWorkspace", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/workspace/{id}",
-                    WorkspaceService.class.getMethod("editWorkspace", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}",
-                    WorkspaceService.class.getMethod("deleteWorkspace", Request.class));
-            server.setRoutes(HttpMethod.POST, "/workspace/{id}/group/{groupid}",
-                    WorkspaceService.class.getMethod("addGroup", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/group/{groupid}",
-                    WorkspaceService.class.getMethod("removeGroup", Request.class));
-            server.setRoutes(HttpMethod.POST, "/workspace/{id}/environment/{envid}",
-                    WorkspaceService.class.getMethod("linkEnvironment", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/environment/{envid}",
-                    WorkspaceService.class.getMethod("unlinkEnvironment", Request.class));
-            server.setRoutes(HttpMethod.GET, "/component",
-                    WorkspaceService.class.getMethod("getComponent", Request.class));
-            server.setRoutes(HttpMethod.GET, "/component/{id}",
-                    WorkspaceService.class.getMethod("getComponent", Request.class));
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace(); // TODO implement checked exception
-        }
+        server.setRoutes(HttpMethod.GET, "/workspace", WorkspaceService::getWorkspace);
+        server.setRoutes(HttpMethod.GET, "/workspace/{id}", WorkspaceService::getWorkspace);
+        server.setRoutes(HttpMethod.GET, "/workspace/{id}/environment", WorkspaceService::getWorkspaceEnvironments);
+        server.setRoutes(HttpMethod.POST, "/workspace", WorkspaceService::createWorkspace);
+        server.setRoutes(HttpMethod.PUT, "/workspace/{id}", WorkspaceService::editWorkspace);
+        server.setRoutes(HttpMethod.DELETE, "/workspace/{id}", WorkspaceService::deleteWorkspace);
+        server.setRoutes(HttpMethod.POST, "/workspace/{id}/group/{groupid}", WorkspaceService::addGroup);
+        server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/group/{groupid}", WorkspaceService::removeGroup);
+        server.setRoutes(HttpMethod.POST, "/workspace/{id}/environment/{envid}", WorkspaceService::linkEnvironment);
+        server.setRoutes(HttpMethod.DELETE, "/workspace/{id}/environment/{envid}", WorkspaceService::unlinkEnvironment);
+        server.setRoutes(HttpMethod.GET, "/component", WorkspaceService::getComponent);
+        server.setRoutes(HttpMethod.GET, "/component/{id}", WorkspaceService::getComponent);
         configureOtherServices();
         return this;
     }

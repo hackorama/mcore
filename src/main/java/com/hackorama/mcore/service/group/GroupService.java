@@ -82,17 +82,11 @@ public class GroupService implements Service {
     @Override
     public GroupService configureUsing(Server server) {
         GroupService.setServer(server);
-        ;
-        try {
-            server.setRoutes(HttpMethod.GET, "/group", GroupService.class.getMethod("getGroup", Request.class));
-            server.setRoutes(HttpMethod.GET, "/group/{id}", GroupService.class.getMethod("getGroup", Request.class));
-            server.setRoutes(HttpMethod.POST, "/group", GroupService.class.getMethod("createGroup", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/group/{id}", GroupService.class.getMethod("editGroup", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/group/{id}",
-                    GroupService.class.getMethod("deleteGroup", Request.class));
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace(); // TODO implement checked exception
-        }
+        server.setRoutes(HttpMethod.GET, "/group", GroupService::getGroup);
+        server.setRoutes(HttpMethod.GET, "/group/{id}", GroupService::getGroup);
+        server.setRoutes(HttpMethod.POST, "/group", GroupService::createGroup);
+        server.setRoutes(HttpMethod.PUT, "/group/{id}", GroupService::editGroup);
+        server.setRoutes(HttpMethod.DELETE, "/group/{id}", GroupService::deleteGroup);
         return this;
     }
 

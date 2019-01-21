@@ -79,15 +79,11 @@ public class EnvironmentService implements Service {
     @Override
     public EnvironmentService configureUsing(Server server) {
         EnvironmentService.setServer(server);
-        try {
-            server.setRoutes(HttpMethod.GET, "/environment", EnvironmentService.class.getMethod("getEnvironment", Request.class));
-            server.setRoutes(HttpMethod.GET, "/environment/{id}", EnvironmentService.class.getMethod("getEnvironment", Request.class));
-            server.setRoutes(HttpMethod.POST, "/environment", EnvironmentService.class.getMethod("createEnvironment", Request.class));
-            server.setRoutes(HttpMethod.PUT, "/environment/{id}", EnvironmentService.class.getMethod("editEnvironment", Request.class));
-            server.setRoutes(HttpMethod.DELETE, "/environment/{id}", EnvironmentService.class.getMethod("deleteEnvironment", Request.class));
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace(); //TODO implement checked exception
-        }
+        server.setRoutes(HttpMethod.GET, "/environment", EnvironmentService::getEnvironment);
+        server.setRoutes(HttpMethod.GET, "/environment/{id}", EnvironmentService::getEnvironment);
+        server.setRoutes(HttpMethod.POST, "/environment", EnvironmentService::createEnvironment);
+        server.setRoutes(HttpMethod.PUT, "/environment/{id}", EnvironmentService::editEnvironment);
+        server.setRoutes(HttpMethod.DELETE, "/environment/{id}", EnvironmentService::deleteEnvironment);
         return this;
     }
 
