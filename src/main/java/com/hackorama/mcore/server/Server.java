@@ -1,7 +1,7 @@
 package com.hackorama.mcore.server;
 
 
-import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import com.hackorama.mcore.common.HttpMethod;
 
@@ -13,6 +13,6 @@ public interface Server {
 
     public String getName();
 
-    public void setRoutes(HttpMethod method, String path, Method handler);
+    public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler);
 
 }

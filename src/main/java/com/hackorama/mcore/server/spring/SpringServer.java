@@ -1,12 +1,14 @@
 package com.hackorama.mcore.server.spring;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hackorama.mcore.common.HttpMethod;
+import com.hackorama.mcore.common.Request;
+import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.server.Server;
 
 /**
@@ -38,7 +40,7 @@ public class SpringServer implements Server {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path, Method handler) {
+    public void setRoutes(HttpMethod method, String path,  Function<Request, Response> handler) {
         Handler.getHandlerMap().get(method).put(path, handler);
         trackParamList(path);
     }

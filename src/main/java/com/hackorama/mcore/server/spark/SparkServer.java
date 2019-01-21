@@ -1,15 +1,16 @@
 package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
@@ -26,7 +27,7 @@ import com.hackorama.mcore.server.Server;
 
 public class SparkServer implements Server {
 
-    private static Map<HttpMethod, Map<String, Method>> handlerMap = new HashMap<>();
+    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
 
     private int port = 8080;
@@ -61,7 +62,7 @@ public class SparkServer implements Server {
         return output.toString();
     }
 
-    private static String getMatchingPath(Map<String, Method> paths, String path, Map<String, String> paramValues) {
+    private static String getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>> paths, String path, Map<String, String> paramValues) {
         if (paths.containsKey(path)) {
             return path;
         }
@@ -86,13 +87,14 @@ public class SparkServer implements Server {
                 req.params());
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
-                    .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).invoke(null, request);
+                    .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).apply(request);
             res.status(response.getStatus());
             res.body(response.getBody());
         } else {
             res.status(HttpURLConnection.HTTP_NOT_FOUND);
             res.body(Util.toJsonString("message", "404 Not found"));
         }
+        System.out.println(new Timestamp(System.currentTimeMillis()) + " SPARK " +  req.pathInfo()  + " " + Thread.currentThread().getId() + " " + Thread.currentThread().getName());
         return res.body();
     }
 
@@ -126,7 +128,7 @@ public class SparkServer implements Server {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path, Method handler) {
+    public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         String sparkPath = formatPathVariable(path);
         handlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);

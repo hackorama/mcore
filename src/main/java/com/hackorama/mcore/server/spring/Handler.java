@@ -1,13 +1,14 @@
 package com.hackorama.mcore.server.spring;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.springframework.http.MediaType;
@@ -25,10 +26,10 @@ import com.hackorama.mcore.common.Util;
 @Component
 public class Handler {
 
-    private static Map<HttpMethod, Map<String, Method>> handlerMap = new HashMap<>();
+    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
 
-    public static Map<HttpMethod, Map<String, Method>> getHandlerMap() {
+    public static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> getHandlerMap() {
         if (handlerMap.isEmpty()) {
             handlerMap.put(HttpMethod.GET, new HashMap<>());
             handlerMap.put(HttpMethod.POST, new HashMap<>());
@@ -38,7 +39,7 @@ public class Handler {
         return handlerMap;
     }
 
-    private static String getMatchingPath(Map<String, Method> paths, String path, Map<String, String> paramValues) {
+    private static String getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>> paths, String path, Map<String, String> paramValues) {
         Map<String, String> formattedParamValues = new HashMap<>(); // TODO improve
         paramValues.forEach((k, v) -> {
             formattedParamValues.put("{" + k + "}", v);
@@ -72,9 +73,11 @@ public class Handler {
                 req.bodyToMono(String.class).toFuture().get(), req.pathVariables()); // TODO future get
         String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(req.methodName())), req.path(),
                 req.pathVariables());
+        System.out.println(new Timestamp(System.currentTimeMillis()) + " SPRING " + req.path() + " "
+                + Thread.currentThread().getId() + " " + Thread.currentThread().getName());
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
-                    .get(HttpMethod.valueOf(req.methodName())).get(matchingPath).invoke(null, request);
+                    .get(HttpMethod.valueOf(req.methodName())).get(matchingPath).apply(request);
             BodyBuilder res = ServerResponse.status(response.getStatus());
             return res.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromObject(response.getBody()));
         } else {
