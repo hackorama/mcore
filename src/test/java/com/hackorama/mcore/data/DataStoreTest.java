@@ -18,6 +18,24 @@ public class DataStoreTest {
     }
 
     protected void datastore_insertedValues_matchesOnGettingByKey() {
+
+        dataStore.put("TEST", "ONE", "UNO");
+        dataStore.put("TEST", "TWO", "DOS");
+        dataStore.put("TEST", "THREE", "TRES");
+        assertEquals("UNO", dataStore.get("TEST", "ONE"));
+        assertEquals("DOS", dataStore.get("TEST", "TWO"));
+        assertEquals("TRES", dataStore.get("TEST", "THREE"));
+        assertEquals(3, dataStore.get("TEST").size());
+        assertTrue(dataStore.get("TEST").contains("UNO"));
+        assertTrue(dataStore.get("TEST").contains("DOS"));
+        assertTrue(dataStore.get("TEST").contains("TRES"));
+        dataStore.put("TEST", "FOUR", "QUATTRO_1");
+        dataStore.put("TEST", "FOUR", "QUATTRO_2");
+        assertEquals("QUATTRO_2", dataStore.get("TEST", "FOUR"));
+        dataStore.remove("TEST", "THREE");
+        assertEquals(null, dataStore.get("TEST", "THREE"));
+
+
         dataStore.put("TABLE_ONE", "1_1", "one_one");
         dataStore.put("TABLE_ONE", "1_2", "one_two");
         dataStore.put("TABLE_ONE", "1_3", "one_three");
@@ -68,6 +86,27 @@ public class DataStoreTest {
     }
 
     public void datastore_insertedMultiKeyValues_matchesOnGettingByKey() {
+
+        dataStore.putMultiKey("MULTI_TEST", "ONE", "1_1");
+        dataStore.putMultiKey("MULTI_TEST", "TWO", "2_1");
+        dataStore.putMultiKey("MULTI_TEST", "TWO", "2_2");
+        dataStore.putMultiKey("MULTI_TEST", "THREE", "3_1");
+        dataStore.putMultiKey("MULTI_TEST", "THREE", "3_2");
+        dataStore.putMultiKey("MULTI_TEST", "THREE", "3_3");
+        assertEquals(1, dataStore.getMultiKey("MULTI_TEST", "ONE").size());
+        assertEquals(2, dataStore.getMultiKey("MULTI_TEST", "TWO").size());
+        assertEquals(3, dataStore.getMultiKey("MULTI_TEST", "THREE").size());
+        assertTrue(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_1"));
+        assertTrue(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_2"));
+        assertTrue(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_3"));
+        dataStore.remove("MULTI_TEST", "TWO");
+        assertEquals(0, dataStore.getMultiKey("MULTI_TEST", "TWO").size());
+        dataStore.remove("MULTI_TEST", "THREE", "3_2");
+        assertEquals(2, dataStore.getMultiKey("MULTI_TEST", "THREE").size());
+        assertTrue(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_1"));
+        assertFalse(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_2"));
+        assertTrue(dataStore.getMultiKey("MULTI_TEST", "THREE").contains("3_3"));
+
         dataStore.putMultiKey("TABLE_ONE", "1_1", "one_one");
         dataStore.putMultiKey("TABLE_ONE", "1_2", "one_two");
         dataStore.putMultiKey("TABLE_ONE", "1_3", "one_three");
@@ -83,7 +122,6 @@ public class DataStoreTest {
         dataStore.putMultiKey("TABLE_TWO", "1_0", "two_five");
         dataStore.putMultiKey("TABLE_TWO", "1_0", "two_six");
         dataStore.putMultiKey("TABLE_TWO", "1_7", "two_seven");
-
 
         assertTrue(dataStore.contains("TABLE_ONE", "1_1"));
         assertFalse(dataStore.contains("TABLE_ONE", "false"));
