@@ -1,0 +1,23 @@
+# dot files except .gitignore 
+.*
+!.gitignore
+
+# java 
+*.class
+*.jar
+
+# build
+/build
+
+# gradle
+gradle.properties
+
+# eclipse 
+*.classpath
+*.project
+*.settings
+.metadata/
+
+# logs
+*.log
+*.log.*
