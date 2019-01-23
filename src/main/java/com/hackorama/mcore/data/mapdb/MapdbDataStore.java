@@ -56,8 +56,7 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public List<String> get(String store) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<String>(db.hashMap(store, Serializer.STRING, Serializer.STRING).open().values());
     }
 
     @Override
