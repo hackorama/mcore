@@ -23,8 +23,10 @@ dependencies {
     implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
     implementation 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
 
-    implementation 'org.mapdb:mapdb:3.0.7' // embedded database
-    implementation 'redis.clients:jedis:3.0.1'  // redis client
+    implementation 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
+    implementation 'org.mapdb:mapdb:3.0.7' // embedded key value database
+    implementation 'com.h2database:h2:1.4.197'  // embedded JDBC database
+    implementation 'redis.clients:jedis:3.0.1'  // client for key value store 
 
     implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
