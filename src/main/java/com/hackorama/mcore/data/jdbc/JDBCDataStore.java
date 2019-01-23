@@ -11,6 +11,8 @@ import java.util.Set;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ArrayListHandler;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.hackorama.mcore.data.DataStore;
 
@@ -24,7 +26,10 @@ public class JDBCDataStore implements DataStore {
 
     private static final String DEFAULT_URL = "jdbc:h2:mem:";
     private static final String DEFAULT_DRIVER = "org.h2.Driver";
-    private Set<String> tableNames = new HashSet<String>();
+    private static final int DEFAULT_KEY_SIZE = 256;
+    private static final int DEFAULT_VALUE_SIZE = 256;
+    private Set<String> singleKeyStores = new HashSet<String>();
+    private Set<String> multiKeyStores = new HashSet<String>();
     private QueryRunner queryRunner = new QueryRunner();
     private Connection conn;
 
@@ -65,15 +70,43 @@ public class JDBCDataStore implements DataStore {
 
     @Override
     public boolean contains(String store, String key) {
-        // TODO Auto-generated method stub
-        return false;
+        if (!ifTableExists(store)) {
+            return false; // TODO Debug log
+        }
+        String selectSQL = "SELECT key FROM " + store + " WHERE key = ?";
+        List<Object[]> result = new ArrayList<>();
+        try {
+            result = queryRunner.query(conn, selectSQL, new ArrayListHandler(), key);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+        return !result.isEmpty();
+    }
+
+    private void createMultiTable(String table) {
+        if (!singleKeyStores.contains(table)) {
+            if (multiKeyStores.contains(table)) {
+                throw new RuntimeException("Another store already exists with the same name " + table);
+            }
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " " + "(key VARCHAR(" + DEFAULT_KEY_SIZE + "), "
+                    + "value VARCHAR(" + DEFAULT_VALUE_SIZE + "))";
+            singleKeyStores.add(table);
+            try {
+                queryRunner.execute(conn, createTableSQL);
+            } catch (SQLException e) {
+                e.printStackTrace(); // TODO Custom exception and logging
+            }
+        }
     }
 
     private void createTable(String table) {
-        if (!tableNames.contains(table)) {
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " " + "(key VARCHAR(255), "
-                    + "value VARCHAR(255), PRIMARY KEY (key)) ";
-            tableNames.add(table);
+        if (!multiKeyStores.contains(table)) {
+            if (singleKeyStores.contains(table)) {
+                throw new RuntimeException("Another store already exists with the same name " + table);
+            }
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " " + "(key VARCHAR(" + DEFAULT_KEY_SIZE + "), "
+                    + "value VARCHAR(" + DEFAULT_VALUE_SIZE + "), PRIMARY KEY (key)) ";
+            multiKeyStores.add(table);
             try {
                 queryRunner.execute(conn, createTableSQL);
             } catch (SQLException e) {
@@ -84,45 +117,87 @@ public class JDBCDataStore implements DataStore {
 
     @Override
     public List<String> get(String store) {
-        // TODO Auto-generated method stub
-        return null;
+        return getColumnValues(store, "value");
     }
 
     @Override
     public String get(String store, String key) {
-        createTable(store);
+        String result = null;
+        if (!ifTableExists(store)) {
+            return result; // TODO Debug log
+        }
         String selectSQL = "SELECT value FROM " + store + " WHERE key = ?";
-        List<Object[]> result = new ArrayList<>();
-        ;
         try {
-            result = queryRunner.query(conn, selectSQL, new ArrayListHandler(), key);
+            result = queryRunner.query(conn, selectSQL, new ScalarHandler<String>(), key);
         } catch (SQLException e) {
             e.printStackTrace(); // TODO Custom exception and logging
         }
-        return result.isEmpty() || result.get(0).length == 0 ? null : result.get(0)[0].toString();
+        return result;
     }
 
     @Override
     public List<String> getByValue(String store, String value) {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> resultList = new ArrayList<>();
+        if (!ifTableExists(store)) {
+            return resultList; // TODO Debug log
+        }
+        String selectSQL = "SELECT key FROM " + store + " WHERE value = ?";
+        try {
+            resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), value);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+        return resultList;
+    }
+
+    private List<String> getColumnValues(String store, String column) {
+        List<String> resultList = new ArrayList<>();
+        if (!ifTableExists(store)) {
+            return resultList; // TODO Debug log
+        }
+        String selectSQL = "SELECT " + column + " FROM " + store;
+        try {
+            resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>());
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+        return resultList;
     }
 
     @Override
     public Set<String> getKeys(String store) {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashSet<String>(getColumnValues(store, "key"));
     }
 
     @Override
     public List<String> getMultiKey(String store, String key) {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> resultList = new ArrayList<>();
+        if (!ifTableExists(store)) {
+            return resultList; // TODO Debug log
+        }
+        String selectSQL = "SELECT value FROM " + store + " WHERE key = ?";
+        try {
+            resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), key);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+        return resultList;
     }
 
-    @Override
-    public void put(String store, String key, String value) {
-        createTable(store);
+    private boolean ifTableExists(String table) {
+        return singleKeyStores.contains(table) || multiKeyStores.contains(table); // TODO Check DB
+    }
+
+    private void replace(String store, String key, String value) {
+        String insertSQL = "REPLACE INTO " + store + " " + "VALUES (?, ?)";
+        try {
+            queryRunner.execute(conn, insertSQL, key, value);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+    }
+
+    private void insert(String store, String key, String value) {
         String insertSQL = "INSERT INTO " + store + " " + "VALUES (?, ?)";
         try {
             queryRunner.execute(conn, insertSQL, key, value);
@@ -132,18 +207,41 @@ public class JDBCDataStore implements DataStore {
     }
 
     @Override
+    public void put(String store, String key, String value) {
+        createTable(store);
+        replace(store, key, value);
+    }
+
+    @Override
     public void putMultiKey(String store, String key, String value) {
-        // TODO Auto-generated method stub
+        createMultiTable(store);
+        insert(store, key, value);
     }
 
     @Override
     public void remove(String store, String key) {
-        // TODO Auto-generated method stub
+        if (!ifTableExists(store)) {
+            return; // TODO Debug log
+        }
+        String deleteSQL = "DELETE from " + store + " WHERE key = ?";
+        try {
+            queryRunner.execute(conn, deleteSQL, key);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
     }
 
     @Override
     public void remove(String store, String key, String value) {
-        // TODO Auto-generated method stub
+        if (!ifTableExists(store)) {
+            return; // TODO Debug log
+        }
+        String deleteSQL = "DELETE from " + store + " WHERE key = ? AND value = ?";
+        try {
+            queryRunner.execute(conn, deleteSQL, key, value);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
     }
 
 }
