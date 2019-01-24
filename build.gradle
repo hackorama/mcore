@@ -5,6 +5,7 @@ plugins {
     id 'jacoco'
     id "com.diffplug.gradle.spotless" version "3.16.0"
     id "com.github.spotbugs" version "1.6.8"
+    id 'pmd'
     id "com.github.johnrengelman.shadow" version "4.0.3"
 }
 
@@ -91,6 +92,12 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
         xml.enabled = false
         html.enabled = true
     }
+}
+
+pmd {
+    ignoreFailures = true
+    ruleSetFiles = files(file("config/pmd/ruleset.xml"))
+    ruleSets = []
 }
 
 application {
