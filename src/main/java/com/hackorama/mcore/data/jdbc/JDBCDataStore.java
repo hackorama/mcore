@@ -13,6 +13,8 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ArrayListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hackorama.mcore.data.DataStore;
 
@@ -24,9 +26,11 @@ import com.hackorama.mcore.data.DataStore;
  */
 public class JDBCDataStore implements DataStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(JDBCDataStore.class);
+
     private static final String DEFAULT_URL = "jdbc:h2:mem:";
     private static final String DEFAULT_DRIVER = "org.h2.Driver";
-    private static final int DEFAULT_KEY_SIZE = 256;
+    private static final int DEFAULT_KEY_SIZE = 64;
     private static final int DEFAULT_VALUE_SIZE = 256;
     private Set<String> singleKeyStores = new HashSet<String>();
     private Set<String> multiKeyStores = new HashSet<String>();
@@ -73,7 +77,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return false; // TODO Debug log
         }
-        String selectSQL = "SELECT key FROM " + store + " WHERE key = ?";
+        String selectSQL = "SELECT `key` FROM `" + store + "` WHERE `key` = ?";
+        logger.debug(selectSQL + " [" + key + "]");
         List<Object[]> result = new ArrayList<>();
         try {
             result = queryRunner.query(conn, selectSQL, new ArrayListHandler(), key);
@@ -88,8 +93,9 @@ public class JDBCDataStore implements DataStore {
             if (multiKeyStores.contains(table)) {
                 throw new RuntimeException("Another store already exists with the same name " + table);
             }
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " " + "(key VARCHAR(" + DEFAULT_KEY_SIZE + "), "
-                    + "value VARCHAR(" + DEFAULT_VALUE_SIZE + "))";
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS `" + table + "` (`key` VARCHAR(" + DEFAULT_KEY_SIZE
+                    + "), `value` VARCHAR(" + DEFAULT_VALUE_SIZE + "))";
+            logger.debug(createTableSQL);
             singleKeyStores.add(table);
             try {
                 queryRunner.execute(conn, createTableSQL);
@@ -104,8 +110,9 @@ public class JDBCDataStore implements DataStore {
             if (singleKeyStores.contains(table)) {
                 throw new RuntimeException("Another store already exists with the same name " + table);
             }
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " " + "(key VARCHAR(" + DEFAULT_KEY_SIZE + "), "
-                    + "value VARCHAR(" + DEFAULT_VALUE_SIZE + "), PRIMARY KEY (key)) ";
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS `" + table + "` (`key` VARCHAR(" + DEFAULT_KEY_SIZE
+                    + "), `value` VARCHAR(" + DEFAULT_VALUE_SIZE + "), PRIMARY KEY (`key`)) ";
+            logger.debug(createTableSQL);
             multiKeyStores.add(table);
             try {
                 queryRunner.execute(conn, createTableSQL);
@@ -126,7 +133,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return result; // TODO Debug log
         }
-        String selectSQL = "SELECT value FROM " + store + " WHERE key = ?";
+        String selectSQL = "SELECT `value` FROM `" + store + "` WHERE `key` = ?";
+        logger.debug(selectSQL + " [" + key + "]");
         try {
             result = queryRunner.query(conn, selectSQL, new ScalarHandler<String>(), key);
         } catch (SQLException e) {
@@ -141,7 +149,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return resultList; // TODO Debug log
         }
-        String selectSQL = "SELECT key FROM " + store + " WHERE value = ?";
+        String selectSQL = "SELECT `key` FROM `" + store + "` WHERE `value` = ?";
+        logger.debug(selectSQL + " [" + value + "]");
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), value);
         } catch (SQLException e) {
@@ -155,7 +164,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return resultList; // TODO Debug log
         }
-        String selectSQL = "SELECT " + column + " FROM " + store;
+        String selectSQL = "SELECT `" + column + "` FROM `" + store + "`";
+        logger.debug(selectSQL);
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>());
         } catch (SQLException e) {
@@ -175,7 +185,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return resultList; // TODO Debug log
         }
-        String selectSQL = "SELECT value FROM " + store + " WHERE key = ?";
+        String selectSQL = "SELECT `value` FROM `" + store + "` WHERE `key` = ?";
+        logger.debug(selectSQL + " [" + key + "]");
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), key);
         } catch (SQLException e) {
@@ -189,7 +200,8 @@ public class JDBCDataStore implements DataStore {
     }
 
     private void replace(String store, String key, String value) {
-        String insertSQL = "REPLACE INTO " + store + " " + "VALUES (?, ?)";
+        String insertSQL = "REPLACE INTO `" + store + "` VALUES (?, ?)";
+        logger.debug(insertSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, insertSQL, key, value);
         } catch (SQLException e) {
@@ -198,7 +210,8 @@ public class JDBCDataStore implements DataStore {
     }
 
     private void insert(String store, String key, String value) {
-        String insertSQL = "INSERT INTO " + store + " " + "VALUES (?, ?)";
+        String insertSQL = "INSERT INTO `" + store + "` VALUES (?, ?)";
+        logger.debug(insertSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, insertSQL, key, value);
         } catch (SQLException e) {
@@ -223,7 +236,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return; // TODO Debug log
         }
-        String deleteSQL = "DELETE from " + store + " WHERE key = ?";
+        String deleteSQL = "DELETE FROM `" + store + "` WHERE `key` = ?";
+        logger.debug(deleteSQL + " [" + key + "]");
         try {
             queryRunner.execute(conn, deleteSQL, key);
         } catch (SQLException e) {
@@ -236,7 +250,8 @@ public class JDBCDataStore implements DataStore {
         if (!ifTableExists(store)) {
             return; // TODO Debug log
         }
-        String deleteSQL = "DELETE from " + store + " WHERE key = ? AND value = ?";
+        String deleteSQL = "DELETE FROM `" + store + "` WHERE `key` = ? AND `value` = ?";
+        logger.debug(deleteSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, deleteSQL, key, value);
         } catch (SQLException e) {
