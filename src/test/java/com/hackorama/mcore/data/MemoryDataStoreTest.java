@@ -38,4 +38,9 @@ public class MemoryDataStoreTest extends DataStoreTest {
         super.datastore_usingSameTableNameForSingleKey_shouldNotBeAllowed();
     }
 
+    @Test
+    public void datastore_usingUnknownTable_shouldBeHandled() {
+        super.datastore_usingUnknownTable_shouldBeHandled();
+    }
+
 }

@@ -169,4 +169,13 @@ public class DataStoreTest {
         dataStore.put("TABLE_MULTI", "1_1", "one_one");
     }
 
+    protected void datastore_usingUnknownTable_shouldBeHandled() {
+        dataStore.get("NON_VALID", "invalid");
+        dataStore.getMultiKey("NON_VALID", "invalid");
+        dataStore.get("NON_VALID");
+        dataStore.getByValue("NON_VALID", "invalid");
+        dataStore.remove("NON_VALID", "invalid");
+        dataStore.remove("NON_VALID", "invalid", "invalid");
+    }
+
 }
