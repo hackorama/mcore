@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import org.mapdb.DB;
+import org.mapdb.DBException;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 import org.mapdb.serializer.SerializerArrayTuple;
@@ -56,30 +57,43 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public List<String> get(String store) {
-        return new ArrayList<String>(db.hashMap(store, Serializer.STRING, Serializer.STRING).open().values());
+        try {
+            return new ArrayList<String>(db.hashMap(store, Serializer.STRING, Serializer.STRING).open().values());
+        } catch (DBException.WrongConfiguration e) {
+            return new ArrayList<>();
+        }
     }
 
     @Override
     public String get(String store, String key) {
-        return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().get(key);
+        try {
+            return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().get(key);
+        } catch (DBException.WrongConfiguration e) {
+            return null;
+        }
     }
 
     @Override
     public List<String> getByValue(String store, String value) {
-        if (multiKeyStoreNames.contains(store)) {
-            // TODO Check MapDB code/doc for more efficient method
-            SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
-                    .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open());
-            List<String> result = new ArrayList<>();
-            for (Object[] keyValue : keyValueSet) {
-                if (value.equals(keyValue[1].toString())) {
-                    result.add(keyValue[0].toString());
+        try {
+            if (multiKeyStoreNames.contains(store)) {
+                // TODO Check MapDB code/doc for more efficient method
+                SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
+                        .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open());
+                List<String> result = new ArrayList<>();
+                for (Object[] keyValue : keyValueSet) {
+                    if (value.equals(keyValue[1].toString())) {
+                        result.add(keyValue[0].toString());
+                    }
                 }
+                return result;
             }
-            return result;
+            return ((Set<Entry<String, String>>) db.hashMap(store, Serializer.STRING, Serializer.STRING).open()
+                    .entrySet()).stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey)
+                            .collect(Collectors.toList());
+        } catch (DBException.WrongConfiguration e) {
+            return new ArrayList<>();
         }
-        return ((Set<Entry<String, String>>) db.hashMap(store, Serializer.STRING, Serializer.STRING).open().entrySet())
-                .stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).collect(Collectors.toList());
     }
 
     @Override
@@ -89,14 +103,18 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public List<String> getMultiKey(String store, String key) {
-        SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
-                .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open())
-                        .subSet(new Object[] { key }, new Object[] { key, null });
-        List<String> result = new ArrayList<>();
-        for (Object[] keyValue : keyValueSet) {
-            result.add(keyValue[1].toString());
+        try {
+            SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
+                    .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open())
+                            .subSet(new Object[] { key }, new Object[] { key, null });
+            List<String> result = new ArrayList<>();
+            for (Object[] keyValue : keyValueSet) {
+                result.add(keyValue[1].toString());
+            }
+            return result;
+        } catch (DBException.WrongConfiguration e) {
+            return new ArrayList<>();
         }
-        return result;
     }
 
     @Override
@@ -114,21 +132,29 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public void remove(String store, String key) {
-        if (multiKeyStoreNames.contains(store)) {
-            // TODO Check MapDB code/doc for more efficient method
-            getMultiKey(store, key).forEach(value -> {
-                remove(store, key, value);
-            });
-        } else {
-            db.hashMap(store, Serializer.STRING, Serializer.STRING).open().remove(key);
+        try {
+            if (multiKeyStoreNames.contains(store)) {
+                // TODO Check MapDB code/doc for more efficient method
+                getMultiKey(store, key).forEach(value -> {
+                    remove(store, key, value);
+                });
+            } else {
+                db.hashMap(store, Serializer.STRING, Serializer.STRING).open().remove(key);
+            }
+        } catch (DBException.WrongConfiguration e) {
+            // TOD log warning
         }
     }
 
     @Override
     public void remove(String store, String key, String value) {
-        ((NavigableSet<Object[]>) db.treeSet(store)
-                .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open())
-                        .remove(new Object[] { key, value });
+        try {
+            ((NavigableSet<Object[]>) db.treeSet(store)
+                    .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open())
+                            .remove(new Object[] { key, value });
+        } catch (DBException.WrongConfiguration e) {
+            // TOD log warning
+        }
     }
 
 }
