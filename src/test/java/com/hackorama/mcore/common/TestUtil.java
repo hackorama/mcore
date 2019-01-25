@@ -26,9 +26,13 @@ public class TestUtil {
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_SERVER_PORT;
     private static final String DEFAULT_GROUP_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_GROUP_SERVER_PORT;
     private static final String DEFAULT_ENV_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_ENV_SERVER_PORT;
+    private static final String SERVER_TYPE_SPRING = "SPRING";
+    private static final String SERVER_TYPE_SPARK = "SPARK";
+
     private static Server server = null;
     private static DataStore dataStore = null;
     private static volatile Service service = null;
+    private static String serverType = System.getenv("SERVER_TYPE");
 
     public static void clearDataOfServiceInstance() {
         if (dataStore != null) {
@@ -67,9 +71,8 @@ public class TestUtil {
 
     private static synchronized void initServer() {
         if (server == null) {
-            String serverType = System.getenv("SERVER_TYPE");
             logger.info("Using server type = {}", serverType);
-            if ("SPRING".equalsIgnoreCase(serverType)) {
+            if (SERVER_TYPE_SPRING.equalsIgnoreCase(serverType)) {
                 server = new SpringServer("Spring Server", DEFAULT_SERVER_PORT);
                 logger.info("Created Spring Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
             } else {
@@ -148,6 +151,26 @@ public class TestUtil {
 
     public static int defaultEnvServerPort() {
         return DEFAULT_ENV_SERVER_PORT;
+    }
+
+    public static void setServerTypeSpring() {
+        serverType = SERVER_TYPE_SPRING;
+    }
+
+    public static void setServerTypeSpark() {
+        serverType = SERVER_TYPE_SPARK;
+    }
+
+    public static String getServerType() {
+        return serverType;
+    }
+
+    public static void resetServerType() {
+        serverType = System.getenv("SERVER_TYPE");
+    }
+
+    public static void setServerType(String serverType) {
+        TestUtil.serverType = serverType;
     }
 
 }
