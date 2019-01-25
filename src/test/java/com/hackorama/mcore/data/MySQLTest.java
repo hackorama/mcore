@@ -15,6 +15,14 @@ import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
 import com.hackorama.mcore.service.group.GroupService;
 
+/**
+ *
+ * Basic MySQL/MariaDB connection tests, requires MySQL server on localhost with
+ * test database and test user created.
+ *
+ * @author Kishan Thomas (kishan.thomas@gmail.com)
+ *
+ */
 public class MySQLTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:8080" ;
