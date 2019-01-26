@@ -26,6 +26,7 @@ dependencies {
 
     implementation 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
     implementation 'mysql:mysql-connector-java:8.0.14' // jdbc drivers
+    implementation 'org.postgresql:postgresql:42.2.5' // jdbc drivers
     implementation 'org.mapdb:mapdb:3.0.7' // embedded key value database
     implementation 'com.h2database:h2:1.4.197'  // embedded JDBC database
     implementation 'redis.clients:jedis:3.0.1'  // client for key value store 
