@@ -2,7 +2,6 @@ package com.hackorama.mcore.server.spring;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -25,6 +26,8 @@ import com.hackorama.mcore.common.Util;
 
 @Component
 public class Handler {
+
+    private static final Logger logger = LoggerFactory.getLogger(Handler.class);
 
     private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
@@ -73,8 +76,8 @@ public class Handler {
                 req.bodyToMono(String.class).toFuture().get(), req.pathVariables()); // TODO future get
         String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(req.methodName())), req.path(),
                 req.pathVariables());
-        System.out.println(new Timestamp(System.currentTimeMillis()) + " SPRING " + req.path() + " "
-                + Thread.currentThread().getId() + " " + Thread.currentThread().getName());
+        logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),
+                Thread.currentThread().getName());
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
                     .get(HttpMethod.valueOf(req.methodName())).get(matchingPath).apply(request);
