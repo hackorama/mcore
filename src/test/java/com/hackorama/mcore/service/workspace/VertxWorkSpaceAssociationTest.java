@@ -1,8 +1,8 @@
-package com.hackorama.mcore.service;
+package com.hackorama.mcore.service.workspace;
 
 import com.hackorama.mcore.common.TestUtil;
 
-public class VertxServiceTest extends CommonServiceTest {
+public class VertxWorkSpaceAssociationTest extends WorkSpaceAssociationTest {
 
     @Override
     protected void setServer() {

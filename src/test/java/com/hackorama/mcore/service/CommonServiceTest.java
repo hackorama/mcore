@@ -5,6 +5,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.HttpURLConnection;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -22,24 +27,49 @@ public class CommonServiceTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT = TestUtil.defaultServerEndpoint();;
 
+    protected void setServer() {
+        TestUtil.setServerTypeSpark();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        setServer();
+        TestUtil.initGroupServiceInstance();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        TestUtil.clearDataOfServiceInstance();
+    }
+
+    @AfterClass
+    public static void afterAllTests() throws Exception {
+        TestUtil.stopServiceInstance();
+        TestUtil.resetServerType();
+    }
+
+    @Test
     public void service_getResource_expectsOKStataus() throws UnirestException {
         HttpResponse<JsonNode> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group")
                 .header("accept", "application/json").asJson();
         assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
     }
 
+    @Test
     public void workspaceService_postResource_expectsOKStataus() throws UnirestException {
         HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
                 .header("accept", "application/json").body("{ \"name\" : \"one\" }").asJson();
         assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
     }
 
+    @Test
     public void service_invalidURL_expectsNotFoundStatus() throws UnirestException {
         HttpResponse<String> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group/bad/path")
                 .header("accept", "application/json").body("{ \"name\" : \"one\" }").asString();
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.getStatus());
     }
 
+    @Test
     public void service_postingMultiple_expectsSameOnGetAll() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
@@ -70,6 +100,7 @@ public class CommonServiceTest {
         }
     }
 
+    @Test
     public void service_getEntity_expectsMatchingEntity() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
@@ -99,6 +130,7 @@ public class CommonServiceTest {
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
     }
 
+    @Test
     public void service_deleteEntity_expectsEntityRemoved() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
@@ -135,6 +167,7 @@ public class CommonServiceTest {
         assertEquals(idTwo, jsonResponse.getBody().getArray().getJSONObject(0).getString("id"));
     }
 
+    @Test
     public void service_updateEntity_expectsUpdatedEntity() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")

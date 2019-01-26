@@ -1,8 +1,8 @@
-package com.hackorama.mcore.service;
+package com.hackorama.mcore.service.group;
 
 import com.hackorama.mcore.common.TestUtil;
 
-public class VertxServiceTest extends CommonServiceTest {
+public class VertxGroupServiceTest extends GroupServiceTest {
 
     @Override
     protected void setServer() {

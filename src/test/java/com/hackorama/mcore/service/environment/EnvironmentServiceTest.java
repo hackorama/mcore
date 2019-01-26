@@ -25,6 +25,10 @@ public class EnvironmentServiceTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT =  TestUtil.defaultServerEndpoint();
 
+    protected void setServer() {
+        TestUtil.setServerTypeSpark();
+    }
+
     @Before
     public void setUp() throws Exception {
         TestUtil.initEnvServiceInstance();
