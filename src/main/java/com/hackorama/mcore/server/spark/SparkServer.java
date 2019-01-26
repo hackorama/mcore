@@ -3,7 +3,6 @@ package com.hackorama.mcore.server.spark;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.uri.UriTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import spark.Request;
 import spark.Response;
@@ -26,6 +27,8 @@ import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.server.Server;
 
 public class SparkServer implements Server {
+
+    private static final Logger logger = LoggerFactory.getLogger(SparkServer.class);
 
     private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
@@ -94,7 +97,7 @@ public class SparkServer implements Server {
             res.status(HttpURLConnection.HTTP_NOT_FOUND);
             res.body(Util.toJsonString("message", "404 Not found"));
         }
-        System.out.println(new Timestamp(System.currentTimeMillis()) + " SPARK " +  req.pathInfo()  + " " + Thread.currentThread().getId() + " " + Thread.currentThread().getName());
+        logger.debug("Routing request {} on thread id {} thread name : {} ",  req.pathInfo(), Thread.currentThread().getId(), Thread.currentThread().getName());
         return res.body();
     }
 
@@ -132,7 +135,6 @@ public class SparkServer implements Server {
         String sparkPath = formatPathVariable(path);
         handlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);
-
     }
 
     @Override
