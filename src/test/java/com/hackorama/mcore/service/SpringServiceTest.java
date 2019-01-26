@@ -17,9 +17,13 @@ import com.hackorama.mcore.common.TestUtil;
  */
 public class SpringServiceTest extends CommonServiceTest {
 
+    protected void setServer() {
+        TestUtil.setServerTypeSpring();
+    }
+
     @Before
     public void setUp() throws Exception {
-        TestUtil.setServerTypeSpring();
+        setServer();
         TestUtil.initGroupServiceInstance();
     }
 

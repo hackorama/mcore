@@ -10,6 +10,7 @@ import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
+import com.hackorama.mcore.server.vertx.VertxServer;
 import com.hackorama.mcore.service.Service;
 import com.hackorama.mcore.service.environment.EnvironmentService;
 import com.hackorama.mcore.service.group.GroupService;
@@ -28,6 +29,7 @@ public class TestUtil {
     private static final String DEFAULT_ENV_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_ENV_SERVER_PORT;
     private static final String SERVER_TYPE_SPRING = "SPRING";
     private static final String SERVER_TYPE_SPARK = "SPARK";
+    private static final String SERVER_TYPE_VERTX = "VERTX";
 
     private static Server server = null;
     private static DataStore dataStore = null;
@@ -75,6 +77,9 @@ public class TestUtil {
             if (SERVER_TYPE_SPRING.equalsIgnoreCase(serverType)) {
                 server = new SpringServer("Spring Server", DEFAULT_SERVER_PORT);
                 logger.info("Created Spring Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            } else if (SERVER_TYPE_VERTX.equalsIgnoreCase(serverType)) {
+                server = new VertxServer("Vertx Server", DEFAULT_SERVER_PORT);
+                logger.info("Created Vertx Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
             } else {
                 server = new SparkServer("Spark Server", DEFAULT_SERVER_PORT);
                 logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
@@ -159,6 +164,10 @@ public class TestUtil {
 
     public static void setServerTypeSpark() {
         serverType = SERVER_TYPE_SPARK;
+    }
+
+    public static void setServerTypeVertx() {
+        serverType = SERVER_TYPE_VERTX;
     }
 
     public static String getServerType() {
