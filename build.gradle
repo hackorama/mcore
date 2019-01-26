@@ -79,7 +79,11 @@ task testSpring(type: Test) {
     dependsOn cleanTest
 }
 
-test.dependsOn testSpring
+task testVertx(type: Test) {
+    environment 'SERVER_TYPE', 'VERTX' // Repeat all the tests with Vertx server
+    dependsOn cleanTest
+}
+
 check.dependsOn jacocoTestReport
 
 // code quality
