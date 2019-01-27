@@ -98,7 +98,20 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public Set<String> getKeys(String store) {
-        return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().keySet();
+        if (multiKeyStoreNames.contains(store)) {
+            Set<String> result = new HashSet<>();
+            SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
+                    .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open());
+            for (Object[] keyValue : keyValueSet) {
+                result.add(keyValue[0].toString());
+            }
+            return result;
+        }
+        try {
+            return db.hashMap(store, Serializer.STRING, Serializer.STRING).open().keySet();
+        } catch (DBException.WrongConfiguration e) {
+            return new HashSet<>();
+        }
     }
 
     @Override
@@ -124,10 +137,10 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public void putMultiKey(String store, String key, String value) {
-        multiKeyStoreNames.add(store);
         ((NavigableSet<Object[]>) db.treeSet(store)
                 .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).createOrOpen())
                         .add(new Object[] { key, value });
+        multiKeyStoreNames.add(store);
     }
 
     @Override
