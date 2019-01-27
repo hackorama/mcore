@@ -16,4 +16,5 @@ public interface DataStore {
     public void remove(String store, String key);
     public void remove(String store, String key, String value);
     public Set<String> getKeys(String store);
+    public void close();
 }

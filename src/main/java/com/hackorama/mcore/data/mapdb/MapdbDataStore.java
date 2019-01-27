@@ -170,4 +170,11 @@ public class MapdbDataStore implements DataStore {
         }
     }
 
+    @Override
+    public void close() {
+        if(db != null) {
+            db.close();
+        }
+    }
+
 }

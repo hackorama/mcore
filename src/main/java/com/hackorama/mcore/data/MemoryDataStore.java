@@ -142,4 +142,9 @@ public class MemoryDataStore  implements DataStore {
         return new HashSet<>();
     }
 
+    @Override
+    public void close() {
+        logger.info("Data store closed");
+    }
+
 }

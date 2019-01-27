@@ -56,11 +56,7 @@ public class JDBCDataStore implements DataStore {
 
     @Override
     public void clear() {
-        try {
-            DbUtils.close(conn);
-        } catch (SQLException e) {
-            e.printStackTrace(); // TODO Custom exception and logging
-        }
+        // TODO
     }
 
     private void connect(String url, String driver) throws SQLException {
@@ -69,7 +65,7 @@ public class JDBCDataStore implements DataStore {
 
     private void connect(String url, String driver, String user, String password) throws SQLException {
         DbUtils.loadDriver(driver);
-        conn = user == null || password == null ? DriverManager.getConnection(url)
+        conn = (user == null || password == null) ? DriverManager.getConnection(url)
                 : DriverManager.getConnection(url, user, password);
         usingPostgresql = conn.getMetaData().getURL().toLowerCase().contains("postgresql"); // TODO improve
     }
@@ -264,6 +260,15 @@ public class JDBCDataStore implements DataStore {
         logger.info(deleteSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, deleteSQL, key, value);
+        } catch (SQLException e) {
+            e.printStackTrace(); // TODO Custom exception and logging
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            DbUtils.close(conn);
         } catch (SQLException e) {
             e.printStackTrace(); // TODO Custom exception and logging
         }
