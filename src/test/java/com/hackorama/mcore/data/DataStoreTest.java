@@ -2,11 +2,34 @@ package com.hackorama.mcore.data;
 
 import static org.junit.Assert.*;
 
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 public class DataStoreTest {
 
     protected DataStore dataStore;
 
-    protected void clearTestData() {
+    protected void createDataStore() throws SQLException {
+        dataStore = new MemoryDataStore();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        createDataStore();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        clearTestData();
+    }
+
+
+    public void clearTestData() {
         clearTestData("TEST");
         clearTestData("MULTI_TEST");
         clearTestData("MULTI_TABLE_ONE");
@@ -16,10 +39,14 @@ public class DataStoreTest {
         clearTestData("TABLE_SINGLE");
     }
 
-    protected void clearTestData(String store) {
-        dataStore.getKeys(store).forEach(e -> dataStore.remove(store, e));
+    public void clearTestData(String store) {
+       Set<String> keys =  new HashSet<>();
+       // make a copy of keys for concurrent modification
+       dataStore.getKeys(store).forEach(e -> keys.add(e));
+       keys.forEach(e -> dataStore.remove(store, e));
     }
 
+    @Test
     public void datastore_insertedMultiKeyValues_matchesOnGettingByKey() {
 
         dataStore.putMultiKey("MULTI_TEST", "ONE", "1_1");
@@ -92,7 +119,8 @@ public class DataStoreTest {
 
     }
 
-    protected void datastore_insertedValues_matchesOnGettingByKey() {
+    @Test
+    public void datastore_insertedValues_matchesOnGettingByKey() {
 
         dataStore.put("TEST", "ONE", "UNO");
         dataStore.put("TEST", "TWO", "DOS");
@@ -159,17 +187,20 @@ public class DataStoreTest {
 
     }
 
-    protected void datastore_usingSameTableNameForMultiKey_shouldNotBeAllowed() {
+    @Test (expected = RuntimeException.class)
+    public void datastore_usingSameTableNameForMultiKey_shouldNotBeAllowed() {
         dataStore.put("TABLE_SINGLE", "1_1", "one_one");
         dataStore.putMultiKey("TABLE_SINGLE", "1_1", "one_one");
     }
 
-    protected void datastore_usingSameTableNameForSingleKey_shouldNotBeAllowed() {
+    @Test (expected = RuntimeException.class)
+    public void datastore_usingSameTableNameForSingleKey_shouldNotBeAllowed() {
         dataStore.putMultiKey("TABLE_MULTI", "1_1", "one_one");
         dataStore.put("TABLE_MULTI", "1_1", "one_one");
     }
 
-    protected void datastore_usingUnknownTable_shouldBeHandled() {
+    @Test
+    public void datastore_usingUnknownTable_shouldBeHandled() {
         dataStore.get("NON_VALID", "invalid");
         dataStore.getMultiKey("NON_VALID", "invalid");
         dataStore.get("NON_VALID");

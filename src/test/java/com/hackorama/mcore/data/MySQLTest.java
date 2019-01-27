@@ -30,10 +30,14 @@ public class MySQLTest {
     public static void main(String[] args) throws SQLException, UnirestException {
         if(args.length < 1) {
             System.out.println("Usage: java MySQLTest <db_password>");
-            System.exit(1);
+            //System.exit(1);
         }
         Service service = new GroupService().configureUsing(new JDBCDataStore("jdbc:mysql://localhost/test",
-                "com.mysql.cj.jdbc.Driver", "test", args[0])).configureUsing(new SparkServer("test")).start();
+              "com.mysql.cj.jdbc.Driver", "test", args[0])).configureUsing(new SparkServer("test")).start();
+        //Service service = new GroupService().configureUsing(new JDBCDataStore("jdbc:mysql://sql3.freesqldatabase.com/sql3275761",
+         //      "com.mysql.cj.jdbc.Driver", "sql3275761", "hIvqjGH5wx")).configureUsing(new SparkServer("test")).start();
+        //Service service = new GroupService().configureUsing(new JDBCDataStore("jdbc:postgresql://baasu.db.elephantsql.com:5432/godwbhlk",
+         //     "org.postgresql.Driver", "godwbhlk", "syVFX7pI-cnqIfq_8ZYK3dCVTIEbN6e8")).configureUsing(new SparkServer("test")).start();
         HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
                 .header("accept", "application/json").body("{ \"name\" : \"one\" }").asJson();
         assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
