@@ -22,3 +22,6 @@ gradle.properties
 # logs
 *.log
 *.log.*
+
+# test db 
+*test*.db
