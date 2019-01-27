@@ -37,6 +37,7 @@ public class DataStoreTest {
         clearTestData("TABLE_TWO");
         clearTestData("TABLE_MULTI");
         clearTestData("TABLE_SINGLE");
+        dataStore.close();
     }
 
     public void clearTestData(String store) {
