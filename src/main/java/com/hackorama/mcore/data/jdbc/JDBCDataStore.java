@@ -43,7 +43,7 @@ public class JDBCDataStore implements DataStore {
     }
 
     public JDBCDataStore(String url) throws SQLException {
-        this(DEFAULT_URL, DEFAULT_DRIVER);
+        this(url, DEFAULT_DRIVER);
     }
 
     public JDBCDataStore(String url, String driver) throws SQLException {
