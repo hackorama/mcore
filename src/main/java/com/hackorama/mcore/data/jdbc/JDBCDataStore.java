@@ -76,7 +76,7 @@ public class JDBCDataStore implements DataStore {
             return false; // TODO info log
         }
         String selectSQL = "SELECT k FROM " + store + " WHERE k = ?";
-        logger.info(selectSQL + " [" + key + "]");
+        logger.debug(selectSQL + " [" + key + "]");
         List<Object[]> result = new ArrayList<>();
         try {
             result = queryRunner.query(conn, selectSQL, new ArrayListHandler(), key);
@@ -93,7 +93,7 @@ public class JDBCDataStore implements DataStore {
             }
             String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " (k VARCHAR(" + DEFAULT_KEY_SIZE
                     + "), v VARCHAR(" + DEFAULT_VALUE_SIZE + "))";
-            logger.info(createTableSQL);
+            logger.debug(createTableSQL);
             singleKeyStores.add(table);
             try {
                 queryRunner.execute(conn, createTableSQL);
@@ -110,7 +110,7 @@ public class JDBCDataStore implements DataStore {
             }
             String createTableSQL = "CREATE TABLE IF NOT EXISTS " + table + " (k VARCHAR(" + DEFAULT_KEY_SIZE
                     + "), v VARCHAR(" + DEFAULT_VALUE_SIZE + "), PRIMARY KEY (k)) ";
-            logger.info(createTableSQL);
+            logger.debug(createTableSQL);
             multiKeyStores.add(table);
             try {
                 queryRunner.execute(conn, createTableSQL);
@@ -132,7 +132,7 @@ public class JDBCDataStore implements DataStore {
             return result; // TODO info log
         }
         String selectSQL = "SELECT v FROM " + store + " WHERE k = ?";
-        logger.info(selectSQL + " [" + key + "]");
+        logger.debug(selectSQL + " [" + key + "]");
         try {
             result = queryRunner.query(conn, selectSQL, new ScalarHandler<String>(), key);
         } catch (SQLException e) {
@@ -148,7 +148,7 @@ public class JDBCDataStore implements DataStore {
             return resultList; // TODO info log
         }
         String selectSQL = "SELECT k FROM " + store + " WHERE v = ?";
-        logger.info(selectSQL + " [" + value + "]");
+        logger.debug(selectSQL + " [" + value + "]");
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), value);
         } catch (SQLException e) {
@@ -163,7 +163,7 @@ public class JDBCDataStore implements DataStore {
             return resultList; // TODO info log
         }
         String selectSQL = "SELECT " + column + " FROM " + store + "";
-        logger.info(selectSQL);
+        logger.debug(selectSQL);
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>());
         } catch (SQLException e) {
@@ -184,7 +184,7 @@ public class JDBCDataStore implements DataStore {
             return resultList; // TODO info log
         }
         String selectSQL = "SELECT v FROM " + store + " WHERE k = ?";
-        logger.info(selectSQL + " [" + key + "]");
+        logger.debug(selectSQL + " [" + key + "]");
         try {
             resultList = queryRunner.query(conn, selectSQL, new ColumnListHandler<String>(), key);
         } catch (SQLException e) {
@@ -202,7 +202,7 @@ public class JDBCDataStore implements DataStore {
         if (usingPostgresql) {
             insertSQL = "INSERT INTO " + store + " VALUES (?, ?) ON CONFLICT (k) DO UPDATE SET v = ?";
         }
-        logger.info(insertSQL + " [" + key + ", " + value + "]");
+        logger.debug(insertSQL + " [" + key + ", " + value + "]");
         try {
             if (usingPostgresql) {
                 queryRunner.execute(conn, insertSQL, key, value, value);
@@ -217,7 +217,7 @@ public class JDBCDataStore implements DataStore {
 
     private void insert(String store, String key, String value) {
         String insertSQL = "INSERT INTO " + store + " VALUES (?, ?)";
-        logger.info(insertSQL + " [" + key + ", " + value + "]");
+        logger.debug(insertSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, insertSQL, key, value);
         } catch (SQLException e) {
@@ -243,7 +243,7 @@ public class JDBCDataStore implements DataStore {
             return; // TODO info log
         }
         String deleteSQL = "DELETE FROM " + store + " WHERE k = ?";
-        logger.info(deleteSQL + " [" + key + "]");
+        logger.debug(deleteSQL + " [" + key + "]");
         try {
             queryRunner.execute(conn, deleteSQL, key);
         } catch (SQLException e) {
@@ -257,7 +257,7 @@ public class JDBCDataStore implements DataStore {
             return; // TODO info log
         }
         String deleteSQL = "DELETE FROM " + store + " WHERE k = ? AND v = ?";
-        logger.info(deleteSQL + " [" + key + ", " + value + "]");
+        logger.debug(deleteSQL + " [" + key + ", " + value + "]");
         try {
             queryRunner.execute(conn, deleteSQL, key, value);
         } catch (SQLException e) {
