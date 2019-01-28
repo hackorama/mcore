@@ -1,4 +1,14 @@
 language: java
+
+services:
+  - mysql
+  - postgresql
+  - redis-server
+
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - psql -c 'CREATE DATABASE test;' -U postgres
+
 sudo: false
 
 before_script:
