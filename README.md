@@ -6,9 +6,9 @@
 
 Distributed Micro Service Design
 
-# Framework Features and Status
+## Framework Features and Status
 
-## Web
+### Web
 
 | Framework | Minimal | Most | Complete | Performance |
 | --- | --- | --- | --- | --- |
@@ -17,7 +17,7 @@ Distributed Micro Service Design
 | Vert.x | :heavy_check_mark: | | | |
 
 
-## Data 
+### Data 
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ Distributed Micro Service Design
 | HSQL | | | | |
 | Firebird | | | | |
 
-## Cache
+### Cache
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ Distributed Micro Service Design
 | Hazelcast |  |  |  |  |
 | JCache |  |  |  |  |
 
-## Queue
+### Queue
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
@@ -47,7 +47,7 @@ Distributed Micro Service Design
 | Redis |  |  |  |  |
 | Hazelcast |  |  |  |  |
 
-## Client
+### Client
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
@@ -55,7 +55,7 @@ Distributed Micro Service Design
 | Hystrix |  |  |  |  |
 | Resilience4j |  |  |  |  |
 
-# Build  
+## Build  
  
 Requires Java 8 or later in path and web access for pulling in the maven dependencies. 
 
@@ -76,7 +76,7 @@ $ vi gradle.properties
 $ ./gradlew build 
 ```
  
-# Develop  
+## Develop  
 
 Build an Eclipse project  
 
@@ -89,9 +89,9 @@ Import project into Eclipse
 
 File -> Import -> Existing Projects into Workspace 
  
-# Deploy 
+## Deploy 
 
-## As a single service  
+### As a single service  
 
 ```
 $ java -jar build/libs/mcore-all.jar 
@@ -104,7 +104,7 @@ $ java -jar build/libs/mcore-all.jar
 746 [Thread-3] INFO EmbeddedJettyServer - >> Listening on 0.0.0.0:4567 … 
 ```
  
-## As separate services 
+### As separate services 
 
 Start Group Directory Service 
 
@@ -141,7 +141,7 @@ $ java -Dservice.group.url=http://127.0.0.1:4565 -Dservice.environment.url=http:
 743 [Thread-3] INFO EmbeddedJettyServer - >> Listening on 0.0.0.0:4567 
 ```
  
-# Quick Test 
+## Quick Test 
 
 Following curl examples uses three different services 
 
@@ -292,13 +292,13 @@ $ curl -H  "Accept: application/json" -X GET http://127.0.0.1:4567/component/306
 {"error":"Invalid Component"} 
 ```
   
-# API 
+## API 
 
 NOTE: Singular naming used throughout API for entities, could switch to plural naming if so preferred. 
 
 Return codes not listed due to time constraints but uses standard expected HTTP return codes according to accepted convention. 
 
-## Group 
+### Group 
 
 Allows standard CRUD operations for Group (Owner Group Directory) 
   
@@ -309,7 +309,7 @@ Allows standard CRUD operations for Group (Owner Group Directory)
 | PUT | /group/:id | {"name":"group-one", "email":"one@example.com"} | {"name":"groupone", "email":"one@example.com", "id":"f2743bdc-9775-4a9f-9201-3484259ee885"} | 
 | DELETE | /group/:id | | | 
   
-## Environment Allows standard CRUD operations for Environment. 
+### Environment Allows standard CRUD operations for Environment. 
 
 | Method | URL | Request | Response |
 |--------|-----|---------|----------|
@@ -318,7 +318,7 @@ Allows standard CRUD operations for Group (Owner Group Directory)
 | PUT | /environment/:id | {"name"":"env-one"} |{"name":"env-one", "id":"f2743bdc-9775-4a9f-9201-3484259ee885"}  |
 | DELETE | /environment/:id | | | 
   
-## Workspace 
+### Workspace 
 
 Allows standard CRUD operations for Workspace and also allows link/unlink of child component like Environment. 
 Also allows adding/removing of owner groups for each Workspace. 
@@ -335,7 +335,7 @@ Also allows adding/removing of owner groups for each Workspace.
 | POST | /workspace/:id/group/:groupid | | {"message":"Added Group 306f3f85-2e20-466f-8b559dbe7506e501 to Workspace ca6a182a-80bd-40d4-85e3878610596fe2"} | 
 | DELETE | /workspace/:id/group/:groupid | | {"message":"Removed Group 306f3f85-2e20-466f-8b559dbe7506e501 from Workspace ca6a182a-80bd-40d485e3-878610596fe2"} |
  
-## Component 
+### Component 
 
 Provided by Workspace Service. 
 
@@ -346,11 +346,11 @@ Allows to navigate the component tree from root nodes to all the children nodes 
 | GET | /component| | Return root nodes: {"workspaces":["ca6a182a-80bd-40d4-85e3878610596fe2"]} | 
 | GET | /component/:id | | For components allowing children: {"environments":["306f3f85-2e20-466f-8b559dbe7506e50t1"]} If a component does not allow children: {"error":"Invalid Component"} |
  
-# Design 
+## Design 
  
 Approach Pragmatic adoption of Twelve-Factor App, SOLID, YAGNI, DRY principles in the design.  
 
-## Service design 
+### Service design 
 
 Complete separation of each service from underlying web framework and data store framework through interfaces.
 So different web frameworks and data stores can be easily used without changing the service code at all.  
@@ -364,7 +364,7 @@ Service groupService = new GroupService().configureUsing(new SparkServer("group"
 ```
 A service manager based on external configuration automatically starts each service. With no configuration provided starts all services in the same server for quick testing.
 
-## Data design 
+### Data design 
 
 Since each entity runs its own separate service we are using separate data store for each service and only workspace service keeps the relation tables that it depends on.
 Work Space to Environment is One to Many association. Work Space to Groups is Many to Many association. 
@@ -378,15 +378,15 @@ Using an in memory data store implementation by default. A [MapDB](src/main/java
 
 Plans to support MongoDB, RocksDB in future.
 
-### Data Cache
+#### Data Cache
 
 Plans to implement a generic caching interface with support planned for Redis, Hazelcast etc.
 
-### Data Message Queue
+#### Data Message Queue
 
 Plans to implement a generic message queue interface with support planned for RabbitMQ, Kafka etc.
 
-## Distributed service design
+### Distributed service design
 
 Workspaces depends on other two services for association lookups. 
 
@@ -399,7 +399,7 @@ This is also only if the service is available.
 These association updating behavior will be changed when the [message queue service](src/main/java/com/hackorama/mcore/data/queue) is available through messaging.
 
 
-## Proposed Design Improvements 
+### Proposed Design Improvements 
 
 Instead of workspace directly talking to other services introduces a message queue where other services can publish changes so workspace service can update the associations based on these entity change events.
 
@@ -407,7 +407,7 @@ Instead of workspace directly talking to other services introduces a message que
 - Clustering of services with proxy in the front. 
 - Separate Data Store with its own clustering.
 
-# Testing 
+## Testing 
 
 Integrated into Gradle build 
 
@@ -415,7 +415,7 @@ Integrated into Gradle build
 - JUnit : build/reports/tests/test/index.html (100%) 
 - Coverage: build/reports/jacoco/test/html/index.html (83%) 
 
-# To Do 
+## To Do 
 
 - Complete Java Doc in code and generate the Java Docs in Gradle build
 - Add OpenAPI definitions and create API interactive dashboard with help 
