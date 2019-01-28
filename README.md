@@ -309,14 +309,16 @@ So different web frameworks and data stores can be easily used without changing 
 
 Services are composed fluently by injecting web, data and client implementation as needed.  
 
+Provides implementation of [three different web frameworks](src/main/java/com/hackorama/mcore/server) to choose from Spark, Spring Web Flux, Vert.x.
+
 ```
 Service groupService = new GroupService().configureUsing(new SparkServer("group")).configureUsing(new MapdbDataStore()); 
 ```
-A service manager based on external configuration automatically starts each service or out of the box without and configuration starts all services in the same server for quick testing. 
+A service manager based on external configuration automatically starts each service. With no configuration provided starts all services in the same server for quick testing.
 
 ## Data design 
 
-Since each entity runs its own separate service we are using separate data store for each service and only workspace service keeps the relation tables that it depends own. 
+Since each entity runs its own separate service we are using separate data store for each service and only workspace service keeps the relation tables that it depends on.
 Work Space to Environment is One to Many association. Work Space to Groups is Many to Many association. 
 Both association allows zero or one/many since each service operates independently from each other. 
 
@@ -324,14 +326,30 @@ Instead of a monolithic single data store with foreign keys we are using a key v
 
 Instead of auto incrementing sequence we are using application generated UUID as the key which will be better for distributed servers. 
 
-Using an in memory data store implementation now. A MapDB based implementation is next. 
+Using an in memory data store implementation by default. A [MapDB](src/main/java/com/hackorama/mcore/data/mapdb) and [JDBC](src/main/java/com/hackorama/mcore/data/jdbc) (tested with MySQL, Postgres, H2) data stores are also implemented.
 
-## Distributed service design 
+Plans to support MongoDB, RocksDB in future.
+
+### Data Cache
+
+Plans to implement a generic caching interface with support planned for Redis, Hazelcast etc.
+
+### Data Message Queue
+
+Plans to implement a generic message queue interface with support planned for RabbitMQ, Kafka etc.
+
+## Distributed service design
 
 Workspaces depends on other two services for association lookups. 
-During creation of association we try to validate the dependent entities if service is available, if not we optimistically do the association anyway.  
+
+During creation of association we try to validate the dependent entities if service is available, if not available we optimistically do the association anyway.
+
 Associations are also checked during the read of workspace to see if the associated entity is still valid and associations are updated. 
+
 This is also only if the service is available. 
+
+These association updating behavior will be changed when the [message queue service](src/main/java/com/hackorama/mcore/data/queue) is available through messaging.
+
 
 ## Proposed Design Improvements 
 
