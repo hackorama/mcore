@@ -46,6 +46,11 @@ public class TestUtil {
         return DEFAULT_SERVER_ENDPOINT;
     }
 
+    public static String getEnv(String envName, String defaultValue) {
+        String value = System.getenv(envName);
+        return (value == null) ? defaultValue : value;
+    }
+
     public static Server getServer() {
         initServer();
         return server;
