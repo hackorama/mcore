@@ -2,8 +2,10 @@ language: java
 
 services:
   - mysql
-  - postgresql
   - redis-server
+
+addons:
+  postgresql: "10"
 
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
