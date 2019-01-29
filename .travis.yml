@@ -5,17 +5,12 @@ services:
   - postgresql
   - redis-server
 
-
-before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-
-before_script:
-  - psql -c 'CREATE DATABASE "test";' -U postgres
-
 addons:
   postgresql: "10"
 
 before_script:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - psql -c 'CREATE DATABASE "test";' -U postgres
   - chmod +x gradlew
 
 after_success:
