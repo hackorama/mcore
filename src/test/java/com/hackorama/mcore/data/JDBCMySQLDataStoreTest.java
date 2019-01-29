@@ -10,7 +10,7 @@ public class JDBCMySQLDataStoreTest extends DataStoreTest {
 
     @Override
     protected void createDataStore() {
-        isOptional = true;
+        isOptional = ! TestUtil.getEnv("MYSQL_TEST");
         try {
             dataStore = new JDBCDataStore(TestUtil.getEnv("MYSQL_URL", "jdbc:mysql://localhost/test"),
                     "com.mysql.cj.jdbc.Driver", TestUtil.getEnv("MYSQL_USER", "travis"), TestUtil.getEnv("MYSQL_PASS", ""));

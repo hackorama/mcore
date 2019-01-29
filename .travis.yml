@@ -9,7 +9,9 @@ addons:
   postgresql: "9.5"
 
 before_script:
+  - export MYSQL_TEST=ENABLED
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - export PG_TEST=ENABLED
   - psql -c 'CREATE DATABASE "test";' -U postgres
   - chmod +x gradlew
 

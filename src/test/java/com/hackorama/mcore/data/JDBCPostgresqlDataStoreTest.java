@@ -10,7 +10,7 @@ public class JDBCPostgresqlDataStoreTest extends DataStoreTest {
 
     @Override
     protected void createDataStore() {
-        isOptional = true;
+        isOptional = ! TestUtil.getEnv("PG_TEST");
         try {
             dataStore = new JDBCDataStore(TestUtil.getEnv("PG_URL", "jdbc:postgresql://localhost:5432/test"),
                     "com.postgresql.Driver", TestUtil.getEnv("PG_USER", "postgres"), TestUtil.getEnv("PG_PASS", ""));
