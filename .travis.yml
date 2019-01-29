@@ -1,8 +1,5 @@
 language: java
 
-addons:
-  postgresql: "10"
-
 services:
   - mysql
   - postgresql
@@ -11,9 +8,12 @@ services:
 
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-  - psql -c 'CREATE DATABASE test;' -U postgres
 
-sudo: false
+before_script:
+  - psql -c 'CREATE DATABASE "test";' -U postgres
+
+addons:
+  postgresql: "10"
 
 before_script:
   - chmod +x gradlew
