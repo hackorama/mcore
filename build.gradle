@@ -31,8 +31,9 @@ dependencies {
     implementation 'org.apache.derby:derby:10.14.2.0' // jdbc drivers
     implementation 'org.hsqldb:hsqldb:2.4.1' // jdbc drivers
     implementation 'org.mapdb:mapdb:3.0.7' // embedded key value database
-    implementation 'com.h2database:h2:1.4.197'  // embedded JDBC database
-    implementation 'redis.clients:jedis:3.0.1'  // client for key value store 
+    implementation 'com.h2database:h2:1.4.197' // embedded JDBC database
+    implementation 'redis.clients:jedis:3.0.1' // client for key value store
+    implementation 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
 
     implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework

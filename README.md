@@ -22,6 +22,7 @@ Distributed Micro Service Design
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
 | H2 |  | :heavy_check_mark: | | |
+| MongoDB | | | | |
 | MapsDB |  | :heavy_check_mark: | | |
 | MySQL |  :heavy_check_mark: | | | |
 | Postgresql |   :heavy_check_mark: | | | |
