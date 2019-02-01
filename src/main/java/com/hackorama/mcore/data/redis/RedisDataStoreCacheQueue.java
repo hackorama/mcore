@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.redisson.api.RSetMultimap;
+import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.slf4j.Logger;
@@ -52,7 +53,6 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     @Override
     public void clear() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -64,8 +64,8 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
 
     @Override
     public void consume(String channel, Function<String, Boolean> handler) {
-        // TODO Auto-generated method stub
-
+        RTopic<String> topic = client.getTopic(channel);
+        topic.addListener(new RoutingMessageListner(handler));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     public List<String> getByValue(String store, String value) {
         List<String> list = new ArrayList<>();
         RSetMultimap<String, String> multimap = client.getSetMultimap(store);
-        logger.info("GETBYVALUE {} {}", store, value);
+        logger.debug("GETBYVALUE {} {}", store, value);
         if (multimap.isEmpty()) {
             client.getKeys().getKeysByPattern(formatKey(store) + "*").forEach(e -> {
                 if (value.equals(getFromStore(e))) { // TODO Optimize
@@ -130,7 +130,7 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
 
     private String getFromStore(String storeKey) {
         RBucket<String> bucket = client.getBucket(storeKey);
-        logger.info("GET {} : {}", storeKey, bucket.get());
+        logger.debug("GET {} : {}", storeKey, bucket.get());
         return bucket.get();
     }
 
@@ -144,26 +144,26 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     @Override
     public List<String> getMultiKey(String store, String key) {
         RSetMultimap<String, String> multimap = client.getSetMultimap(store);
-        logger.info("MULTI GET {} : {}", formatKey(store, key), multimap.get(key));
+        logger.debug("MULTI GET {} : {}", formatKey(store, key), multimap.get(key));
         return new ArrayList<String>(multimap.get(key));
     }
 
     @Override
     public void publish(String channel, String message) {
-        // TODO Auto-generated method stub
-
+        RTopic<String> topic = client.getTopic(channel);
+        topic.publish(message);
     }
 
     @Override
     public void put(String store, String key, String value) {
-        logger.info("PUT {} : {}", formatKey(store, key), value);
+        logger.debug("PUT {} : {}", formatKey(store, key), value);
         RBucket<String> bucket = client.getBucket(formatKey(store, key));
         bucket.set(value);
     }
 
     @Override
     public void putMultiKey(String store, String key, String value) {
-        logger.info("MULTI PUT {} : {}", formatKey(store, key), value);
+        logger.debug("MULTI PUT {} : {}", formatKey(store, key), value);
         RSetMultimap<String, String> multimap = client.getSetMultimap(store);
         multimap.put(key, value);
     }
