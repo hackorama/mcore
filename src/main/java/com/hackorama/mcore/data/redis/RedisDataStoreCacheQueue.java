@@ -1,14 +1,43 @@
 package com.hackorama.mcore.data.redis;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+
+import org.redisson.Redisson;
+import org.redisson.api.RBucket;
+import org.redisson.api.RSetMultimap;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.cache.DataCache;
 import com.hackorama.mcore.data.queue.DataQueue;
 
 public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue {
+
+    private static final Logger logger = LoggerFactory.getLogger(RedisDataStoreCacheQueue.class);
+    private static final int REDIS_DEFAULT_PORT = 6379;
+    private Config config;
+    private RedissonClient client;
+
+    public RedisDataStoreCacheQueue() {
+        client = Redisson.create();
+    }
+
+    public RedisDataStoreCacheQueue(String host) {
+        this(host, REDIS_DEFAULT_PORT);
+    }
+
+    public RedisDataStoreCacheQueue(String host, int port) {
+        config = new Config();
+        config.useSingleServer().setAddress(host + ":" + port);
+        client = Redisson.create(config);
+    }
 
     @Override
     public DataCache asCache() {
@@ -27,69 +56,96 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     }
 
     @Override
-    public boolean contains(String store, String key) {
+    public void close() {
+        if (client != null) {
+            client.shutdown();
+        }
+    }
+
+    @Override
+    public void consume(String channel, Function<String, Boolean> handler) {
         // TODO Auto-generated method stub
-        return false;
+
+    }
+
+    @Override
+    public boolean contains(String store, String key) {
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        if (multimap.isEmpty()) {
+            return client.getKeys().isExists(formatKey(store, key)) > 0;
+        } else {
+            return multimap.containsKey(key);
+        }
+    }
+
+    private String defomatKey(String storekey, String store) {
+        return storekey.substring(store.length() + 1); // Get KEY from STORE:KEY
+    }
+
+    private String formatKey(String store) {
+        return store + ":";
+    }
+
+    private String formatKey(String store, String key) {
+        return formatKey(store) + key;
     }
 
     @Override
     public List<String> get(String store) {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> list = new ArrayList<>();
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        if (multimap.isEmpty()) {
+            client.getKeys().getKeysByPattern(formatKey(store) + "*").forEach(e -> list.add(getFromStore(e)));
+        } else {
+            list.addAll(multimap.values());
+        }
+        return list;
     }
 
     @Override
     public String get(String store, String key) {
-        // TODO Auto-generated method stub
-        return null;
+        return getFromStore(formatKey(store, key));
     }
 
     @Override
     public List<String> getByValue(String store, String value) {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> list = new ArrayList<>();
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        logger.info("GETBYVALUE {} {}", store, value);
+        if (multimap.isEmpty()) {
+            client.getKeys().getKeysByPattern(formatKey(store) + "*").forEach(e -> {
+                if (value.equals(getFromStore(e))) { // TODO Optimize
+                    list.add(defomatKey(e, store));
+                }
+            });
+        } else {
+            multimap.entries().forEach(e -> {
+                if (value.equals(e.getValue())) {
+                    list.add(e.getKey());
+                }
+            });
+        }
+        return list;
     }
 
-    @Override
-    public List<String> getMultiKey(String store, String key) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void put(String store, String key, String value) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void putMultiKey(String store, String key, String value) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void remove(String store, String key) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void remove(String store, String key, String value) {
-        // TODO Auto-generated method stub
-
+    private String getFromStore(String storeKey) {
+        RBucket<String> bucket = client.getBucket(storeKey);
+        logger.info("GET {} : {}", storeKey, bucket.get());
+        return bucket.get();
     }
 
     @Override
     public Set<String> getKeys(String store) {
-        // TODO Auto-generated method stub
-        return null;
+        Set<String> keys = new HashSet<>();
+        client.getKeys().getKeysByPattern(formatKey(store) + "*").forEach(e -> keys.add(e));
+        return keys;
     }
 
     @Override
-    public void close() {
-        // TODO Auto-generated method stub
-
+    public List<String> getMultiKey(String store, String key) {
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        logger.info("MULTI GET {} : {}", formatKey(store, key), multimap.get(key));
+        return new ArrayList<String>(multimap.get(key));
     }
 
     @Override
@@ -99,9 +155,39 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     }
 
     @Override
-    public void consume(String channel, Function<String, Boolean> handler) {
-        // TODO Auto-generated method stub
+    public void put(String store, String key, String value) {
+        logger.info("PUT {} : {}", formatKey(store, key), value);
+        RBucket<String> bucket = client.getBucket(formatKey(store, key));
+        bucket.set(value);
+    }
 
+    @Override
+    public void putMultiKey(String store, String key, String value) {
+        logger.info("MULTI PUT {} : {}", formatKey(store, key), value);
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        multimap.put(key, value);
+    }
+
+    @Override
+    public void remove(String store, String key) {
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        if (multimap.isEmpty()) {
+            RBucket<String> bucket = client.getBucket(formatKey(store, key));
+            bucket.delete();
+        } else {
+            multimap.removeAll(key);
+        }
+    }
+
+    @Override
+    public void remove(String store, String key, String value) {
+        RSetMultimap<String, String> multimap = client.getSetMultimap(store);
+        if (multimap.isEmpty()) {
+            RBucket<String> bucket = client.getBucket(formatKey(store, key));
+            bucket.delete();
+        } else {
+            multimap.remove(key, value);
+        }
     }
 
 }

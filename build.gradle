@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.mapdb:mapdb:3.0.7' // embedded key value database
     implementation 'com.h2database:h2:1.4.197' // embedded JDBC database
     implementation 'redis.clients:jedis:3.0.1' // client for key value store
+    implementation 'org.redisson:redisson:3.3.0' // client for key value store
     implementation 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
 
     implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
