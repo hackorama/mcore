@@ -23,6 +23,7 @@ Distributed Micro Service Design
 | --- | --- | --- | --- | --- |
 | H2 |  | :heavy_check_mark: | | |
 | MongoDB | | | | |
+| Redis |  | :heavy_check_mark: | | |
 | MapsDB |  | :heavy_check_mark: | | |
 | MySQL |  :heavy_check_mark: | | | |
 | Postgresql |   :heavy_check_mark: | | | |
@@ -35,7 +36,7 @@ Distributed Micro Service Design
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
-| Redis |  |  |  |  |
+| Redis | :heavy_check_mark: | | | |
 | Hazelcast |  |  |  |  |
 | JCache |  |  |  |  |
 
