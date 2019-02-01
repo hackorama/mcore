@@ -9,4 +9,6 @@ public interface DataQueue {
 
     public void consume(String channel, Function<String, Boolean> handler);
 
+    public void close();
+
 }
