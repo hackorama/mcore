@@ -2,7 +2,7 @@
 
 Feature Plan and Status
 
-## Web
+### Web
 
 | Framework | Minimal | Most | Complete | Performance |
 | --- | --- | --- | --- | --- |
@@ -11,11 +11,13 @@ Feature Plan and Status
 | Vert.x | :heavy_check_mark: | | | |
 
 
-## Data 
+### Data
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
 | H2 |  | :heavy_check_mark: | | |
+| MongoDB | | | | |
+| Redis |  | :heavy_check_mark: | | |
 | MapsDB |  | :heavy_check_mark: | | |
 | MySQL |  :heavy_check_mark: | | | |
 | Postgresql |   :heavy_check_mark: | | | |
@@ -24,15 +26,15 @@ Feature Plan and Status
 | HSQL | | | | |
 | Firebird | | | | |
 
-## Cache
+### Cache
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
-| Redis |  |  |  |  |
+| Redis | :heavy_check_mark: | | | |
 | Hazelcast |  |  |  |  |
 | JCache |  |  |  |  |
 
-## Queue
+### Queue
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
@@ -41,10 +43,11 @@ Feature Plan and Status
 | Redis |  |  |  |  |
 | Hazelcast |  |  |  |  |
 
-## Client
+### Client
 
 | Framework | Minimal | Most | Complete |  Performance |
 | --- | --- | --- | --- | --- |
 | Unirest |  | :heavy_check_mark: |  |  |
 | Hystrix |  |  |  |  |
 | Resilience4j |  |  |  |  |
+

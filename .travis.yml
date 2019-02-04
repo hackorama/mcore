@@ -13,6 +13,7 @@ before_script:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
   - export PG_TEST=ENABLED
   - psql -c 'CREATE DATABASE "test";' -U postgres
+  - export REDIS_TEST=ENABLED
   - chmod +x gradlew
 
 after_success:
