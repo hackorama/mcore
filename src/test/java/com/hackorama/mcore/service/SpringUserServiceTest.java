@@ -2,11 +2,11 @@ package com.hackorama.mcore.service;
 
 import com.hackorama.mcore.common.TestUtil;
 
-public class VertxGroupServiceTest extends GroupServiceTest {
+public class SpringUserServiceTest extends UserServiceTest {
 
     @Override
     protected void setServer() {
-        TestUtil.setServerTypeVertx();
+        TestUtil.setServerTypeSpring();
     }
 
 }

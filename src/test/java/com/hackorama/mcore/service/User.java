@@ -2,7 +2,7 @@ package com.hackorama.mcore.service;
 
 
 
-public class Group extends Component {
+public class User extends Component {
 
     private String name;
     private String email;

@@ -16,12 +16,12 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.hackorama.mcore.common.TestUtil;
 
 /**
- * Tests for Group service
+ * Tests for User service
  *
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public class GroupServiceTest {
+public class UserServiceTest {
 
     private static final String DEFAULT_SERVER_ENDPOINT = TestUtil.defaultServerEndpoint();
 
@@ -32,7 +32,7 @@ public class GroupServiceTest {
     @Before
     public void setUp() throws Exception {
         setServer();
-        TestUtil.initGroupServiceInstance();
+        TestUtil.initUserServiceInstance();
     }
 
     @After
@@ -46,9 +46,9 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void groupService_postingMultiple_expectsSameOnGetAll() throws UnirestException {
+    public void userService_postingMultiple_expectsSameOnGetAll() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -56,7 +56,7 @@ public class GroupServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -64,7 +64,7 @@ public class GroupServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user").asJson();
         if (idOne.equals(jsonResponse.getBody().getArray().getJSONObject(0).getString("id"))) {
             assertEquals("one", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(1).getString("name"));
@@ -77,9 +77,9 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void groupService_getGroup_expectsMatchingGroup() throws UnirestException {
+    public void userService_getUser_expectsMatchingGroup() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -87,7 +87,7 @@ public class GroupServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -95,21 +95,21 @@ public class GroupServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idOne, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("two", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
     }
 
     @Test
-    public void groupService_deleteGroup_expectsGroupRemoved() throws UnirestException {
+    public void userService_deleteUser_expectsUserRemoved() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -117,7 +117,7 @@ public class GroupServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -125,35 +125,35 @@ public class GroupServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idOne, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("two", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user").asJson();
         assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getArray().getJSONObject(0).getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getArray().getJSONObject(0).getString("id"));
     }
 
     @Test
-    public void groupService_updateGroup_expectsUpdatedGroup() throws UnirestException {
+    public void userService_updateUser_expectsUpdatedUser() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -161,7 +161,7 @@ public class GroupServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.put(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo)
+        jsonResponse = Unirest.put(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo)
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"twentytwo\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -169,7 +169,7 @@ public class GroupServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("twentytwo", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));

@@ -34,7 +34,7 @@ public class CommonServiceTest {
     @Before
     public void setUp() throws Exception {
         setServer();
-        TestUtil.initGroupServiceInstance();
+        TestUtil.initUserServiceInstance();
     }
 
     @After
@@ -50,21 +50,21 @@ public class CommonServiceTest {
 
     @Test
     public void service_getResource_expectsOKStataus() throws UnirestException {
-        HttpResponse<JsonNode> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group")
+        HttpResponse<JsonNode> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user")
                 .header("accept", "application/json").asJson();
         assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
     }
 
     @Test
     public void workspaceService_postResource_expectsOKStataus() throws UnirestException {
-        HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                 .header("accept", "application/json").body("{ \"name\" : \"one\" }").asJson();
         assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
     }
 
     @Test
     public void service_invalidURL_expectsNotFoundStatus() throws UnirestException {
-        HttpResponse<String> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group/bad/path")
+        HttpResponse<String> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user/bad/path")
                 .header("accept", "application/json").body("{ \"name\" : \"one\" }").asString();
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.getStatus());
     }
@@ -72,7 +72,7 @@ public class CommonServiceTest {
     @Test
     public void service_postingMultiple_expectsSameOnGetAll() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -80,7 +80,7 @@ public class CommonServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -88,7 +88,7 @@ public class CommonServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user").asJson();
         if (idOne.equals(jsonResponse.getBody().getArray().getJSONObject(0).getString("id"))) {
             assertEquals("one", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(1).getString("name"));
@@ -103,7 +103,7 @@ public class CommonServiceTest {
     @Test
     public void service_getEntity_expectsMatchingEntity() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -111,7 +111,7 @@ public class CommonServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -119,12 +119,12 @@ public class CommonServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idOne, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("two", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
@@ -133,7 +133,7 @@ public class CommonServiceTest {
     @Test
     public void service_deleteEntity_expectsEntityRemoved() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
@@ -141,7 +141,7 @@ public class CommonServiceTest {
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idOne = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -149,19 +149,19 @@ public class CommonServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idOne, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("two", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/group/" + idOne).asJson();
+        jsonResponse = Unirest.delete(DEFAULT_SERVER_ENDPOINT + "/user/" + idOne).asJson();
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group").asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user").asJson();
         assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getArray().getJSONObject(0).getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getArray().getJSONObject(0).getString("id"));
@@ -170,14 +170,14 @@ public class CommonServiceTest {
     @Test
     public void service_updateEntity_expectsUpdatedEntity() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }")
                   .asJson();
         assertEquals("one", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("one@example.com", jsonResponse.getBody().getObject().getString("email"));
 
-        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/group")
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"two\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -185,7 +185,7 @@ public class CommonServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         String idTwo = jsonResponse.getBody().getObject().getString("id");
 
-        jsonResponse = Unirest.put(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo)
+        jsonResponse = Unirest.put(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo)
                   .header("accept", "application/json")
                   .body("{ \"name\" : \"twentytwo\", \"email\" : \"two@example.com\" }")
                   .asJson();
@@ -193,7 +193,7 @@ public class CommonServiceTest {
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));
 
-        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/group/" + idTwo).asJson();
+        jsonResponse = Unirest.get(DEFAULT_SERVER_ENDPOINT + "/user/" + idTwo).asJson();
         assertEquals("twentytwo", jsonResponse.getBody().getObject().getString("name"));
         assertEquals("two@example.com", jsonResponse.getBody().getObject().getString("email"));
         assertEquals(idTwo, jsonResponse.getBody().getObject().getString("id"));

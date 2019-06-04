@@ -12,8 +12,8 @@ import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
 import com.hackorama.mcore.server.vertx.VertxServer;
-import com.hackorama.mcore.service.GroupService;
 import com.hackorama.mcore.service.Service;
+import com.hackorama.mcore.service.UserService;
 
 public class TestUtil {
 
@@ -69,12 +69,12 @@ public class TestUtil {
         return service;
     }
 
-    public static Service initGroupServiceInstance() {
+    public static Service initUserServiceInstance() {
         initServer();
         if (service == null) {
-            service = new GroupService().configureUsing(server).configureUsing(dataStore).start();
+            service = new UserService().configureUsing(server).configureUsing(dataStore).start();
             TestUtil.waitForService();
-            logger.info("Started Group Service on server {}", server.getName());
+            logger.info("Started User Service on server {}", server.getName());
         }
         return service;
     }
