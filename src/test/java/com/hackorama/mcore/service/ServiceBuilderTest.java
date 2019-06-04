@@ -11,8 +11,8 @@ import com.hackorama.mcore.common.TestUtil;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
+import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.server.spark.SparkServer;
-import com.hackorama.mcore.service.group.GroupService;
 
 public class ServiceBuilderTest {
 
@@ -22,12 +22,12 @@ public class ServiceBuilderTest {
         Service service = null;
         if (TestUtil.getEnv("REDIS_TEST")) {
             store = new RedisDataStoreCacheQueue();
-            service = new GroupService().configureUsing(new SparkServer("test")).configureUsing(store)
+            service = new HelloService().configureUsing(new SparkServer("test")).configureUsing(store)
                     .configureUsing(store.asQueue()).configureUsing(store.asCache()).start();
             assertNotNull(service);
         } else {
             store = new MapdbDataStore();
-            service = new GroupService().configureUsing(new SparkServer("test")).configureUsing(store).start();
+            service = new HelloService().configureUsing(new SparkServer("test")).configureUsing(store).start();
             assertNotNull(service);
         }
         service.stop();

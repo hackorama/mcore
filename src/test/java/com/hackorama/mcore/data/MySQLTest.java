@@ -11,9 +11,9 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.data.jdbc.JDBCDataStore;
+import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
-import com.hackorama.mcore.service.group.GroupService;
 
 /**
  *
@@ -32,7 +32,7 @@ public class MySQLTest {
             System.out.println("Usage: java MySQLTest <db_password>");
             System.exit(1);
         }
-        Service service = new GroupService()
+        Service service = new HelloService()
                 .configureUsing(
                         new JDBCDataStore("jdbc:mysql://localhost/test", "com.mysql.cj.jdbc.Driver", "test", args[0]))
                 .configureUsing(new SparkServer("test")).start();

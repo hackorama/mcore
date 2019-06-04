@@ -25,7 +25,6 @@ public class Main {
     public static void main(String[] args)
             throws NoSuchMethodException, SecurityException, FileNotFoundException, IOException {
         usage(args);
-        ServiceManager.start(args);
     }
 
     private static void usage(String[] args) {

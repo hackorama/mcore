@@ -1,4 +1,4 @@
-package com.hackorama.mcore.service.group;
+package com.hackorama.mcore.service;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -18,7 +18,6 @@ import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.data.cache.DataCache;
 import com.hackorama.mcore.data.queue.DataQueue;
 import com.hackorama.mcore.server.Server;
-import com.hackorama.mcore.service.Service;
 
 public class GroupService implements Service {
 

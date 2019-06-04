@@ -1,7 +1,6 @@
-package com.hackorama.mcore.service.group;
+package com.hackorama.mcore.service;
 
 
-import com.hackorama.mcore.service.Component;
 
 public class Group extends Component {
 

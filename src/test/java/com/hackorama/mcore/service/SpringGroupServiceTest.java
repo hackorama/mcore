@@ -1,8 +1,8 @@
-package com.hackorama.mcore.service.workspace;
+package com.hackorama.mcore.service;
 
 import com.hackorama.mcore.common.TestUtil;
 
-public class SpringWorkSpaceAssociationTest extends WorkSpaceAssociationTest {
+public class SpringGroupServiceTest extends GroupServiceTest {
 
     @Override
     protected void setServer() {

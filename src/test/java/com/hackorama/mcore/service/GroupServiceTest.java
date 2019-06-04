@@ -1,4 +1,4 @@
-package com.hackorama.mcore.service.group;
+package com.hackorama.mcore.service;
 
 
 import static org.junit.Assert.assertEquals;

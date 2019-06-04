@@ -7,14 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.MemoryDataStore;
+import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
 import com.hackorama.mcore.server.vertx.VertxServer;
+import com.hackorama.mcore.service.GroupService;
 import com.hackorama.mcore.service.Service;
-import com.hackorama.mcore.service.environment.EnvironmentService;
-import com.hackorama.mcore.service.group.GroupService;
-import com.hackorama.mcore.service.workspace.WorkspaceService;
 
 public class TestUtil {
 
@@ -60,10 +59,10 @@ public class TestUtil {
         return server;
     }
 
-    public static Service initEnvServiceInstance() {
+    public static Service initHelloServiceInstance() {
         initServer();
         if (service == null) {
-            service = new EnvironmentService().configureUsing(server).configureUsing(dataStore).start();
+            service = new HelloService().configureUsing(server).configureUsing(dataStore).start();
             TestUtil.waitForService();
             logger.info("Started Environment Service on server {}", server.getName());
         }
@@ -100,29 +99,9 @@ public class TestUtil {
     }
 
     public static Service initServiceInstance() {
-        return initWorkSpaceServiceInstance();
+        return initHelloServiceInstance();
     }
 
-    public static Service initWorkSpaceGroupEnvServiceInstance() {
-        initServer();
-        if (service == null) {
-            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore).attach(new GroupService())
-                    .attach(new EnvironmentService()).start();
-            TestUtil.waitForService();
-            logger.info("Started Workspace Service on server {}", server.getName());
-        }
-        return service;
-    }
-
-    public static Service initWorkSpaceServiceInstance() {
-        initServer();
-        if (service == null) {
-            service = new WorkspaceService().configureUsing(server).configureUsing(dataStore).start();
-            TestUtil.waitForService();
-            logger.info("Started Workspace Service on server {}", server.getName());
-        }
-        return service;
-    }
 
     public static void stopServiceInstance() {
         if (server != null) {
