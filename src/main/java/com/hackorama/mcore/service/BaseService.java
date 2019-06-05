@@ -16,7 +16,7 @@ public abstract class BaseService implements Service {
     static DataCache dataCache;
     static DataQueue dataQueue;
     static DataStore dataStore = new MemoryDataStore();
-    static Server server;
+    protected Server server;
 
     public abstract void configure();
 
@@ -28,7 +28,7 @@ public abstract class BaseService implements Service {
 
     @Override
     public Service configureUsing(Server server) {
-        BaseService.setServer(server);
+        this.server = server;
         configure();
         return this;
     }
@@ -69,10 +69,6 @@ public abstract class BaseService implements Service {
         if (server != null) {
             server.stop();
         }
-    }
-
-    private static void setServer(Server server) {
-        BaseService.server = server;
     }
 
     private static void setCache(DataCache dataCache) {
