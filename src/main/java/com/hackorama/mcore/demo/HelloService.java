@@ -10,7 +10,6 @@ import com.hackorama.mcore.service.BaseService;
 public class HelloService extends BaseService {
 
     public static Response getHello(Request request) {
-        System.out.println(request.getParams());
         String name = request.getParams().get("name");
         if (name != null) {
             return new Response(new Gson().toJson("hello " + name));
