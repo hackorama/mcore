@@ -1,5 +1,7 @@
 package com.hackorama.mcore.common;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -24,8 +26,6 @@ public class TestUtil {
     private static final int DEFAULT_GROUP_SERVER_PORT = 4568;
     private static final int DEFAULT_ENV_SERVER_PORT = 4569;
     private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_SERVER_PORT;
-    private static final String DEFAULT_GROUP_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_GROUP_SERVER_PORT;
-    private static final String DEFAULT_ENV_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_ENV_SERVER_PORT;
     private static final String SERVER_TYPE_SPRING = "SPRING";
     private static final String SERVER_TYPE_SPARK = "SPARK";
     private static final String SERVER_TYPE_VERTX = "VERTX";
@@ -130,14 +130,6 @@ public class TestUtil {
     private TestUtil() {
     }
 
-    public static String defaultGroupServerEndpoint() {
-        return DEFAULT_GROUP_SERVER_ENDPOINT;
-    }
-
-    public static String defaultEnvServerEndpoint() {
-        return DEFAULT_ENV_SERVER_ENDPOINT;
-    }
-
     public static int defaultGroupServerPort() {
         return DEFAULT_GROUP_SERVER_PORT;
     }
@@ -168,6 +160,45 @@ public class TestUtil {
 
     public static void setServerType(String serverType) {
         TestUtil.serverType = serverType;
+    }
+
+    public static boolean waitOnPort(String host, int port, int timeOutSeconds) {
+        int elapsedSeconds = 0;
+        while (usingPort(host, port)) {
+            TestUtil.waitForSeconds(1);
+            if (timeOutSeconds > 0 && elapsedSeconds++ > timeOutSeconds) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean waitForPort(String host, int port, int timeOutSeconds) {
+        int elapsedSeconds = 0;
+        while (!usingPort(host, port)) {
+            TestUtil.waitForSeconds(1);
+            if (timeOutSeconds > 0 && elapsedSeconds++ > timeOutSeconds) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean usingPort(String host, int port) {
+        Socket socket = null;
+        try {
+            socket = new Socket(host, port);
+        } catch (IOException e) {
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return socket != null;
     }
 
 }
