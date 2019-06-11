@@ -46,6 +46,10 @@ public class TestService extends Test {
         return serverType;
     }
 
+    public static Iterable<? extends Object> getServerTypeList() {
+        return serverTypes;
+    }
+
     private static synchronized void initServer() {
         if (server == null) {
             logger.info("Using server type = {}", serverType);

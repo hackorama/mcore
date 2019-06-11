@@ -36,11 +36,11 @@ public class UserServiceTest {
 
     @Parameters
     public static Iterable<? extends Object> data() {
-        return TestServer.getServerTypeList();
+        return TestService.getServerTypeList();
     }
 
     public UserServiceTest(String serverType) {
-        TestServer.setServerType(serverType);
+        TestService.setServerType(serverType);
     }
 
     @Before
