@@ -22,6 +22,9 @@ public abstract class BaseService implements Service {
 
     @Override
     public Service attach(Service service) {
+        if (server == null) {
+            throw new RuntimeException("Please configure a server before attaching a service");
+        }
         service.configureUsing(server);
         return this;
     }
