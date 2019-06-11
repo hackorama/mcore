@@ -4,9 +4,6 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 
 import com.hackorama.mcore.common.HttpMethod;
@@ -15,8 +12,6 @@ import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
 
 public class UserService extends BaseService {
-
-    private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private static final String STORE_NAME = "user";
     private static final Gson GSON = new Gson();
