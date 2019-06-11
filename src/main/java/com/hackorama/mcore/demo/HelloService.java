@@ -1,7 +1,5 @@
 package com.hackorama.mcore.demo;
 
-import com.google.gson.Gson;
-
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
@@ -12,9 +10,9 @@ public class HelloService extends BaseService {
     public static Response getHello(Request request) {
         String name = request.getParams().get("name");
         if (name != null) {
-            return new Response(new Gson().toJson("hello " + name));
+            return new Response("hello " + name);
         } else {
-            return new Response(new Gson().toJson("hello world"));
+            return new Response("hello world");
         }
     }
 
