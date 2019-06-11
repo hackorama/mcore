@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.common.TestService;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
 
 public class RedisQueueTest {
@@ -21,7 +21,7 @@ public class RedisQueueTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        serverIntegrationTestsIsEnabled = TestUtil.getEnv("REDIS_TEST");
+        serverIntegrationTestsIsEnabled = TestService.getEnv("REDIS_TEST");
         try {
             queue = new RedisDataStoreCacheQueue();
             serverConnectionIsAvailable = true;

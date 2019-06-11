@@ -1,6 +1,6 @@
 package com.hackorama.mcore.service;
 
-import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.common.TestService;
 
 /**
  * Tests for Spring server implementation
@@ -11,7 +11,7 @@ import com.hackorama.mcore.common.TestUtil;
 public class SpringServiceTest extends CommonServiceTest {
 
     protected void setServer() {
-        TestUtil.setServerTypeSpring();
+        TestService.setServerTypeSpring();
     }
 
 }

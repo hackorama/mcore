@@ -1,13 +1,13 @@
 package com.hackorama.mcore.data;
 
-import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.common.TestService;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
 
 public class JDBCRedisDataStoreTest extends DataStoreTest {
 
     @Override
     protected void createDataStore() {
-        isOptional = !TestUtil.getEnv("REDIS_TEST");
+        isOptional = !TestService.getEnv("REDIS_TEST");
         try {
             dataStore = new RedisDataStoreCacheQueue();
         } catch (Exception e) {

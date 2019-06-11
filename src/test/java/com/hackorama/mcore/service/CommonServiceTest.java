@@ -15,7 +15,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.common.TestService;
 
 /**
  * Common tests for server implementations
@@ -25,27 +25,27 @@ import com.hackorama.mcore.common.TestUtil;
  */
 public class CommonServiceTest {
 
-    private static final String DEFAULT_SERVER_ENDPOINT = TestUtil.defaultServerEndpoint();;
+    private static final String DEFAULT_SERVER_ENDPOINT = TestService.defaultServerEndpoint();;
 
     protected void setServer() {
-        TestUtil.setServerTypeSpark();
+        TestService.setServerTypeSpark();
     }
 
     @Before
     public void setUp() throws Exception {
         setServer();
-        TestUtil.initUserServiceInstance();
+        TestService.initServiceInstance(new UserService());
     }
 
     @After
     public void tearDown() throws Exception {
-        TestUtil.clearDataOfServiceInstance();
+        TestService.clearDataOfServiceInstance();
     }
 
     @AfterClass
     public static void afterAllTests() throws Exception {
-        TestUtil.stopServiceInstance();
-        TestUtil.resetServerType();
+        TestService.stopServiceInstance();
+        TestService.resetServerType();
     }
 
     @Test

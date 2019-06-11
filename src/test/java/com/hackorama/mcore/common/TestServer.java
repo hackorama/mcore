@@ -1,8 +1,5 @@
 package com.hackorama.mcore.common;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,18 +17,12 @@ import com.hackorama.mcore.server.vertx.VertxServer;
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public class TestServer {
+public class TestServer extends Test {
+
     private static Logger logger = LoggerFactory.getLogger(TestServer.class);
 
-    private static final int DEFAULT_SERVER_PORT = 7654;
-    private static final String DEFAULT_SERVER_ENDPOINT = "http://127.0.0.1:" + DEFAULT_SERVER_PORT;
-    private static final String SERVER_TYPE_SPARK = "SPARK";
-    private static final String SERVER_TYPE_SPRING = "SPRING";
-    private static final String SERVER_TYPE_VERTX = "VERTX";
-    private static final List<String> serverTypes = Arrays.asList(SERVER_TYPE_SPRING, SERVER_TYPE_SPARK,
-            SERVER_TYPE_VERTX);
-    private static String serverType = System.getenv("SERVER_TYPE");
-    private static Server server = null;
+    private static final int DEFAULT_SERVER_PORT = 7654; //TODO Check if the port need to be unique from TestService
+    private static final String DEFAULT_SERVER_ENDPOINT = "http://" + DEFAULT_SERVER_HOST + ":" + DEFAULT_SERVER_PORT;
 
     public synchronized static void awaitShutdown() {
         if (server != null) {
@@ -42,7 +33,7 @@ public class TestServer {
     }
 
     public static void awaitStartup() {
-        if (!TestUtil.waitForPort("127.0.0.1", DEFAULT_SERVER_PORT, 60)) {
+        if (!TestUtil.waitForPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
             throw new RuntimeException("Server did not start as expectded");
         }
     }
@@ -107,9 +98,13 @@ public class TestServer {
     }
 
     private static void waitForShutdown() {
-        if (!TestUtil.waitOnPort("127.0.0.1", DEFAULT_SERVER_PORT, 60)) {
+        if (!TestUtil.waitOnPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
             throw new RuntimeException("Server did not shutdown as expectded");
         }
+    }
+
+    // Don't let anyone else instantiate this class
+    private TestServer() {
     }
 
 }

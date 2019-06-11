@@ -21,7 +21,7 @@ import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
-import com.hackorama.mcore.common.TestUtil;
+import com.hackorama.mcore.common.TestService;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
@@ -99,7 +99,7 @@ public class ServiceBuilderTest {
             throws FileNotFoundException, IOException, UnirestException {
         DataStore store = null;
         Service service = null;
-        if (TestUtil.getEnv("REDIS_TEST")) {
+        if (TestService.getEnv("REDIS_TEST")) {
             store = new RedisDataStoreCacheQueue();
             service = new HelloService().configureUsing(TestServer.createNewServer()).configureUsing(store)
                     .configureUsing(store.asQueue()).configureUsing(store.asCache()).start();
