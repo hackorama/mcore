@@ -38,7 +38,7 @@ public class VertxServer implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(VertxServer.class);
 
-    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
+    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
 
     private transient Vertx vertx;
@@ -47,10 +47,10 @@ public class VertxServer implements Server {
     private String name;
 
     {
-        handlerMap.put(HttpMethod.GET, new HashMap<>());
-        handlerMap.put(HttpMethod.POST, new HashMap<>());
-        handlerMap.put(HttpMethod.PUT, new HashMap<>());
-        handlerMap.put(HttpMethod.DELETE, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
     }
 
     private static Map<String, String> formatParams(Map<String, String> params) {
@@ -113,16 +113,16 @@ public class VertxServer implements Server {
 
     private void activateRoutes() {
         router.route().handler(BodyHandler.create()); // Must be set before the routes
-        handlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
+        routeHandlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
             router.get(path).handler(this::route);
         });
-        handlerMap.get(HttpMethod.POST).keySet().forEach(path -> {
+        routeHandlerMap.get(HttpMethod.POST).keySet().forEach(path -> {
             router.post(path).handler(this::route);
         });
-        handlerMap.get(HttpMethod.PUT).keySet().forEach(path -> {
+        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach(path -> {
             router.put(path).handler(this::route);
         });
-        handlerMap.get(HttpMethod.DELETE).keySet().forEach(path -> {
+        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach(path -> {
             router.delete(path).handler(this::route);
         });
     }
@@ -137,10 +137,10 @@ public class VertxServer implements Server {
                 Thread.currentThread().getId(), Thread.currentThread().getName());
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(
                 routingContext.getBodyAsString(), routingContext.pathParams());
-        String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
+        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));
         if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
+            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(routingContext.request().rawMethod())).get(matchingPath).apply(request);
             routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
         } else {
@@ -153,8 +153,18 @@ public class VertxServer implements Server {
     public void setRoutes(HttpMethod method, String path, Function<Request, Response> handler) {
         router.get(path).handler(this::route);
         String vertexPath = formatPathVariable(path);
-        handlerMap.get(method).put(vertexPath, handler);
+        routeHandlerMap.get(method).put(vertexPath, handler);
         trackParamList(vertexPath);
+    }
+
+    @Override
+    public void setRoutes(
+            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
+        routeHandlerMap.forEach( (method, route) -> {
+            route.forEach( (path, handler) -> {
+                setRoutes(method, path, handler);
+            });
+        });
     }
 
     @Override
@@ -180,5 +190,4 @@ public class VertxServer implements Server {
             paramListMap.put(path, params);
         }
     }
-
 }

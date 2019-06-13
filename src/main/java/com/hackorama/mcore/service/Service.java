@@ -1,5 +1,8 @@
 package com.hackorama.mcore.service;
 
+import java.util.function.Function;
+
+import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.cache.DataCache;
 import com.hackorama.mcore.data.queue.DataQueue;
@@ -21,6 +24,9 @@ public interface Service {
     }
 
     public Service configureUsing(Server server);
+
+    public void route(HttpMethod method, String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler);
 
     public Service start();
 

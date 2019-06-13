@@ -3,6 +3,7 @@ package com.hackorama.mcore.server.spring;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,8 +23,8 @@ import com.hackorama.mcore.server.Server;
  */
 public class SpringServer implements Server {
 
-    int port = 8080;
     String name;
+    int port = 8080;
 
     public SpringServer(String name) {
         this.name = name;
@@ -43,6 +44,16 @@ public class SpringServer implements Server {
     public void setRoutes(HttpMethod method, String path,  Function<Request, Response> handler) {
         Handler.getHandlerMap().get(method).put(path, handler);
         trackParamList(path);
+    }
+
+    @Override
+    public void setRoutes(
+            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
+        routeHandlerMap.forEach( (method, route) -> {
+            route.forEach( (path, handler) -> {
+                setRoutes(method, path, handler);
+            });
+        });
     }
 
     @Override

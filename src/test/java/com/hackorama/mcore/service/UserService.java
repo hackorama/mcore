@@ -53,11 +53,11 @@ public class UserService extends BaseService {
 
     @Override
     public void configure() {
-        server.setRoutes(HttpMethod.GET, "/user", UserService::getUser);
-        server.setRoutes(HttpMethod.GET, "/user/{id}", UserService::getUser);
-        server.setRoutes(HttpMethod.POST, "/user", UserService::createUser);
-        server.setRoutes(HttpMethod.PUT, "/user/{id}", UserService::editUser);
-        server.setRoutes(HttpMethod.DELETE, "/user/{id}", UserService::deleteUser);
+        route(HttpMethod.GET, "/user", UserService::getUser);
+        route(HttpMethod.GET, "/user/{id}", UserService::getUser);
+        route(HttpMethod.POST, "/user", UserService::createUser);
+        route(HttpMethod.PUT, "/user/{id}", UserService::editUser);
+        route(HttpMethod.DELETE, "/user/{id}", UserService::deleteUser);
     }
 
 }

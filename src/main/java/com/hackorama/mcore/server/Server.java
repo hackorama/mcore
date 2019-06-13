@@ -1,9 +1,12 @@
 package com.hackorama.mcore.server;
 
 
+import java.util.Map;
 import java.util.function.Function;
 
 import com.hackorama.mcore.common.HttpMethod;
+import com.hackorama.mcore.common.Request;
+import com.hackorama.mcore.common.Response;
 
 public interface Server {
 
@@ -13,6 +16,8 @@ public interface Server {
 
     public String getName();
 
-    public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler);
+    public void setRoutes(HttpMethod method, String path, Function<Request, Response> handler);
+
+    public void setRoutes(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap);
 
 }

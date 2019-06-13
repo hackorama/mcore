@@ -30,17 +30,17 @@ public class SparkServer implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkServer.class);
 
-    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> handlerMap = new HashMap<>();
+    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap = new HashMap<>();
     private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
 
     private int port = 8080;
     private String name;
 
     {
-        handlerMap.put(HttpMethod.GET, new HashMap<>());
-        handlerMap.put(HttpMethod.POST, new HashMap<>());
-        handlerMap.put(HttpMethod.PUT, new HashMap<>());
-        handlerMap.put(HttpMethod.DELETE, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
+        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
     }
 
     private static Map<String, String> formatParams(Map<String, String> params) {
@@ -54,6 +54,7 @@ public class SparkServer implements Server {
         });
         return parameters;
     }
+
     public static String formatPathVariable(String path) {
         UriTemplate uriTemplate = new UriTemplate(path);
         Map<String, String> parameters = new HashMap<>();
@@ -89,10 +90,10 @@ public class SparkServer implements Server {
         System.out.println(req.queryString());
         System.out.println(req.headers());
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(req.body(), formatParams(req.params())); // TODO
-        String matchingPath = getMatchingPath(handlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
+        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
                 req.params());
         if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) handlerMap
+            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).apply(request);
             res.status(response.getStatus());
             res.body(response.getBody());
@@ -114,16 +115,16 @@ public class SparkServer implements Server {
     }
 
     private void activateRoutes() {
-        handlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
             Spark.get(path, SparkServer::router);
         });
-        handlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
             Spark.post(path, SparkServer::router);
         });
-        handlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
             Spark.put(path, SparkServer::router);
         });
-        handlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
             Spark.delete(path, SparkServer::router);
         });
     }
@@ -136,8 +137,18 @@ public class SparkServer implements Server {
     @Override
     public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         String sparkPath = formatPathVariable(path);
-        handlerMap.get(method).put(sparkPath, handler);
+        routeHandlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);
+    }
+
+    @Override
+    public void setRoutes(
+            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
+        routeHandlerMap.forEach((method, route) -> {
+            route.forEach((path, handler) -> {
+                setRoutes(method, path, handler);
+            });
+        });
     }
 
     @Override

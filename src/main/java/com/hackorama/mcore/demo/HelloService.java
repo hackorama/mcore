@@ -18,8 +18,8 @@ public class HelloService extends BaseService {
 
     @Override
     public void configure() {
-        server.setRoutes(HttpMethod.GET, "/hello", HelloService::getHello);
-        server.setRoutes(HttpMethod.GET, "/hello/{name}", HelloService::getHello);
+        route(HttpMethod.GET, "/hello", HelloService::getHello);
+        route(HttpMethod.GET, "/hello/{name}", HelloService::getHello);
     }
 
 }
