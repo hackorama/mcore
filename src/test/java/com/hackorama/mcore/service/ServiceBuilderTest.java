@@ -76,7 +76,7 @@ public class ServiceBuilderTest {
     public void service_attachServicesUnderSameServer_expectsNoErrors() throws UnirestException {
         new ServiceOne().configureUsing(TestServer.createNewServer()).attach(new ServiceTwo()).start();
         TestServer.awaitStartup();
-        //assertTrue(TestServer.validResponse("/one", "ONE")); // FIXME
+        assertTrue(TestServer.validResponse("/one", "ONE"));
         assertTrue(TestServer.validResponse("/two", "TWO"));
         assertFalse(TestServer.validResponse("/one", "TWO"));
         assertFalse(TestServer.validResponse("/two", "ONE"));

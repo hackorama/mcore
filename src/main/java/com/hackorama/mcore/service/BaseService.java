@@ -23,8 +23,8 @@ import com.hackorama.mcore.server.Server;
 public abstract class BaseService implements Service {
 
     private static Logger logger = LoggerFactory.getLogger(BaseService.class);
-    private static Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
 
+    private Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
     {
         routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
         routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
@@ -52,6 +52,7 @@ public abstract class BaseService implements Service {
     public Service configureUsing(Server server) {
         this.server = server;
         configure();
+        server.setRoutes(routeHandlerMap);
         return this;
     }
 
@@ -82,7 +83,6 @@ public abstract class BaseService implements Service {
                 server.getClass().getName(), dataStore == null ? "NULL" : dataStore.getClass().getName(),
                 dataCache == null ? "NULL" : dataCache.getClass().getName(),
                 dataQueue == null ? "NULL" : dataQueue.getClass().getName());
-        server.setRoutes(routeHandlerMap);
         server.start();
         return this;
     }
