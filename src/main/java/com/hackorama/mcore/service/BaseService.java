@@ -1,13 +1,11 @@
 package com.hackorama.mcore.service;
 
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,24 @@ public abstract class BaseService implements Service {
 
     private static Logger logger = LoggerFactory.getLogger(BaseService.class);
 
+    static DataCache dataCache;
+    static DataQueue dataQueue;
+    static DataStore dataStore = new MemoryDataStore();
+
+    private static void setCache(DataCache dataCache) {
+        BaseService.dataCache = dataCache;
+    }
+
+    private static void setQueue(DataQueue dataQueue) {
+        BaseService.dataQueue = dataQueue;
+    }
+
+    private static void setStore(DataStore dataStore) {
+        BaseService.dataStore = dataStore;
+    }
+
     private Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
+
     {
         routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
         routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
@@ -32,28 +47,22 @@ public abstract class BaseService implements Service {
         routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
     }
 
-    static DataCache dataCache;
-    static DataQueue dataQueue;
-    static DataStore dataStore = new MemoryDataStore();
-    protected Server server;
+    private List<Service> attachedServices = new ArrayList<>();
 
-    public abstract void configure();
+    protected Server server;
 
     @Override
     public Service attach(Service service) {
-        if (server == null) {
-            throw new RuntimeException("Please configure a server before attaching a service");
-        }
+        attachedServices.add(service);
         service.configureUsing(server);
         return this;
     }
 
-    @Override
-    public Service configureUsing(Server server) {
-        this.server = server;
+    public abstract void configure();
+
+    private void configureRoutes(Server server) {
         configure();
         server.setRoutes(routeHandlerMap);
-        return this;
     }
 
     @Override
@@ -75,6 +84,17 @@ public abstract class BaseService implements Service {
     }
 
     @Override
+    public Service configureUsing(Server server) {
+        this.server = server;
+        return this;
+    }
+
+    public void route(HttpMethod method, String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        routeHandlerMap.get(method).put(path, handler);
+    }
+
+    @Override
     public Service start() {
         if (server == null) {
             throw new RuntimeException("Please configure a server before starting the service");
@@ -83,6 +103,10 @@ public abstract class BaseService implements Service {
                 server.getClass().getName(), dataStore == null ? "NULL" : dataStore.getClass().getName(),
                 dataCache == null ? "NULL" : dataCache.getClass().getName(),
                 dataQueue == null ? "NULL" : dataQueue.getClass().getName());
+        configureRoutes(server);
+        attachedServices.forEach( service -> {
+            ((BaseService)service).configureRoutes(server);
+        });
         server.start();
         return this;
     }
@@ -92,34 +116,6 @@ public abstract class BaseService implements Service {
         if (server != null) {
             server.stop();
         }
-    }
-
-    private static void setCache(DataCache dataCache) {
-        BaseService.dataCache = dataCache;
-    }
-
-    private static void setQueue(DataQueue dataQueue) {
-        BaseService.dataQueue = dataQueue;
-    }
-
-    private static void setStore(DataStore dataStore) {
-        BaseService.dataStore = dataStore;
-    }
-
-    public void route(HttpMethod method, String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        routeHandlerMap.get(method).put(path, handler);
-    }
-
-    public static String formatPathVariable(String path) {
-        UriTemplate uriTemplate = new UriTemplate(path);
-        Map<String, String> parameters = new HashMap<>();
-        uriTemplate.getTemplateVariables().forEach(e -> {
-            parameters.put(e, ":" + e);
-        });
-        UriBuilder builder = UriBuilder.fromPath(path);
-        URI output = builder.buildFromMap(parameters);
-        return output.toString();
     }
 
 }

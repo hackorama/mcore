@@ -8,9 +8,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -65,9 +63,6 @@ public class ServiceBuilderTest {
         return TestServer.getServerTypeList();
     }
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     public ServiceBuilderTest(String serverType) {
         TestServer.setServerType(serverType);
     }
@@ -84,11 +79,15 @@ public class ServiceBuilderTest {
     }
 
     @Test
-    public void service_attachServicesUnderSameServerAttchBeforeConfigure_expectsRuntimeException()
+    public void service_attachServicesUnderSameServerAttchBeforeConfigure_expectsNoErrors()
             throws UnirestException {
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Please configure a server before attaching a service");
-        new ServiceOne().attach(new ServiceTwo());
+        new ServiceOne().attach(new ServiceTwo()).configureUsing(TestServer.createNewServer()).attach(new ServiceTwo()).start();
+        TestServer.awaitStartup();
+        assertTrue(TestServer.validResponse("/one", "ONE"));
+        assertTrue(TestServer.validResponse("/two", "TWO"));
+        assertFalse(TestServer.validResponse("/one", "TWO"));
+        assertFalse(TestServer.validResponse("/two", "ONE"));
+        TestServer.awaitShutdown();
     }
 
     @Test
