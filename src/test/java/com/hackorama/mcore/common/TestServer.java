@@ -94,7 +94,6 @@ public class TestServer extends Test {
     }
 
     public static boolean validResponse(String url, String body) throws UnirestException {
-        System.out.println(url + " REPONSE:"+Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getBody());
         return body.equals(Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getBody());
     }
 
