@@ -30,7 +30,7 @@ public class Router {
                     }
                     return null; //TODO Return error message
                 });
-        Handler.getHandlerMap().get(HttpMethod.GET).forEach((k, v) -> {
+        handler.getHandlerMap().get(HttpMethod.GET).forEach((k, v) -> {
             routerFunction = routerFunction
                     .andRoute(RequestPredicates.GET(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -42,7 +42,7 @@ public class Router {
                     return null; //TODO Return error message
                     });
         });
-        Handler.getHandlerMap().get(HttpMethod.POST).forEach((k, v) -> {
+        handler.getHandlerMap().get(HttpMethod.POST).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.POST(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -54,7 +54,7 @@ public class Router {
                     return null; //TODO Return error message
                     });
         });
-        Handler.getHandlerMap().get(HttpMethod.PUT).forEach((k, v) -> {
+        handler.getHandlerMap().get(HttpMethod.PUT).forEach((k, v) -> {
             routerFunction = routerFunction
                     .andRoute(RequestPredicates.PUT(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -66,7 +66,7 @@ public class Router {
                     return null; //TODO Return error message
                     });
         });
-        Handler.getHandlerMap().get(HttpMethod.DELETE).forEach((k, v) -> {
+        handler.getHandlerMap().get(HttpMethod.DELETE).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.DELETE(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {

@@ -2,19 +2,10 @@ package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import javax.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,26 +15,36 @@ import spark.Spark;
 
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Util;
-import com.hackorama.mcore.server.Server;
+import com.hackorama.mcore.server.BaseServer;
 
-public class SparkServer implements Server {
+public class SparkServer extends BaseServer {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkServer.class);
 
-    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap = new HashMap<>();
-    private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
-
-    private int port = 8080;
-    private String name;
-
-    {
-        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
+    public SparkServer(String name) {
+        super(name);
     }
 
-    private static Map<String, String> formatParams(Map<String, String> params) {
+    public SparkServer(String name, int port) {
+        super(name, port);
+    }
+
+    private void activateRoutes() {
+        routeHandlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
+            Spark.get(path, this::router);
+        });
+        routeHandlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
+            Spark.post(path, this::router);
+        });
+        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
+            Spark.put(path, this::router);
+        });
+        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
+            Spark.delete(path, this::router);
+        });
+    }
+
+    private Map<String, String> formatParams(Map<String, String> params) {
         Map<String, String> parameters = new HashMap<>();
         params.forEach((k, v) -> {
             if (k.startsWith(":")) {
@@ -55,36 +56,7 @@ public class SparkServer implements Server {
         return parameters;
     }
 
-    public static String formatPathVariable(String path) {
-        UriTemplate uriTemplate = new UriTemplate(path);
-        Map<String, String> parameters = new HashMap<>();
-        uriTemplate.getTemplateVariables().forEach(e -> {
-            parameters.put(e, ":" + e);
-        });
-        UriBuilder builder = UriBuilder.fromPath(path);
-        URI output = builder.buildFromMap(parameters);
-        return output.toString();
-    }
-
-    private static String getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>> paths, String path, Map<String, String> paramValues) {
-        if (paths.containsKey(path)) {
-            return path;
-        }
-        for (Entry<String, List<String>> entry : paramListMap.entrySet()) {
-            String stored = entry.getKey();
-            for (String paramName : entry.getValue()) {
-                if (paramValues.containsKey(paramName)) {
-                    stored = stored.replaceFirst(paramName, paramValues.get(paramName)); // TODO else break
-                }
-            }
-            if (stored.equals(path)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    public static String router(Request req, Response res)
+    public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         System.out.println(req.queryParamOrDefault("test", "def"));
         System.out.println(req.queryString());
@@ -105,50 +77,11 @@ public class SparkServer implements Server {
         return res.body();
     }
 
-    public SparkServer(String name) {
-        this.name = name;
-    }
-
-    public SparkServer(String name, int port) {
-        this.name = name;
-        this.port = port;
-    }
-
-    private void activateRoutes() {
-        routeHandlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
-            Spark.get(path, SparkServer::router);
-        });
-        routeHandlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
-            Spark.post(path, SparkServer::router);
-        });
-        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
-            Spark.put(path, SparkServer::router);
-        });
-        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
-            Spark.delete(path, SparkServer::router);
-        });
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
     @Override
     public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         String sparkPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);
-    }
-
-    @Override
-    public void setRoutes(
-            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
-        routeHandlerMap.forEach((method, route) -> {
-            route.forEach((path, handler) -> {
-                setRoutes(method, path, handler);
-            });
-        });
     }
 
     @Override
@@ -162,14 +95,6 @@ public class SparkServer implements Server {
     public void stop() {
         Spark.awaitInitialization();
         Spark.stop();
-    }
-
-    private void trackParamList(String path) {
-        List<String> params = new ArrayList<String>(Arrays.asList(path.split("/"))).stream()
-                .filter(e -> e.startsWith(":")).collect(Collectors.toList());
-        if (!params.isEmpty()) {
-            paramListMap.put(path, params);
-        }
     }
 
 }

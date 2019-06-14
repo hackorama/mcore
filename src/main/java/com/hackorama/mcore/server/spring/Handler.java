@@ -31,24 +31,23 @@ public class Handler {
 
     private static final Logger logger = LoggerFactory.getLogger(Handler.class);
 
-    private static Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
-    private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
+    private static Map<String, List<String>> paramListMap; // used for matching paths
+    private static Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap;
 
-    public static Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
-        if (routeHandlerMap.isEmpty()) {
-            routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
-            routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
-            routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
-            routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
-        }
-        return routeHandlerMap;
+    static void setParamListMap(Map<String, List<String>> paramListMap) {
+        Handler.paramListMap = paramListMap;
     }
 
-    public static void setHandlerMap(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap) {
+    static void setRouteHandlerMap(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap) {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
-    private static String getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>> paths, String path, Map<String, String> paramValues) {
+    Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
+        return Handler.routeHandlerMap;
+    }
+
+    private String getMatchingPath(Map<String, Function<Request, Response>> paths, String path,
+            Map<String, String> paramValues) {
         Map<String, String> formattedParamValues = new HashMap<>(); // TODO improve
         paramValues.forEach((k, v) -> {
             formattedParamValues.put("{" + k + "}", v);
@@ -56,7 +55,7 @@ public class Handler {
         if (paths.containsKey(path)) {
             return path;
         }
-        for (Entry<String, List<String>> entry : paramListMap.entrySet()) {
+        for (Entry<String, List<String>> entry : Handler.paramListMap.entrySet()) {
             String stored = entry.getKey();
             for (String paramName : entry.getValue()) {
                 if (formattedParamValues.containsKey(paramName)) {
@@ -71,22 +70,19 @@ public class Handler {
         return null;
     }
 
-    public static Map<String, List<String>> getParamListMap() {
-        return paramListMap;
-    }
-
     public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(
-                req.bodyToMono(String.class).toFuture().get(), req.pathVariables()); // TODO future get
-        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.methodName())), req.path(),
-                req.pathVariables());
+        Request request = new Request(req.bodyToMono(String.class).toFuture().get(), req.pathVariables()); // TODO
+                                                                                                            // future
+                                                                                                            // get
+        String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
+                req.path(), req.pathVariables());
         logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),
                 Thread.currentThread().getName());
         if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
-                    .get(HttpMethod.valueOf(req.methodName())).get(matchingPath).apply(request);
+            Response response = (Response) Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName()))
+                    .get(matchingPath).apply(request);
             BodyBuilder res = ServerResponse.status(response.getStatus());
             return res.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromObject(response.getBody()));
         } else {

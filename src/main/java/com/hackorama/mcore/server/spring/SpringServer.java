@@ -3,14 +3,13 @@ package com.hackorama.mcore.server.spring;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
-import com.hackorama.mcore.server.Server;
+import com.hackorama.mcore.server.BaseServer;
 
 /**
  * Spring WebFlux server implementation
@@ -21,43 +20,26 @@ import com.hackorama.mcore.server.Server;
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public class SpringServer implements Server {
-
-    String name;
-    int port = 8080;
+public class SpringServer extends BaseServer {
 
     public SpringServer(String name) {
-        this.name = name;
+        super(name);
     }
 
     public SpringServer(String name, int port) {
-        this.name = name;
-        this.port = port;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name, port);
     }
 
     @Override
     public void setRoutes(HttpMethod method, String path,  Function<Request, Response> handler) {
-        Handler.getHandlerMap().get(method).put(path, handler);
+        routeHandlerMap.get(method).put(path, handler);
         trackParamList(path);
     }
 
     @Override
-    public void setRoutes(
-            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
-        routeHandlerMap.forEach( (method, route) -> {
-            route.forEach( (path, handler) -> {
-                setRoutes(method, path, handler);
-            });
-        });
-    }
-
-    @Override
     public boolean start() {
+        Handler.setRouteHandlerMap(routeHandlerMap);
+        Handler.setParamListMap(paramListMap);
         Application.start(port);
         return true;
     }
@@ -67,11 +49,12 @@ public class SpringServer implements Server {
         Application.stop();
     }
 
-    private void trackParamList(String path) {
+    @Override
+    protected void trackParamList(String path) {
         List<String> params = new ArrayList<String>(Arrays.asList(path.split("/"))).stream()
                 .filter(e -> e.startsWith("{") && e.endsWith("}")).collect(Collectors.toList());
         if (!params.isEmpty()) {
-            Handler.getParamListMap().put(path, params);
+            paramListMap.put(path, params);
         }
     }
 

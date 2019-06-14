@@ -1,19 +1,10 @@
 package com.hackorama.mcore.server.vertx;
 
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import javax.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.uri.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +12,7 @@ import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
-import com.hackorama.mcore.server.Server;
+import com.hackorama.mcore.server.BaseServer;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
@@ -34,81 +25,23 @@ import io.vertx.ext.web.handler.BodyHandler;
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public class VertxServer implements Server {
+public class VertxServer extends BaseServer  {
 
     private static final Logger logger = LoggerFactory.getLogger(VertxServer.class);
 
-    private static Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap = new HashMap<>();
-    private static Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
-
-    private transient Vertx vertx;
     private Router router;
-    private int port = 8080;
-    private String name;
-
-    {
-        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
-    }
-
-    private static Map<String, String> formatParams(Map<String, String> params) {
-        Map<String, String> parameters = new HashMap<>();
-        params.forEach((k, v) -> {
-            if (!k.startsWith(":")) {
-                parameters.put(":" + k, v);
-            } else {
-                parameters.put(k, v);
-            }
-        });
-        return parameters;
-    }
-
-    public static String formatPathVariable(String path) {
-        UriTemplate uriTemplate = new UriTemplate(path);
-        Map<String, String> parameters = new HashMap<>();
-        uriTemplate.getTemplateVariables().forEach(e -> {
-            parameters.put(e, ":" + e);
-        });
-        UriBuilder builder = UriBuilder.fromPath(path);
-        URI output = builder.buildFromMap(parameters);
-        return output.toString();
-    }
-
-    private static String getMatchingPath(
-            Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>> paths,
-            String path, Map<String, String> paramValues) {
-        if (paths.containsKey(path)) {
-            return path;
-        }
-        for (Entry<String, List<String>> entry : paramListMap.entrySet()) {
-            String stored = entry.getKey();
-            for (String paramName : entry.getValue()) {
-                if (paramValues.containsKey(paramName)) {
-                    stored = stored.replaceFirst(paramName, paramValues.get(paramName)); // TODO else break
-                }
-            }
-            if (stored.equals(path)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
+    private transient Vertx vertx;
 
     public VertxServer() {
-        vertx = Vertx.vertx();
-        router = Router.router(vertx);
+        super();
     }
 
     public VertxServer(String name) {
-        this();
-        this.name = name;
+        super(name);
     }
 
     public VertxServer(String name, int port) {
-        this(name);
-        this.port = port;
+        super(name, port);
     }
 
     private void activateRoutes() {
@@ -127,9 +60,24 @@ public class VertxServer implements Server {
         });
     }
 
+    private Map<String, String> formatParams(Map<String, String> params) {
+        Map<String, String> parameters = new HashMap<>();
+        params.forEach((k, v) -> {
+            if (!k.startsWith(":")) {
+                parameters.put(":" + k, v);
+            } else {
+                parameters.put(k, v);
+            }
+        });
+        return parameters;
+    }
+
     @Override
-    public String getName() {
-        return name;
+    protected void init() {
+        super.init();
+        vertx = Vertx.vertx();
+        router = Router.router(vertx);
+
     }
 
     private void route(RoutingContext routingContext) {
@@ -157,15 +105,6 @@ public class VertxServer implements Server {
         trackParamList(vertexPath);
     }
 
-    @Override
-    public void setRoutes(
-            Map<HttpMethod, Map<String, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response>>> routeHandlerMap) {
-        routeHandlerMap.forEach( (method, route) -> {
-            route.forEach( (path, handler) -> {
-                setRoutes(method, path, handler);
-            });
-        });
-    }
 
     @Override
     public boolean start() {
@@ -183,11 +122,4 @@ public class VertxServer implements Server {
         }
     }
 
-    private void trackParamList(String path) {
-        List<String> params = new ArrayList<String>(Arrays.asList(path.split("/"))).stream()
-                .filter(e -> e.startsWith(":")).collect(Collectors.toList());
-        if (!params.isEmpty()) {
-            paramListMap.put(path, params);
-        }
-    }
 }
