@@ -97,6 +97,10 @@ public class TestServer extends Test {
         return body.equals(Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getBody());
     }
 
+    public static boolean validResponseCode(String url, int code) throws UnirestException {
+        return code == Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getStatus();
+    }
+
     private static void waitForShutdown() {
         if (!TestUtil.waitOnPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
             throw new RuntimeException("Server did not shutdown as expectded");
