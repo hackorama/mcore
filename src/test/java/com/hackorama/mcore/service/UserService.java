@@ -20,13 +20,13 @@ public class UserService extends BaseService {
     }
 
     public static Response deleteUser(Request request) {
-        dataStore.remove(STORE_NAME, request.getParams().get("id"));
+        dataStore.remove(STORE_NAME, request.getPathParams().get("id"));
         return new Response("");
     }
 
     public static Response editUser(Request request) {
         User user = GSON.fromJson(request.getBody(), User.class);
-        String id = request.getParams().get("id");
+        String id = request.getPathParams().get("id");
         if (id != null) { // updating existing
             user.setId(id);
         } else { // adding as new
@@ -37,7 +37,7 @@ public class UserService extends BaseService {
     }
 
     public static Response getUser(Request request) {
-        String id = request.getParams().get("id");
+        String id = request.getPathParams().get("id");
         if (id == null) {
             List<User> users = new ArrayList<>();
             for (String data : dataStore.get(STORE_NAME)) {

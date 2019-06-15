@@ -105,7 +105,6 @@ public class VertxServer extends BaseServer  {
         trackParamList(vertexPath);
     }
 
-
     @Override
     public boolean start() {
         activateRoutes();

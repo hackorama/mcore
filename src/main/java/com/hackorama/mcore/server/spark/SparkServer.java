@@ -2,7 +2,9 @@ package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,21 +46,38 @@ public class SparkServer extends BaseServer {
         });
     }
 
-    private Map<String, String> formatParams(Map<String, String> params) {
-        Map<String, String> parameters = new HashMap<>();
-        params.forEach((k, v) -> {
+    private Map<String, String> formatPathParams(Request request) {
+        Map<String, String> params = new HashMap<>();
+        request.params().forEach((k, v) -> {
             if (k.startsWith(":")) {
-                parameters.put(k.substring(1), v);
+                params.put(k.substring(1), v);
             } else {
-                parameters.put(k, v);
+                params.put(k, v);
             }
         });
-        return parameters;
+        return params;
+    }
+
+    private Map<String, List<String>> formatQueryParams(Request request) {
+        Map<String, List<String>> params = new HashMap<>();
+        request.queryMap().toMap().forEach((k,v) -> {
+            params.put(k, Arrays.asList(v));
+        });
+        return params;
+    }
+
+    private Map<String, String> formatHeaders(Request request) {
+        Map<String, String> headers = new HashMap<>();
+        request.headers().forEach(h -> {
+            headers.put(h, request.headers(h));
+        });
+        return headers;
     }
 
     public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(req.body(), formatParams(req.params())); // TODO
+        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request().setBody(req.body())
+                .setPathParams(formatPathParams(req)).setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req));
         String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
                 req.params());
         if (matchingPath != null) {

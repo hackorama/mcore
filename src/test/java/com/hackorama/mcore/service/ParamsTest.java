@@ -24,9 +24,9 @@ public class ParamsTest {
     private static class TestParams extends BaseService {
 
         public Response getParams(Request request) {
-            boolean result = "one".equals(request.getParams().get("one"));
-            result = "two".equals(request.getParams().get("two"));
-            result = "three".equals(request.getParams().get("three"));
+            boolean result = "one".equals(request.getPathParams().get("one"));
+            result = "two".equals(request.getPathParams().get("two"));
+            result = "three".equals(request.getPathParams().get("three"));
             return new Response("ONE", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
         }
 

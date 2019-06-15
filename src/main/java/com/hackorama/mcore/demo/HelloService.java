@@ -7,7 +7,7 @@ import com.hackorama.mcore.service.BaseService;
 public class HelloService extends BaseService {
 
     public static Response getHello(Request request) {
-        String name = request.getParams().get("name");
+        String name = request.getPathParams().get("name");
         if (name != null) {
             return new Response("hello " + name);
         } else {
