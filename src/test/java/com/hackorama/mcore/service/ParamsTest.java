@@ -14,7 +14,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
@@ -24,7 +23,7 @@ public class ParamsTest {
 
     private static class TestParams extends BaseService {
 
-        public static Response getParams(Request request) {
+        public Response getParams(Request request) {
             boolean result = "one".equals(request.getParams().get("one"));
             result = "two".equals(request.getParams().get("two"));
             result = "three".equals(request.getParams().get("three"));
@@ -33,8 +32,8 @@ public class ParamsTest {
 
         @Override
         public void configure() {
-            route(HttpMethod.GET, "/test/{one}/{two}/{three}", TestParams::getParams);
-            route(HttpMethod.GET, "/test/{one}/{two}/{three}/", TestParams::getParams);
+            GET("/test/{one}/{two}/{three}", this::getParams);
+            GET("/test/{one}/{two}/{three}/", this::getParams);
         }
     }
 
@@ -55,6 +54,16 @@ public class ParamsTest {
     @Test
     public void service_attachServicesUnderSameServer_expectsNoErrors() throws UnirestException {
         new TestParams().configureUsing(TestServer.createNewServer()).start();
+        /*new BaseService() {
+            public Response hello(Request request) {
+                return new Response("hello");
+            }
+            @Override
+            public void configure() {
+                route(HttpMethod.GET, "/hello", this::hello);
+            }
+
+        };*/
         TestServer.awaitStartup();
         assertTrue(TestServer.validResponseCode("/test/one/two/three", HttpURLConnection.HTTP_OK));
         assertTrue(TestServer.validResponseCode("/test/one/two/three/", HttpURLConnection.HTTP_OK));

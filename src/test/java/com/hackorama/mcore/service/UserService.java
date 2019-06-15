@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
@@ -53,11 +52,11 @@ public class UserService extends BaseService {
 
     @Override
     public void configure() {
-        route(HttpMethod.GET, "/user", UserService::getUser);
-        route(HttpMethod.GET, "/user/{id}", UserService::getUser);
-        route(HttpMethod.POST, "/user", UserService::createUser);
-        route(HttpMethod.PUT, "/user/{id}", UserService::editUser);
-        route(HttpMethod.DELETE, "/user/{id}", UserService::deleteUser);
+        GET("/user", UserService::getUser);
+        GET("/user/{id}", UserService::getUser);
+        POST("/user", UserService::createUser);
+        PUT("/user/{id}", UserService::editUser);
+        DELETE("/user/{id}", UserService::deleteUser);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.hackorama.mcore.demo;
 
-import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.service.BaseService;
@@ -18,8 +17,8 @@ public class HelloService extends BaseService {
 
     @Override
     public void configure() {
-        route(HttpMethod.GET, "/hello", HelloService::getHello);
-        route(HttpMethod.GET, "/hello/{name}", HelloService::getHello);
+        GET("/hello", HelloService::getHello);
+        GET("/hello/{name}", HelloService::getHello);
     }
 
 }

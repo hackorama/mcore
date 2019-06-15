@@ -38,7 +38,11 @@ public abstract class BaseService implements Service {
         BaseService.dataStore = dataStore;
     }
 
+    private List<Service> attachedServices = new ArrayList<>();
+
     private Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
+
+    protected Server server;
 
     {
         routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
@@ -46,10 +50,6 @@ public abstract class BaseService implements Service {
         routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
         routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
     }
-
-    private List<Service> attachedServices = new ArrayList<>();
-
-    protected Server server;
 
     @Override
     public Service attach(Service service) {
@@ -89,7 +89,26 @@ public abstract class BaseService implements Service {
         return this;
     }
 
-    public void route(HttpMethod method, String path,
+    public void DELETE(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.DELETE, path, handler);
+    }
+
+    public void GET(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.GET, path, handler);
+    }
+    public void POST(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.POST, path, handler);
+    }
+
+    public void PUT(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.PUT, path, handler);
+    }
+
+    public void ROUTE(HttpMethod method, String path,
             Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         routeHandlerMap.get(method).put(path, handler);
     }

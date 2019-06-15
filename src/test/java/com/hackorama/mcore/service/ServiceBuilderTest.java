@@ -15,7 +15,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
@@ -36,7 +35,7 @@ public class ServiceBuilderTest {
 
         @Override
         public void configure() {
-            route(HttpMethod.GET, "/one", ServiceOne::getOne);
+            GET("/one", ServiceOne::getOne);
 
         }
     }
@@ -49,7 +48,7 @@ public class ServiceBuilderTest {
 
         @Override
         public void configure() {
-            route(HttpMethod.GET, "/two", ServiceTwo::getTwo);
+            GET("/two", ServiceTwo::getTwo);
         }
     }
 
