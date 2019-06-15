@@ -58,9 +58,6 @@ public class SparkServer extends BaseServer {
 
     public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        System.out.println(req.queryParamOrDefault("test", "def"));
-        System.out.println(req.queryString());
-        System.out.println(req.headers());
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(req.body(), formatParams(req.params())); // TODO
         String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
                 req.params());
