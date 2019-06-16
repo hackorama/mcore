@@ -77,6 +77,18 @@ public class TestServer extends Test {
         return serverTypes;
     }
 
+    public static boolean isSparkServer() {
+        return SERVER_TYPE_SPARK.equals(serverType);
+    }
+
+    public static boolean isSpringServer() {
+        return SERVER_TYPE_SPRING.equals(serverType);
+    }
+
+    public static boolean isVertxServer() {
+        return SERVER_TYPE_VERTX.equals(serverType);
+    }
+
     public static void setServerType(String serverType) {
         TestServer.serverType = serverType;
     }
