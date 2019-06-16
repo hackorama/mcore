@@ -54,16 +54,6 @@ public class ParamsTest {
     @Test
     public void service_attachServicesUnderSameServer_expectsNoErrors() throws UnirestException {
         new TestParams().configureUsing(TestServer.createNewServer()).start();
-        /*new BaseService() {
-            public Response hello(Request request) {
-                return new Response("hello");
-            }
-            @Override
-            public void configure() {
-                route(HttpMethod.GET, "/hello", this::hello);
-            }
-
-        };*/
         TestServer.awaitStartup();
         assertTrue(TestServer.validResponseCode("/test/one/two/three", HttpURLConnection.HTTP_OK));
         assertTrue(TestServer.validResponseCode("/test/one/two/three/", HttpURLConnection.HTTP_OK));

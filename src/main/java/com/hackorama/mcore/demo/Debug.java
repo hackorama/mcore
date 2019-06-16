@@ -40,7 +40,7 @@ public class Debug {
                 });
             }
 
-            @SuppressFBWarnings // Ignore invalid UMAC warning, method is used by Function interface
+            @SuppressFBWarnings // Ignore invalid UMAC warning, method is accessed by Function interface
             public Response test(Request request) {
                 debug(request);
                 return new Response("DEBUG");
