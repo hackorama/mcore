@@ -23,17 +23,38 @@ public class ParamsTest {
 
     private static class TestParams extends BaseService {
 
-        public Response getParams(Request request) {
+        public Response getPathParams(Request request) {
             boolean result = "one".equals(request.getPathParams().get("one"));
-            result = "two".equals(request.getPathParams().get("two"));
-            result = "three".equals(request.getPathParams().get("three"));
-            return new Response("ONE", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+            result &= "two".equals(request.getPathParams().get("two"));
+            result &= "three".equals(request.getPathParams().get("three"));
+            return new Response("PATHOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getQueryParams(Request request) {
+            boolean result = request.getQueryParams().get("one").contains("uno");
+            result &= request.getQueryParams().get("two").contains("dos");
+            result &= request.getQueryParams().get("three").contains("tres");
+            return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getPathQueryParams(Request request) {
+            boolean result = request.getQueryParams().get("one").contains("uno");
+            result &= request.getQueryParams().get("two").contains("dos");
+            result &= request.getQueryParams().get("three").contains("tres");
+            result &= "one".equals(request.getPathParams().get("one"));
+            result &= "two".equals(request.getPathParams().get("two"));
+            result &= "three".equals(request.getPathParams().get("three"));
+            return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
         }
 
         @Override
         public void configure() {
-            GET("/test/{one}/{two}/{three}", this::getParams);
-            GET("/test/{one}/{two}/{three}/", this::getParams);
+            GET("/testpathparams/{one}/{two}/{three}", this::getPathParams);
+            GET("/testpathparams/{one}/{two}/{three}/", this::getPathParams);
+            GET("/testqueryparams", this::getQueryParams);
+            GET("/testqueryparams/", this::getQueryParams);
+            GET("/testpathqueryparams/{one}/{two}/{three}", this::getPathQueryParams);
+            GET("/testpathqueryparams/{one}/{two}/{three}/", this::getPathQueryParams);
         }
     }
 
@@ -52,16 +73,42 @@ public class ParamsTest {
     }
 
     @Test
-    public void service_attachServicesUnderSameServer_expectsNoErrors() throws UnirestException {
+    public void service_sendPathParameters_expectCorrectParamProcessing() throws UnirestException {
         new TestParams().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
-        assertTrue(TestServer.validResponseCode("/test/one/two/three", HttpURLConnection.HTTP_OK));
-        assertTrue(TestServer.validResponseCode("/test/one/two/three/", HttpURLConnection.HTTP_OK));
-        assertFalse(TestServer.validResponseCode("/test/one/two/three/x", HttpURLConnection.HTTP_OK));
-        assertFalse(TestServer.validResponseCode("/test/two/three", HttpURLConnection.HTTP_OK));
-        assertFalse(TestServer.validResponseCode("/test/two/three/one", HttpURLConnection.HTTP_OK));
-        assertFalse(TestServer.validResponseCode("/test/three/one/two", HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testpathparams/one/two/three", HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testpathparams/one/two/three/", HttpURLConnection.HTTP_OK));
+        assertFalse(TestServer.validResponseCode("/testpathparams/one/two/three/x", HttpURLConnection.HTTP_OK));
+        assertFalse(TestServer.validResponseCode("/testpathparams/two/three", HttpURLConnection.HTTP_OK));
+        assertFalse(TestServer.validResponseCode("/testpathparams/two/three/one", HttpURLConnection.HTTP_OK));
+        assertFalse(TestServer.validResponseCode("/testpathparams/three/one/two", HttpURLConnection.HTTP_OK));
         TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendQueryParameters_expectCorrectParamProcessing() throws UnirestException {
+        if (TestServer.isSparkServer()) { // TODO Update after other servers supports query params
+            new TestParams().configureUsing(TestServer.createNewServer()).start();
+            TestServer.awaitStartup();
+            assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
+                    HttpURLConnection.HTTP_OK));
+            assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
+                    HttpURLConnection.HTTP_OK));
+            TestServer.awaitShutdown();
+        }
+    }
+
+    @Test
+    public void service_sendPathAndQueryParameters_expectCorrectParamProcessing() throws UnirestException {
+        if (TestServer.isSparkServer()) { // TODO Update after other servers supports query params
+            new TestParams().configureUsing(TestServer.createNewServer()).start();
+            TestServer.awaitStartup();
+            assertTrue(TestServer.validResponseCode("/testqueryparams?one=uno&two=dos&three=tres",
+                    HttpURLConnection.HTTP_OK));
+            assertTrue(TestServer.validResponseCode("/testqueryparams/?one=uno&two=dos&three=tres",
+                    HttpURLConnection.HTTP_OK));
+            TestServer.awaitShutdown();
+        }
     }
 
     @Before
