@@ -23,26 +23,9 @@ public class Debug {
                 POST("/test/{test}/", this::test);
             }
 
-            private void debug(Request request) {
-                System.out.println("BODY");
-                System.out.println(" " + request.getBody());
-                System.out.println("PATH PARAMS");
-                request.getPathParams().forEach((k, v) -> {
-                    System.out.println(" " + k + ": " + v);
-                });
-                System.out.println("QUERY PARAMS");
-                request.getQueryParams().forEach((k, v) -> {
-                    System.out.println(" " + k + ": " + v);
-                });
-                System.out.println("HEADERS");
-                request.getHeaders().forEach((k, v) -> {
-                    System.out.println(" " + k + ":" + v);
-                });
-            }
-
             @SuppressFBWarnings // Ignore invalid UMAC warning, method is accessed by Function interface
             public Response test(Request request) {
-                debug(request);
+                com.hackorama.mcore.common.Debug.request(request);
                 return new Response("DEBUG");
             }
 
