@@ -89,9 +89,9 @@ public class ParamsTest {
     public void service_sendQueryParameters_expectCorrectParamProcessing() throws UnirestException {
         new TestParams().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
-        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
-                HttpURLConnection.HTTP_OK));
-        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
+        assertTrue(
+                TestServer.validResponseCode("/testqueryparams?one=uno&two=dos&three=tres", HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testqueryparams/?one=uno&two=dos&three=tres",
                 HttpURLConnection.HTTP_OK));
         TestServer.awaitShutdown();
     }
@@ -100,9 +100,9 @@ public class ParamsTest {
     public void service_sendPathAndQueryParameters_expectCorrectParamProcessing() throws UnirestException {
         new TestParams().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
-        assertTrue(
-                TestServer.validResponseCode("/testqueryparams?one=uno&two=dos&three=tres", HttpURLConnection.HTTP_OK));
-        assertTrue(TestServer.validResponseCode("/testqueryparams/?one=uno&two=dos&three=tres",
+        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
+                HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
                 HttpURLConnection.HTTP_OK));
         TestServer.awaitShutdown();
     }
