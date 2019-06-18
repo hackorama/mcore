@@ -1,5 +1,7 @@
 package com.hackorama.mcore.common;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,10 @@ public class TestServer extends Test {
 
     public static boolean validResponseCode(String url, int code) throws UnirestException {
         return code == Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getStatus();
+    }
+
+    public static boolean validResponseCode(String url, Map<String, String> headers, int code) throws UnirestException {
+        return code == Unirest.get(DEFAULT_SERVER_ENDPOINT + url).headers(headers).asString().getStatus();
     }
 
     private static void waitForShutdown() {
