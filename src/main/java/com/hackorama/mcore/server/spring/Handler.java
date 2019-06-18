@@ -42,6 +42,14 @@ public class Handler {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
+    private Map<String, String> formatHeaders(ServerRequest req) {
+        Map<String, String> headers = new HashMap<>();
+        req.headers().asHttpHeaders().keySet().forEach(k -> {
+            headers.put(k, req.headers().asHttpHeaders().getFirst(k)); //TODO support list of values
+        });
+        return headers;
+    }
+
     Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
         return Handler.routeHandlerMap;
     }
@@ -73,9 +81,8 @@ public class Handler {
     public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        Request request = new Request(req.bodyToMono(String.class).toFuture().get(), req.pathVariables()); // TODO
-                                                                                                            // future
-                                                                                                            // get
+        Request request = new Request(req.bodyToMono(String.class).toFuture().get()).setPathParams(req.pathVariables())
+                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)); // TODO future get
         String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
                 req.path(), req.pathVariables());
         logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),

@@ -18,11 +18,6 @@ public class Request {
         this.body = body;
     }
 
-    public Request(String body, Map<String, String> pathParams) {
-        this(body);
-        this.pathParams = pathParams;
-    }
-
     public String getBody() {
         return body;
     }

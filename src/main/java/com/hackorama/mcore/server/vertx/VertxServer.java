@@ -2,6 +2,7 @@ package com.hackorama.mcore.server.vertx;
 
 import java.net.HttpURLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -14,7 +15,9 @@ import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.server.BaseServer;
 
+import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -60,6 +63,22 @@ public class VertxServer extends BaseServer  {
         });
     }
 
+    private Map<String, List<String>> fomatQueryParams(MultiMap queryParams) {
+        Map<String, List<String>> params = new HashMap<>();
+        queryParams.names().forEach(k -> {
+            params.put(k, queryParams.getAll(k));
+        });
+        return params;
+    }
+
+    private Map<String, String> formatHeaders(HttpServerRequest httpServerRequest) {
+        Map<String, String> headers = new HashMap<>();
+        httpServerRequest.headers().names().forEach(k -> {
+            headers.put(k, httpServerRequest.headers().get(k)); // TODO support list of values
+        });
+        return headers;
+    }
+
     private Map<String, String> formatParams(Map<String, String> params) {
         Map<String, String> parameters = new HashMap<>();
         params.forEach((k, v) -> {
@@ -84,8 +103,11 @@ public class VertxServer extends BaseServer  {
         logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
                 Thread.currentThread().getId(), Thread.currentThread().getName());
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(
-                routingContext.getBodyAsString(), routingContext.pathParams());
-        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
+                routingContext.getBodyAsString()).setPathParams(routingContext.pathParams())
+                        .setQueryParams(fomatQueryParams(routingContext.queryParams()))
+                        .setHeaders(formatHeaders(routingContext.request()));
+        String matchingPath = getMatchingPath(
+                routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap

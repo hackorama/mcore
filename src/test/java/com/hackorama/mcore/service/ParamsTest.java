@@ -87,28 +87,24 @@ public class ParamsTest {
 
     @Test
     public void service_sendQueryParameters_expectCorrectParamProcessing() throws UnirestException {
-        if (TestServer.isSparkServer()) { // TODO Update after other servers supports query params
-            new TestParams().configureUsing(TestServer.createNewServer()).start();
-            TestServer.awaitStartup();
-            assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
-                    HttpURLConnection.HTTP_OK));
-            assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
-                    HttpURLConnection.HTTP_OK));
-            TestServer.awaitShutdown();
-        }
+        new TestParams().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
+                HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
+                HttpURLConnection.HTTP_OK));
+        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendPathAndQueryParameters_expectCorrectParamProcessing() throws UnirestException {
-        if (TestServer.isSparkServer()) { // TODO Update after other servers supports query params
-            new TestParams().configureUsing(TestServer.createNewServer()).start();
-            TestServer.awaitStartup();
-            assertTrue(TestServer.validResponseCode("/testqueryparams?one=uno&two=dos&three=tres",
-                    HttpURLConnection.HTTP_OK));
-            assertTrue(TestServer.validResponseCode("/testqueryparams/?one=uno&two=dos&three=tres",
-                    HttpURLConnection.HTTP_OK));
-            TestServer.awaitShutdown();
-        }
+        new TestParams().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        assertTrue(
+                TestServer.validResponseCode("/testqueryparams?one=uno&two=dos&three=tres", HttpURLConnection.HTTP_OK));
+        assertTrue(TestServer.validResponseCode("/testqueryparams/?one=uno&two=dos&three=tres",
+                HttpURLConnection.HTTP_OK));
+        TestServer.awaitShutdown();
     }
 
     @Before
