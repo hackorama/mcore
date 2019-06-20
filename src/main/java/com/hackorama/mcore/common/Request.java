@@ -7,7 +7,7 @@ import java.util.Map;
 public class Request {
 
     private String body;
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, List<String>> headers = new HashMap<>();
     private Map<String, String> pathParams = new HashMap<>();
     private Map<String, List<String>> queryParams = new HashMap<>();
 
@@ -22,7 +22,7 @@ public class Request {
         return body;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
@@ -39,7 +39,7 @@ public class Request {
         return this;
     }
 
-    public Request setHeaders(Map<String, String> headers) {
+    public Request setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         return this;
     }

@@ -42,10 +42,10 @@ public class Handler {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
-    private Map<String, String> formatHeaders(ServerRequest req) {
-        Map<String, String> headers = new HashMap<>();
+    private Map<String, List<String>> formatHeaders(ServerRequest req) {
+        Map<String, List<String>> headers = new HashMap<>();
         req.headers().asHttpHeaders().keySet().forEach(k -> {
-            headers.put(k, req.headers().asHttpHeaders().getFirst(k)); //TODO support list of values
+            headers.put(k, req.headers().asHttpHeaders().get(k));
         });
         return headers;
     }

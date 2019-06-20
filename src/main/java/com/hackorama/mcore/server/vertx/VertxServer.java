@@ -71,10 +71,10 @@ public class VertxServer extends BaseServer  {
         return params;
     }
 
-    private Map<String, String> formatHeaders(HttpServerRequest httpServerRequest) {
-        Map<String, String> headers = new HashMap<>();
+    private Map<String, List<String>> formatHeaders(HttpServerRequest httpServerRequest) {
+        Map<String, List<String>> headers = new HashMap<>();
         httpServerRequest.headers().names().forEach(k -> {
-            headers.put(k, httpServerRequest.headers().get(k)); // TODO support list of values
+            headers.put(k, httpServerRequest.headers().getAll(k));
         });
         return headers;
     }

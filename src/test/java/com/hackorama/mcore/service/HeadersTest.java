@@ -32,9 +32,9 @@ public class HeadersTest {
         }
 
         public Response getHeadersPathQueryParams(Request request) {
-            boolean result = "one".equals(request.getHeaders().get("UNO"));
-            result &= "two".equals(request.getHeaders().get("DOS"));
-            result &= "three".equals(request.getHeaders().get("TRES"));
+            boolean result = "one".equals(request.getHeaders().get("UNO").get(0));
+            result &= "two".equals(request.getHeaders().get("DOS").get(0));
+            result &= "three".equals(request.getHeaders().get("TRES").get(0));
             result &= request.getQueryParams().get("one").contains("uno");
             result &= request.getQueryParams().get("two").contains("dos");
             result &= request.getQueryParams().get("three").contains("tres");

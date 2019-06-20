@@ -2,6 +2,7 @@ package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -66,10 +67,11 @@ public class SparkServer extends BaseServer {
         return params;
     }
 
-    private Map<String, String> formatHeaders(Request request) {
-        Map<String, String> headers = new HashMap<>();
+    private Map<String, List<String>> formatHeaders(Request request) {
+        Map<String, List<String>> headers = new HashMap<>();
         request.headers().forEach(h -> {
-            headers.put(h, request.headers(h));
+            // Only single header value per key supported stored as single item list
+            headers.put(h, new ArrayList<String>(Arrays.asList(request.headers(h))));
         });
         return headers;
     }
