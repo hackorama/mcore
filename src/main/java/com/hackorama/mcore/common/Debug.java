@@ -7,6 +7,7 @@ public class Debug {
     public static void print(Response response) {
         if (response == null) {
             System.out.println("RESPONSE: NULL");
+            return;
         }
         System.out.println();
         System.out.println("[RESPONSE");
