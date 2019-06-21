@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+
 public class Request {
 
     private String body;
+    private Map<String, Cookie> cookies = new HashMap<>();
     private Map<String, List<String>> headers = new HashMap<>();
     private Map<String, String> pathParams = new HashMap<>();
     private Map<String, List<String>> queryParams = new HashMap<>();
@@ -20,6 +23,10 @@ public class Request {
 
     public String getBody() {
         return body;
+    }
+
+    public Map<String, Cookie> getCookies() {
+        return cookies;
     }
 
     public Map<String, List<String>> getHeaders() {
@@ -36,6 +43,11 @@ public class Request {
 
     public Request setBody(String body) {
         this.body = body;
+        return this;
+    }
+
+    public Request setCookies(Map<String, Cookie> cookies) {
+        this.cookies = cookies;
         return this;
     }
 

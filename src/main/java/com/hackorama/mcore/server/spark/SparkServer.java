@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.servlet.http.Cookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,27 @@ public class SparkServer extends BaseServer {
         });
     }
 
+    private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
+        System.out.println("COOKIE SPARK:");
+        cookieMap.forEach((k, v) -> {
+            System.out.println(k + ":" + v);
+        });
+        Map<String, Cookie> cookies = new HashMap<>();
+        cookieMap.forEach((k, v) -> {
+            cookies.put(k, new Cookie(k, v));
+        });
+        return cookies;
+    }
+
+    private Map<String, List<String>> formatHeaders(Request request) {
+        Map<String, List<String>> headers = new HashMap<>();
+        request.headers().forEach(h -> {
+            // Only single header value per key supported stored as single item list
+            headers.put(h, new ArrayList<String>(Arrays.asList(request.headers(h))));
+        });
+        return headers;
+    }
+
     private Map<String, String> formatPathParams(Request request) {
         Map<String, String> params = new HashMap<>();
         request.params().forEach((k, v) -> {
@@ -67,19 +90,15 @@ public class SparkServer extends BaseServer {
         return params;
     }
 
-    private Map<String, List<String>> formatHeaders(Request request) {
-        Map<String, List<String>> headers = new HashMap<>();
-        request.headers().forEach(h -> {
-            // Only single header value per key supported stored as single item list
-            headers.put(h, new ArrayList<String>(Arrays.asList(request.headers(h))));
-        });
-        return headers;
-    }
-
     public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+           System.out.println("COOKIE:");
+        req.cookies().forEach((k,v) -> {
+            System.out.println(k + ":" + v);
+        });
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request().setBody(req.body())
-                .setPathParams(formatPathParams(req)).setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req));
+                .setPathParams(formatPathParams(req)).setQueryParams(formatQueryParams(req))
+                .setHeaders(formatHeaders(req)).setCookies(formatCookies(req.cookies()));
         String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
                 req.params());
         if (matchingPath != null) {

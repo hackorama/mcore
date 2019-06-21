@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.servlet.http.Cookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,21 @@ public class VertxServer extends BaseServer  {
         return params;
     }
 
+    private Map<String, Cookie> formatCookies(RoutingContext routingContext) {
+           System.out.println("COOKIE:");
+        routingContext.cookies().forEach(e -> {
+            System.out.println(e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain()+ ":" + e.isChanged());
+        });
+        Map<String, Cookie> cookies = new HashMap<>();
+        routingContext.cookies().forEach(e -> {
+            Cookie cookie = new Cookie(e.getName(), e.getValue());
+            cookie.setPath(e.getPath());
+            cookie.setDomain(e.getDomain());
+            cookies.put(e.getName(), cookie);
+        });
+        return cookies;
+    }
+
     private Map<String, List<String>> formatHeaders(HttpServerRequest httpServerRequest) {
         Map<String, List<String>> headers = new HashMap<>();
         httpServerRequest.headers().names().forEach(k -> {
@@ -105,7 +122,7 @@ public class VertxServer extends BaseServer  {
         com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(
                 routingContext.getBodyAsString()).setPathParams(routingContext.pathParams())
                         .setQueryParams(fomatQueryParams(routingContext.queryParams()))
-                        .setHeaders(formatHeaders(routingContext.request()));
+                        .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext));
         String matchingPath = getMatchingPath(
                 routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));

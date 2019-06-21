@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -40,6 +42,23 @@ public class Handler {
 
     static void setRouteHandlerMap(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap) {
         Handler.routeHandlerMap = routeHandlerMap;
+    }
+
+    private Map<String, Cookie> formatCookies(ServerRequest req) {
+        Map<String, Cookie> cookies = new HashMap<>();
+        req.cookies().values().forEach(v -> {
+            v.forEach(e -> {
+                cookies.put(e.getName(), new Cookie(e.getName(), e.getValue()));
+            });
+        });
+        System.out.println("COOKIE:");
+        req.cookies().forEach((k, v) -> {
+            System.out.println(k);
+            v.forEach(e -> {
+                System.out.println("  " + e.getName() + ":" + e.getValue());
+            });
+        });
+        return cookies;
     }
 
     private Map<String, List<String>> formatHeaders(ServerRequest req) {
@@ -80,9 +99,9 @@ public class Handler {
 
     public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
+        // TODO Use future get
         Request request = new Request(req.bodyToMono(String.class).toFuture().get()).setPathParams(req.pathVariables())
-                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)); // TODO future get
+                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)).setCookies(formatCookies(req));
         String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
                 req.path(), req.pathVariables());
         logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),

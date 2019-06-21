@@ -67,6 +67,8 @@ public class HeadersTest {
         headers.put("UNO", "one");
         headers.put("DOS", "two");
         headers.put("TRES", "three");
+        //headers.put("Cookie", "cone=cuno; Path=/; HttpOnly");
+        headers.put("Cookie", "ctwo=cdos; Path=two; HttpOnly; Secure");
         assertTrue(TestServer.validResponseCode("/testheaderpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
                 headers, HttpURLConnection.HTTP_OK));
         assertTrue(TestServer.validResponseCode("/testheaderpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
