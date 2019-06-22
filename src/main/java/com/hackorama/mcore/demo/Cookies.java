@@ -2,6 +2,7 @@ package com.hackorama.mcore.demo;
 
 import javax.servlet.http.Cookie;
 
+import com.hackorama.mcore.client.unirest.CookieUnirestClient;
 import com.hackorama.mcore.common.Debug;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
@@ -31,7 +32,7 @@ public class Cookies {
                 Debug.print(request);
                 Response response = new Response("COOKIE TEST");
                 Cookie cookie = new Cookie("FUN", "SUMMER");
-                //cookie.setPath("/test");
+                cookie.setPath("/test");
                 response.setCookie(cookie);
                 Debug.print(response);
                 return response;
@@ -39,10 +40,12 @@ public class Cookies {
 
         }.configureUsing(new SparkServer("Debug")).start();
 
-        System.out.println("Testing cookies");
-        //CookieUnirestClient client = new CookieUnirestClient();
-        //client.debugCookies();
-        //Unirest.get("http://localhost:8080/test");
-        //Unirest.get("http://localhost:8080/test/cookie");
+        System.out.println("Testing cookies ...");
+        CookieUnirestClient client = new CookieUnirestClient();
+        client.debugCookies();
+        client.get("http://localhost:8080/test");
+        client.debugCookies();
+        client.get("http://localhost:8080/test/cookie");
+        client.debugCookies();
     }
 }

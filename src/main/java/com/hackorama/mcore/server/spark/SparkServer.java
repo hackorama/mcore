@@ -35,25 +35,29 @@ public class SparkServer extends BaseServer {
     }
 
     private void activateRoutes() {
-        routeHandlerMap.get(HttpMethod.GET).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
             Spark.get(path, this::router);
         });
-        routeHandlerMap.get(HttpMethod.POST).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.POST).keySet().forEach(path -> {
             Spark.post(path, this::router);
         });
-        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach(path -> {
             Spark.put(path, this::router);
         });
-        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach( path -> {
+        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach(path -> {
             Spark.delete(path, this::router);
         });
     }
 
-    private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
+    private void debug(Request req) {
         System.out.println("COOKIE:");
-        cookieMap.forEach((k, v) -> {
+        req.cookies().forEach((k, v) -> {
             System.out.println(k + ":" + v);
         });
+    }
+
+    private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
+        ;
         Map<String, Cookie> cookies = new HashMap<>();
         cookieMap.forEach((k, v) -> {
             cookies.put(k, new Cookie(k, v));
@@ -70,6 +74,11 @@ public class SparkServer extends BaseServer {
         return headers;
     }
 
+    private void formatNotFoundResponse(Response res) {
+        res.status(HttpURLConnection.HTTP_NOT_FOUND);
+        res.body(Util.toJsonString("message", "404 Not found"));
+    }
+
     private Map<String, String> formatPathParams(Request request) {
         Map<String, String> params = new HashMap<>();
         request.params().forEach((k, v) -> {
@@ -84,38 +93,57 @@ public class SparkServer extends BaseServer {
 
     private Map<String, List<String>> formatQueryParams(Request request) {
         Map<String, List<String>> params = new HashMap<>();
-        request.queryMap().toMap().forEach((k,v) -> {
+        request.queryMap().toMap().forEach((k, v) -> {
             params.put(k, Arrays.asList(v));
         });
         return params;
     }
 
+    private com.hackorama.mcore.common.Request formatRequest(Request req) {
+        return new com.hackorama.mcore.common.Request().setBody(req.body()).setPathParams(formatPathParams(req))
+                .setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req))
+                .setCookies(formatCookies(req.cookies()));
+    }
+
+    private void formatResponse(com.hackorama.mcore.common.Response response, Response res) {
+        response.getHeaders().forEach((k, v) -> {
+            v.forEach(e -> {
+                res.header(k, e);
+            });
+        });
+        response.getCookies().forEach((k, v) -> {
+            if (v.getDomain() != null) { // TODO Add check for all fields if needed
+                res.cookie(v.getDomain(), v.getPath(), v.getName(), v.getValue(), v.getMaxAge(), v.getSecure(),
+                        v.isHttpOnly());
+            } else {
+                res.cookie(v.getPath(), v.getName(), v.getValue(), v.getMaxAge(), v.getSecure(), v.isHttpOnly());
+            }
+        });
+        res.status(response.getStatus());
+        res.body(response.getBody());
+    }
+
     public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-           System.out.println("COOKIE:");
-        req.cookies().forEach((k,v) -> {
-            System.out.println(k + ":" + v);
-        });
-        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request().setBody(req.body())
-                .setPathParams(formatPathParams(req)).setQueryParams(formatQueryParams(req))
-                .setHeaders(formatHeaders(req)).setCookies(formatCookies(req.cookies()));
-        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())), req.pathInfo(),
-                req.params());
+        debug(req);
+        com.hackorama.mcore.common.Request request = formatRequest(req);
+        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())),
+                req.pathInfo(), req.params());
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).apply(request);
-            res.status(response.getStatus());
-            res.body(response.getBody());
+            formatResponse(response, res);
         } else {
-            res.status(HttpURLConnection.HTTP_NOT_FOUND);
-            res.body(Util.toJsonString("message", "404 Not found"));
+            formatNotFoundResponse(res);
         }
-        logger.debug("Routing request {} on thread id {} thread name : {} ",  req.pathInfo(), Thread.currentThread().getId(), Thread.currentThread().getName());
+        logger.debug("Routing request {} on thread id {} thread name : {} ", req.pathInfo(),
+                Thread.currentThread().getId(), Thread.currentThread().getName());
         return res.body();
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path, Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+    public void setRoutes(HttpMethod method, String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         String sparkPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);

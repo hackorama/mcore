@@ -14,8 +14,12 @@ import javax.servlet.http.Cookie;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -44,18 +48,28 @@ public class Handler {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
-    private Map<String, Cookie> formatCookies(ServerRequest req) {
-        Map<String, Cookie> cookies = new HashMap<>();
-        req.cookies().values().forEach(v -> {
-            v.forEach(e -> {
-                cookies.put(e.getName(), new Cookie(e.getName(), e.getValue()));
-            });
-        });
+    private void debug(ServerRequest req) {
         System.out.println("COOKIE:");
         req.cookies().forEach((k, v) -> {
             System.out.println(k);
             v.forEach(e -> {
                 System.out.println("  " + e.getName() + ":" + e.getValue());
+            });
+        });
+    }
+
+    private ResponseCookie formatCookie(Cookie cookie) {
+        // TODO Check missing samesite property
+        return ResponseCookie.from(cookie.getName(), cookie.getValue()).domain(cookie.getDomain())
+                .httpOnly(cookie.isHttpOnly()).maxAge(cookie.getMaxAge()).path(cookie.getPath())
+                .secure(cookie.getSecure()).build();
+    }
+
+    private Map<String, Cookie> formatCookies(ServerRequest req) {
+        Map<String, Cookie> cookies = new HashMap<>();
+        req.cookies().values().forEach(v -> {
+            v.forEach(e -> {
+                cookies.put(e.getName(), new Cookie(e.getName(), e.getValue()));
             });
         });
         return cookies;
@@ -67,6 +81,37 @@ public class Handler {
             headers.put(k, req.headers().asHttpHeaders().get(k));
         });
         return headers;
+    }
+
+    private Mono<ServerResponse> formatNotFoundResponse() {
+        BodyBuilder res = ServerResponse.status(HttpURLConnection.HTTP_NOT_FOUND);
+        return res.contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromObject(Util.toJsonString("message", "404 Not found")));
+    }
+
+    private Request formatRequest(ServerRequest req) throws InterruptedException, ExecutionException {
+        // TODO Use future get
+        return new Request(req.bodyToMono(String.class).toFuture().get()).setPathParams(req.pathVariables())
+                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)).setCookies(formatCookies(req));
+    }
+
+    private Mono<ServerResponse> formatResponse(Response response) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        response.getHeaders().forEach((k, v) -> {
+            v.forEach(e -> {
+                responseHeaders.add(k, e);
+            });
+        });
+        MultiValueMap<String, ResponseCookie> responseCookies = new LinkedMultiValueMap<>();
+        response.getCookies().forEach((k, v) -> {
+            responseCookies.add(k, formatCookie(v));
+        });
+        BodyBuilder builder = ServerResponse.status(response.getStatus());
+
+        Mono<ServerResponse> resp = builder.contentType(MediaType.APPLICATION_JSON)
+                .headers(headers -> headers.addAll(responseHeaders)).cookies(cookies -> cookies.addAll(responseCookies))
+                .body(BodyInserters.fromObject(response.getBody()));
+        return resp;
     }
 
     Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
@@ -99,9 +144,8 @@ public class Handler {
 
     public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        // TODO Use future get
-        Request request = new Request(req.bodyToMono(String.class).toFuture().get()).setPathParams(req.pathVariables())
-                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)).setCookies(formatCookies(req));
+        debug(req);
+        Request request = formatRequest(req);
         String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
                 req.path(), req.pathVariables());
         logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),
@@ -109,12 +153,9 @@ public class Handler {
         if (matchingPath != null) {
             Response response = (Response) Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName()))
                     .get(matchingPath).apply(request);
-            BodyBuilder res = ServerResponse.status(response.getStatus());
-            return res.contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromObject(response.getBody()));
+            return formatResponse(response);
         } else {
-            BodyBuilder res = ServerResponse.status(HttpURLConnection.HTTP_NOT_FOUND);
-            return res.contentType(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromObject(Util.toJsonString("message", "404 Not found")));
+            return formatNotFoundResponse();
         }
     }
 
