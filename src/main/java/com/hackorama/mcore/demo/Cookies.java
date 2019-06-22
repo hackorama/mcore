@@ -1,5 +1,7 @@
 package com.hackorama.mcore.demo;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.servlet.http.Cookie;
 
 import com.hackorama.mcore.client.unirest.CookieUnirestClient;
@@ -12,7 +14,7 @@ import com.hackorama.mcore.service.BaseService;
 
 public class Cookies {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         new BaseService() {
 
             @Override
@@ -39,6 +41,8 @@ public class Cookies {
             }
 
         }.configureUsing(new SparkServer("Debug")).start();
+
+        Thread.sleep(TimeUnit.SECONDS.toMillis(3)); // wait for server to initialize
 
         System.out.println("Testing cookies ...");
         CookieUnirestClient client = new CookieUnirestClient();
