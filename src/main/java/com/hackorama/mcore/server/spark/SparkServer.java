@@ -57,7 +57,6 @@ public class SparkServer extends BaseServer {
     }
 
     private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
-        ;
         Map<String, Cookie> cookies = new HashMap<>();
         cookieMap.forEach((k, v) -> {
             cookies.put(k, new Cookie(k, v));

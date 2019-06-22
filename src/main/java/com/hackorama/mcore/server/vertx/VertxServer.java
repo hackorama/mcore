@@ -23,6 +23,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
 
 /**
  * Vertx server implementation
@@ -30,7 +31,7 @@ import io.vertx.ext.web.handler.BodyHandler;
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public class VertxServer extends BaseServer  {
+public class VertxServer extends BaseServer {
 
     private static final Logger logger = LoggerFactory.getLogger(VertxServer.class);
 
@@ -73,16 +74,24 @@ public class VertxServer extends BaseServer  {
         return params;
     }
 
-    private Map<String, Cookie> formatCookies(RoutingContext routingContext) {
-           System.out.println("COOKIE:");
+    private void debug(RoutingContext routingContext) {
+        logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
+                Thread.currentThread().getId(), Thread.currentThread().getName());
+        System.out.println("COOKIE:");
         routingContext.cookies().forEach(e -> {
-            System.out.println(e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain()+ ":" + e.isChanged());
+            System.out.println(
+                    e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain() + ":" + e.isChanged());
         });
+    }
+
+    private Map<String, Cookie> formatCookies(RoutingContext routingContext) {
         Map<String, Cookie> cookies = new HashMap<>();
         routingContext.cookies().forEach(e -> {
             Cookie cookie = new Cookie(e.getName(), e.getValue());
             cookie.setPath(e.getPath());
+            if(e.getDomain() != null) { // TODO Look up cookie specs and document
             cookie.setDomain(e.getDomain());
+            }
             cookies.put(e.getName(), cookie);
         });
         return cookies;
@@ -94,6 +103,11 @@ public class VertxServer extends BaseServer  {
             headers.put(k, httpServerRequest.headers().getAll(k));
         });
         return headers;
+    }
+
+    private void formatNotFoundResponse(RoutingContext routingContext) {
+        routingContext.response().setStatusCode(HttpURLConnection.HTTP_NOT_FOUND)
+                .end(Util.toJsonString("message", "404 Not found"));
     }
 
     private Map<String, String> formatParams(Map<String, String> params) {
@@ -108,31 +122,47 @@ public class VertxServer extends BaseServer  {
         return parameters;
     }
 
+    private Request formatRequest(RoutingContext routingContext) {
+        return new com.hackorama.mcore.common.Request(routingContext.getBodyAsString())
+                .setPathParams(routingContext.pathParams())
+                .setQueryParams(fomatQueryParams(routingContext.queryParams()))
+                .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext));
+    }
+
+    private void formatResponse(Response response, RoutingContext routingContext) {
+        MultiMap headers = MultiMap.caseInsensitiveMultiMap();
+        response.getHeaders().forEach((k, v) -> {
+            v.forEach(e -> {
+                headers.add(k, e);
+            });
+        });
+        response.getCookies().forEach((k, v) -> {
+            routingContext.cookies().add(io.vertx.ext.web.Cookie.cookie(k, v.getValue()));
+        });
+        routingContext.response().headers().addAll(headers);
+        routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
+    }
+
     @Override
     protected void init() {
         super.init();
         vertx = Vertx.vertx();
         router = Router.router(vertx);
-
+        router.route().handler(CookieHandler.create()); // enable cookie for all paths
     }
 
     private void route(RoutingContext routingContext) {
-        logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
-                Thread.currentThread().getId(), Thread.currentThread().getName());
-        com.hackorama.mcore.common.Request request = new com.hackorama.mcore.common.Request(
-                routingContext.getBodyAsString()).setPathParams(routingContext.pathParams())
-                        .setQueryParams(fomatQueryParams(routingContext.queryParams()))
-                        .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext));
+        debug(routingContext);
+        com.hackorama.mcore.common.Request request = formatRequest(routingContext);
         String matchingPath = getMatchingPath(
                 routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(routingContext.request().rawMethod())).get(matchingPath).apply(request);
-            routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
+            formatResponse(response, routingContext);
         } else {
-            routingContext.response().setStatusCode(HttpURLConnection.HTTP_NOT_FOUND)
-                    .end(Util.toJsonString("message", "404 Not found"));
+            formatNotFoundResponse(routingContext);
         }
     }
 
