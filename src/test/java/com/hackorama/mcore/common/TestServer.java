@@ -71,6 +71,10 @@ public class TestServer extends Test {
         return server;
     }
 
+    public static String getEndPoint() {
+        return DEFAULT_SERVER_ENDPOINT;
+    }
+
     public static String getServerType() {
         return serverType;
     }
