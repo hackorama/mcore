@@ -72,7 +72,9 @@ public class VertxServer extends BaseServer {
         // TODO Check missing ischanged, isfromuseragent properties
         responseCookie.setDomain(cookie.getDomain());
         responseCookie.setHttpOnly(cookie.isHttpOnly());
-        responseCookie.setMaxAge(cookie.getMaxAge());
+        if (cookie.getMaxAge() > 0) { // TODO Check the cookie spec
+            responseCookie.setMaxAge(cookie.getMaxAge());
+        }
         responseCookie.setPath(cookie.getPath());
         responseCookie.setSecure(cookie.getSecure());
         return responseCookie;

@@ -11,11 +11,12 @@ import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.SuppressFBWarnings;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.BaseService;
+import com.hackorama.mcore.service.Service;
 
 public class Cookies {
 
     public static void main(String[] args) throws InterruptedException {
-        new BaseService() {
+        Service service = new BaseService() {
 
             @Override
             public void configure() {
@@ -45,11 +46,14 @@ public class Cookies {
         Thread.sleep(TimeUnit.SECONDS.toMillis(3)); // wait for server to initialize
 
         System.out.println("Testing cookies ...");
+
         CookieUnirestClient client = new CookieUnirestClient();
         client.debugCookies();
         client.get("http://localhost:8080/test");
         client.debugCookies();
         client.get("http://localhost:8080/test/cookie");
         client.debugCookies();
+
+        service.stop();
     }
 }
