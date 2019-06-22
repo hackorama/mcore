@@ -51,6 +51,7 @@ public class VertxServer extends BaseServer {
     }
 
     private void activateRoutes() {
+        router.route().handler(CookieHandler.create()); // enable cookies for all paths
         router.route().handler(BodyHandler.create()); // Must be set before the routes
         routeHandlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
             router.get(path).handler(this::route);
@@ -66,22 +67,35 @@ public class VertxServer extends BaseServer {
         });
     }
 
+    private io.vertx.ext.web.Cookie convertCookie(Cookie cookie) {
+        io.vertx.ext.web.Cookie responseCookie = io.vertx.ext.web.Cookie.cookie(cookie.getName(), cookie.getValue());
+        // TODO Check missing ischanged, isfromuseragent properties
+        responseCookie.setDomain(cookie.getDomain());
+        responseCookie.setHttpOnly(cookie.isHttpOnly());
+        responseCookie.setMaxAge(cookie.getMaxAge());
+        responseCookie.setPath(cookie.getPath());
+        responseCookie.setSecure(cookie.getSecure());
+        return responseCookie;
+    }
+
+    private void debug(RoutingContext routingContext) {
+        logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
+                Thread.currentThread().getId(), Thread.currentThread().getName());
+        System.out.println();
+        System.out.println("VERTX DEBUG COOKIE:");
+        routingContext.cookies().forEach(e -> {
+            System.out.println(" " + e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain() + ":"
+                    + e.isChanged());
+        });
+        System.out.println();
+    }
+
     private Map<String, List<String>> fomatQueryParams(MultiMap queryParams) {
         Map<String, List<String>> params = new HashMap<>();
         queryParams.names().forEach(k -> {
             params.put(k, queryParams.getAll(k));
         });
         return params;
-    }
-
-    private void debug(RoutingContext routingContext) {
-        logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
-                Thread.currentThread().getId(), Thread.currentThread().getName());
-        System.out.println("COOKIE:");
-        routingContext.cookies().forEach(e -> {
-            System.out.println(
-                    e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain() + ":" + e.isChanged());
-        });
     }
 
     private Map<String, Cookie> formatCookies(RoutingContext routingContext) {
@@ -137,7 +151,7 @@ public class VertxServer extends BaseServer {
             });
         });
         response.getCookies().forEach((k, v) -> {
-            routingContext.cookies().add(io.vertx.ext.web.Cookie.cookie(k, v.getValue()));
+            routingContext.addCookie(convertCookie(v));
         });
         routingContext.response().headers().addAll(headers);
         routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
@@ -148,7 +162,6 @@ public class VertxServer extends BaseServer {
         super.init();
         vertx = Vertx.vertx();
         router = Router.router(vertx);
-        router.route().handler(CookieHandler.create()); // enable cookie for all paths
     }
 
     private void route(RoutingContext routingContext) {
