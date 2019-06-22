@@ -1,0 +1,2 @@
+ignore:
+  - "src/main/java/com/hackorama/mcore/demo/"  # ignore demo code
