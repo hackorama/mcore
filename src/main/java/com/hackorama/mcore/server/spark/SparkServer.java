@@ -50,10 +50,12 @@ public class SparkServer extends BaseServer {
     }
 
     private void debug(Request req) {
-        System.out.println("COOKIE:");
+        System.out.println();
+        System.out.println("SPARK DEBUG COOKIE:");
         req.cookies().forEach((k, v) -> {
-            System.out.println(k + ":" + v);
+            System.out.println(" " + k + ":" + v);
         });
+        System.out.println();
     }
 
     private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {

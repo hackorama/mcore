@@ -49,13 +49,15 @@ public class Handler {
     }
 
     private void debug(ServerRequest req) {
-        System.out.println("COOKIE:");
+        System.out.println();
+        System.out.println("SPRING DEBUG COOKIE:");
         req.cookies().forEach((k, v) -> {
-            System.out.println(k);
+            System.out.print(" " + k + ": ");
             v.forEach(e -> {
-                System.out.println("  " + e.getName() + ":" + e.getValue());
+                System.out.println(e.getName() + ":" + e.getValue());
             });
         });
+        System.out.println();
     }
 
     private ResponseCookie formatCookie(Cookie cookie) {
