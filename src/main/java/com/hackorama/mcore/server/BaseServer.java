@@ -20,7 +20,8 @@ import com.hackorama.mcore.common.Response;
 
 public abstract class BaseServer implements Server {
 
-    protected String name;
+    protected String host = "0.0.0.0";
+    protected String name = "mCore";
     protected Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
     protected int port = 8080;
     protected Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
@@ -39,6 +40,11 @@ public abstract class BaseServer implements Server {
         this.port = port;
     }
 
+    public BaseServer(String name, String host, int port) {
+        this(name, port);
+        this.host = host;
+    }
+
     protected String formatPathVariable(String path) {
         UriTemplate uriTemplate = new UriTemplate(path);
         Map<String, String> parameters = new HashMap<>();
@@ -50,7 +56,13 @@ public abstract class BaseServer implements Server {
         return output.toString();
     }
 
-    protected String getMatchingPath(Map<String, Function<Request, Response>> paths, String path, Map<String, String> paramValues) {
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    protected String getMatchingPath(Map<String, Function<Request, Response>> paths, String path,
+            Map<String, String> paramValues) {
         if (paths.containsKey(path)) {
             return path;
         }
@@ -71,6 +83,11 @@ public abstract class BaseServer implements Server {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     protected void init() {
