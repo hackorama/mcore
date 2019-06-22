@@ -160,6 +160,13 @@ public class CommonServiceTest {
     }
 
     @Test
+    public void service_postResource_expectsOKStataus() throws UnirestException {
+        HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
+                .header("accept", "application/json").body("{ \"name\" : \"one\" }").asJson();
+        assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
+    }
+
+    @Test
     public void service_updateEntity_expectsUpdatedEntity() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
@@ -200,12 +207,5 @@ public class CommonServiceTest {
     @After
     public void tearDown() throws Exception {
         TestService.clearDataOfServiceInstance();
-    }
-
-    @Test
-    public void workspaceService_postResource_expectsOKStataus() throws UnirestException {
-        HttpResponse<JsonNode> response = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user")
-                .header("accept", "application/json").body("{ \"name\" : \"one\" }").asJson();
-        assertEquals(HttpURLConnection.HTTP_OK, response.getStatus());
     }
 }
