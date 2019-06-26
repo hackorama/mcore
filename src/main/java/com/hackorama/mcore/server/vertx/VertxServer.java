@@ -183,7 +183,6 @@ public class VertxServer extends BaseServer {
 
     @Override
     public void setRoutes(HttpMethod method, String path, Function<Request, Response> handler) {
-        router.get(path).handler(this::route);
         String vertexPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(vertexPath, handler);
         trackParamList(vertexPath);

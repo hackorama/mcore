@@ -56,9 +56,6 @@ public class CookieTest {
 
     @Test
     public void service_verifyCookieInResponse() throws UnirestException {
-        if (TestServer.isVertxServer()) {
-            return; // TODO FIXME
-        }
         new TestCookies().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
         TestServer.useCookies();
