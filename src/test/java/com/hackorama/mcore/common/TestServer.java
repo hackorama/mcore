@@ -1,12 +1,20 @@
 package com.hackorama.mcore.common;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
 
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
@@ -25,6 +33,7 @@ public class TestServer extends Test {
 
     private static final int DEFAULT_SERVER_PORT = 7654; //TODO Check if the port need to be unique from TestService
     private static final String DEFAULT_SERVER_ENDPOINT = "http://" + DEFAULT_SERVER_HOST + ":" + DEFAULT_SERVER_PORT;
+    private static final BasicCookieStore cookieStore = new BasicCookieStore();
 
     public synchronized static void awaitShutdown() {
         if (server != null) {
@@ -38,6 +47,10 @@ public class TestServer extends Test {
         if (!TestUtil.waitForPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
             throw new RuntimeException("Server did not start as expectded");
         }
+    }
+
+    public static void clearCookies() {
+        cookieStore.clear();
     }
 
     public static Server createNewServer() {
@@ -71,8 +84,21 @@ public class TestServer extends Test {
         return server;
     }
 
+    public static List<Cookie> getCookies() {
+        return cookieStore.getCookies();
+    }
+
     public static String getEndPoint() {
         return DEFAULT_SERVER_ENDPOINT;
+    }
+
+    public static Map<String, List<String>> getResponseHeaders(String url) {
+        return getResponseHeaders(url, new HashMap<String, String>());
+    }
+
+    public static Map<String, List<String>> getResponseHeaders(String url, Map<String, String> headers) {
+        GetRequest response = Unirest.get(DEFAULT_SERVER_ENDPOINT + url).headers(headers);
+        return response.getHeaders();
     }
 
     public static String getServerType() {
@@ -111,6 +137,12 @@ public class TestServer extends Test {
         serverType = SERVER_TYPE_VERTX;
     }
 
+    public static void useCookies() {
+        Unirest.setHttpClient(HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
+                .setDefaultCookieStore(cookieStore).build());
+    }
+
     public static boolean validResponse(String url, String body) throws UnirestException {
         return body.equals(Unirest.get(DEFAULT_SERVER_ENDPOINT + url).asString().getBody());
     }
@@ -131,6 +163,10 @@ public class TestServer extends Test {
 
     // Don't let anyone else instantiate this class
     private TestServer() {
+    }
+
+    public static void debugCookies() {
+        Debug.print(cookieStore);
     }
 
 }
