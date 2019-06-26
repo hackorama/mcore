@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.net.HttpURLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.Request;
@@ -29,6 +31,7 @@ public class HeadersTest {
         public void configure() {
             GET("/testheaderpathqueryparams/{one}/{two}/{three}", this::getHeadersPathQueryParams);
             GET("/testheaderpathqueryparams/{one}/{two}/{three}/", this::getHeadersPathQueryParams);
+            GET("/testresponseheaders", this::getResponseHeaders);
         }
 
         public Response getHeadersPathQueryParams(Request request) {
@@ -42,6 +45,12 @@ public class HeadersTest {
             result &= "two".equals(request.getPathParams().get("two"));
             result &= "three".equals(request.getPathParams().get("three"));
             return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getResponseHeaders(Request request) {
+            Response response = new Response("OK");
+            response.setHeaders(request.getHeaders());
+            return response;
         }
     }
 
@@ -57,6 +66,24 @@ public class HeadersTest {
 
     public HeadersTest(String serverType) {
         TestServer.setServerType(serverType);
+    }
+
+    @Test
+    public void service_sendHeaders_expectResponseToEchoTheHeaders() throws UnirestException {
+        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("UNO", "one");
+        headers.put("DOS", "two");
+        headers.put("TRES", "three");
+        Unirest.get(TestServer.getEndPoint() + "testresponseheaders").headers(headers);
+        Map<String, List<String>> responseHeaders = TestServer.getResponseHeaders("/TestServer", headers);
+        assertTrue(responseHeaders.get("UNO").contains("one"));
+        assertTrue(responseHeaders.get("DOS").contains("two"));
+        assertTrue(responseHeaders.get("TRES").contains("three"));
+        assertFalse(responseHeaders.get("UNO").contains("dos"));
+        assertFalse(responseHeaders.get("UNO").contains("tres"));
+        TestServer.awaitShutdown();
     }
 
     @Test
