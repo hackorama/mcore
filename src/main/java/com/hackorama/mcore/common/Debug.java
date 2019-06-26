@@ -2,6 +2,8 @@ package com.hackorama.mcore.common;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.http.impl.client.BasicCookieStore;
+
 public class Debug {
 
     public static void print(Response response) {
@@ -78,6 +80,27 @@ public class Debug {
     // no instantiations
     private Debug() {
 
+    }
+
+    public static void print(org.apache.http.cookie.Cookie cookie) {
+        System.out.println("NAME: " + cookie.getName());
+        System.out.println(" VALUE: " + cookie.getValue());
+        System.out.println(" PATH: " + cookie.getPath());
+        System.out.println(" DOMAIN: " + cookie.getDomain());
+        System.out.println(" EXPIRYDATE: " + cookie.getExpiryDate());
+        System.out.println(" VERSION: " + cookie.getVersion());
+        System.out.println(" SECURE: " + cookie.isSecure());
+        System.out.println(" PERSISTENT: " + cookie.isPersistent());
+        System.out.println(" COMMENT: " + cookie.getComment());
+        System.out.println(" COMMENTURL: " + cookie.getCommentURL());
+    }
+
+    public static void print(BasicCookieStore cookieStore) {
+        System.out.println("[COOKIE STORE");
+        cookieStore.getCookies().forEach(e -> {
+            print(e);
+        });
+        System.out.println("COOKIE STORE]");
     }
 
 }
