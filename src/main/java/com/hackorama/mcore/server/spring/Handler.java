@@ -48,18 +48,6 @@ public class Handler {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
-    private void debug(ServerRequest req) {
-        System.out.println();
-        System.out.println("SPRING DEBUG COOKIE:");
-        req.cookies().forEach((k, v) -> {
-            System.out.print(" " + k + ": ");
-            v.forEach(e -> {
-                System.out.println(e.getName() + ":" + e.getValue());
-            });
-        });
-        System.out.println();
-    }
-
     private ResponseCookie formatCookie(Cookie cookie) {
         // TODO Check missing samesite property
         return ResponseCookie.from(cookie.getName(), cookie.getValue()).domain(cookie.getDomain())
@@ -146,7 +134,6 @@ public class Handler {
 
     public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        debug(req);
         Request request = formatRequest(req);
         String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
                 req.path(), req.pathVariables());

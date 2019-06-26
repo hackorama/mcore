@@ -49,15 +49,6 @@ public class SparkServer extends BaseServer {
         });
     }
 
-    private void debug(Request req) {
-        System.out.println();
-        System.out.println("SPARK DEBUG COOKIE:");
-        req.cookies().forEach((k, v) -> {
-            System.out.println(" " + k + ":" + v);
-        });
-        System.out.println();
-    }
-
     private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
         Map<String, Cookie> cookies = new HashMap<>();
         cookieMap.forEach((k, v) -> {
@@ -126,7 +117,6 @@ public class SparkServer extends BaseServer {
 
     public String router(Request req, Response res)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        debug(req);
         com.hackorama.mcore.common.Request request = formatRequest(req);
         String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())),
                 req.pathInfo(), req.params());

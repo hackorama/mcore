@@ -83,13 +83,6 @@ public class VertxServer extends BaseServer {
     private void debug(RoutingContext routingContext) {
         logger.debug("Routing request {} on thread id {} thread name : {} ", routingContext.normalisedPath(),
                 Thread.currentThread().getId(), Thread.currentThread().getName());
-        System.out.println();
-        System.out.println("VERTX DEBUG COOKIE:");
-        routingContext.cookies().forEach(e -> {
-            System.out.println(" " + e.getName() + ":" + e.getValue() + ":" + e.getPath() + ":" + e.getDomain() + ":"
-                    + e.isChanged());
-        });
-        System.out.println();
     }
 
     private Map<String, List<String>> fomatQueryParams(MultiMap queryParams) {
