@@ -26,7 +26,9 @@ public class Debug {
             @SuppressFBWarnings // Ignore invalid UMAC warning, method is accessed by Function interface
             public Response test(Request request) {
                 com.hackorama.mcore.common.Debug.print(request);
-                return new Response("DEBUG");
+                Response response = new Response("DEBUG");
+                com.hackorama.mcore.common.Debug.print(response);
+                return response;
             }
 
         }.configureUsing(new SparkServer("Debug")).start();
