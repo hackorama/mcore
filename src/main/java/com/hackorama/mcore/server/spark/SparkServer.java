@@ -2,8 +2,9 @@ package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +60,13 @@ public class SparkServer extends BaseServer {
 
     private Map<String, List<String>> formatHeaders(Request request) {
         Map<String, List<String>> headers = new HashMap<>();
-        request.headers().forEach(h -> {
-            // Only single header value per key supported stored as single item list
-            headers.put(h, new ArrayList<String>(Arrays.asList(request.headers(h))));
-        });
+        // Only single header value per key exposed by spark Request interface,
+        // using the raw HttpServletRequest instance to get multiple values
+        Enumeration<String> names = request.raw().getHeaderNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            headers.put(name, Collections.list(request.raw().getHeaders(name)));
+        }
         return headers;
     }
 

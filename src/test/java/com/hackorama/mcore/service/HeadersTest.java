@@ -3,6 +3,7 @@ package com.hackorama.mcore.service;
 import static org.junit.Assert.*;
 
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,11 @@ public class HeadersTest {
 
         @Override
         public void configure() {
-            GET("/testheaderpathqueryparams/{one}/{two}/{three}", this::getHeadersPathQueryParams);
-            GET("/testheaderpathqueryparams/{one}/{two}/{three}/", this::getHeadersPathQueryParams);
-            GET("/testresponseheaders", this::getResponseHeaders);
+            GET("/test/header/path/query/params/{one}/{two}/{three}", this::getHeadersPathQueryParams);
+            GET("/test/header/path/query/params/{one}/{two}/{three}/", this::getHeadersPathQueryParams);
+            GET("/test/response/headers", this::getResponseHeaders);
+            GET("/test/multi/value/request/headers", this::getMultiValueRequestHeaders);
+            GET("/test/multi/value/separate/request/headers", this::getMultiValueSeparateRequestHeaders);
         }
 
         public Response getHeadersPathQueryParams(Request request) {
@@ -44,6 +47,41 @@ public class HeadersTest {
             result &= "one".equals(request.getPathParams().get("one"));
             result &= "two".equals(request.getPathParams().get("two"));
             result &= "three".equals(request.getPathParams().get("three"));
+            return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getMultiValueRequestHeaders(Request request) {
+            List<String> values = Arrays.asList(request.getHeaders().get("UNO").get(0).split(","));
+            boolean result = request.getHeaders().get("UNO").size() == 1;
+            result &= values.size() == 1;
+            result &= values.contains("one");
+            result &= request.getHeaders().get("DOS").size() == 1;
+
+            values = Arrays.asList(request.getHeaders().get("DOS").get(0).split(","));
+            result &= request.getHeaders().get("DOS").size() == 1;
+            result &= values.size() == 2;
+            result &= values.contains("two_1");
+            result &= values.contains("two_2");
+
+            values = Arrays.asList(request.getHeaders().get("TRES").get(0).split(","));
+            result &= request.getHeaders().get("TRES").size() == 1;
+            result &= values.size() == 3;
+            result &= values.contains("three_1");
+            result &= values.contains("three_2");
+            result &= values.contains("three_3");
+            return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getMultiValueSeparateRequestHeaders(Request request) {
+            boolean result = request.getHeaders().get("UNO").size() == 1;
+            result &= request.getHeaders().get("UNO").contains("one");
+            result &= request.getHeaders().get("DOS").size() == 2;
+            result &= request.getHeaders().get("DOS").contains("two_1");
+            result &= request.getHeaders().get("DOS").contains("two_2");
+            result &= request.getHeaders().get("TRES").size() == 3;
+            result &= request.getHeaders().get("TRES").contains("three_1");
+            result &= request.getHeaders().get("TRES").contains("three_2");
+            result &= request.getHeaders().get("TRES").contains("three_3");
             return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
         }
 
@@ -69,14 +107,14 @@ public class HeadersTest {
     }
 
     @Test
-    public void service_sendHeaders_expectResponseToEchoTheHeaders() throws UnirestException {
+    public void service_sendHeaders_expectResponseToEchoTheHeaders() throws UnirestException, InterruptedException {
         new TestHeaders().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
         Map<String, String> headers = new HashMap<>();
         headers.put("UNO", "one");
         headers.put("DOS", "two");
         headers.put("TRES", "three");
-        Unirest.get(TestServer.getEndPoint() + "testresponseheaders").headers(headers);
+        Unirest.get(TestServer.getEndPoint() + "test/response/headers").headers(headers);
         Map<String, List<String>> responseHeaders = TestServer.getResponseHeaders("/TestServer", headers);
         assertTrue(responseHeaders.get("UNO").contains("one"));
         assertTrue(responseHeaders.get("DOS").contains("two"));
@@ -94,10 +132,37 @@ public class HeadersTest {
         headers.put("UNO", "one");
         headers.put("DOS", "two");
         headers.put("TRES", "three");
-        assertTrue(TestServer.validResponseCode("/testheaderpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
-                headers, HttpURLConnection.HTTP_OK));
-        assertTrue(TestServer.validResponseCode("/testheaderpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
-                headers, HttpURLConnection.HTTP_OK));
+        assertTrue(
+                TestServer.validResponseCode("/test/header/path/query/params/one/two/three?one=uno&two=dos&three=tres",
+                        headers, HttpURLConnection.HTTP_OK));
+        assertTrue(
+                TestServer.validResponseCode("/test/header/path/query/params/one/two/three/?one=uno&two=dos&three=tres",
+                        headers, HttpURLConnection.HTTP_OK));
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendMultiValueHeaders_expectCorrectHeaderParamProcessing() throws UnirestException {
+        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("UNO", "one");
+        headers.put("DOS", "two_1,two_2");
+        headers.put("TRES", "three_1,three_2,three_3");
+        assertTrue(
+                TestServer.validResponseCode("/test/multi/value/request/headers", headers, HttpURLConnection.HTTP_OK));
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendMultiValueSeparateHeaders_expectCorrectHeaderParamProcessing() throws UnirestException {
+        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        assertEquals(
+                Unirest.get(TestServer.getEndPoint() + "/test/multi/value/separate/request/headers")
+                        .header("UNO", "one").header("DOS", "two_1").header("DOS", "two_2").header("TRES", "three_1")
+                        .header("TRES", "three_2").header("TRES", "three_3").asString().getStatus(),
+                HttpURLConnection.HTTP_OK);
         TestServer.awaitShutdown();
     }
 
