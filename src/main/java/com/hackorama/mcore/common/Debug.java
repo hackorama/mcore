@@ -88,8 +88,10 @@ public class Debug {
         });
         System.out.println("COOKIES");
         request.getCookies().forEach((k, v) -> {
-            System.out.println("COOKIE " + k);
-            print(v);
+            v.forEach(e -> {
+                System.out.println("COOKIE " + k);
+                print(e);
+            });
         });
         System.out.println("REQUEST]");
         System.out.println();
@@ -111,8 +113,10 @@ public class Debug {
         });
         System.out.println("COOKIES");
         response.getCookies().forEach((k, v) -> {
-            System.out.println("COOKIE " + k);
-            print(v);
+            v.forEach(e -> {
+                System.out.println("COOKIE " + k);
+                print(e);
+            });
         });
         System.out.println("RESPONSE]");
         System.out.println();

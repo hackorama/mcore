@@ -2,6 +2,7 @@ package com.hackorama.mcore.server.spark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -50,10 +51,17 @@ public class SparkServer extends BaseServer {
         });
     }
 
-    private Map<String, Cookie> formatCookies(Map<String, String> cookieMap) {
-        Map<String, Cookie> cookies = new HashMap<>();
+    private Map<String, List<Cookie>> formatCookies(Map<String, String> cookieMap) {
+        Map<String, List<Cookie>> cookies = new HashMap<>();
         cookieMap.forEach((k, v) -> {
-            cookies.put(k, new Cookie(k, v));
+            Cookie cookie = new Cookie(k, v);
+            if (cookies.containsKey(k)) {
+                cookies.get(cookie.getName()).add(cookie);
+            } else {
+                List<Cookie> values = new ArrayList<Cookie>();
+                values.add(cookie);
+                cookies.put(cookie.getName(), values);
+            }
         });
         return cookies;
     }
@@ -108,12 +116,14 @@ public class SparkServer extends BaseServer {
             });
         });
         response.getCookies().forEach((k, v) -> {
-            if (v.getDomain() != null) { // TODO Add check for all fields if needed
-                res.cookie(v.getDomain(), v.getPath(), v.getName(), v.getValue(), v.getMaxAge(), v.getSecure(),
-                        v.isHttpOnly());
-            } else {
-                res.cookie(v.getPath(), v.getName(), v.getValue(), v.getMaxAge(), v.getSecure(), v.isHttpOnly());
-            }
+            v.forEach(e -> {
+                if (e.getDomain() != null) { // TODO Add check for all fields if needed
+                    res.cookie(e.getDomain(), e.getPath(), e.getName(), e.getValue(), e.getMaxAge(), e.getSecure(),
+                            e.isHttpOnly());
+                } else {
+                    res.cookie(e.getPath(), e.getName(), e.getValue(), e.getMaxAge(), e.getSecure(), e.isHttpOnly());
+                }
+            });
         });
         res.status(response.getStatus());
         res.body(response.getBody());

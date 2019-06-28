@@ -2,6 +2,7 @@ package com.hackorama.mcore.server.spring;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +56,14 @@ public class Handler {
                 .secure(cookie.getSecure()).build();
     }
 
-    private Map<String, Cookie> formatCookies(ServerRequest req) {
-        Map<String, Cookie> cookies = new HashMap<>();
-        req.cookies().values().forEach(v -> {
-            v.forEach(e -> {
-                cookies.put(e.getName(), new Cookie(e.getName(), e.getValue()));
+    private Map<String, List<Cookie>> formatCookies(ServerRequest req) {
+        Map<String, List<Cookie>> cookies = new HashMap<>();
+        req.cookies().keySet().forEach(k -> {
+            List<Cookie> values = new ArrayList<>();
+            req.cookies().get(k).forEach(e -> {
+                values.add(new Cookie(e.getName(), e.getValue()));
             });
+            cookies.put(k, values);
         });
         return cookies;
     }
@@ -94,7 +97,9 @@ public class Handler {
         });
         MultiValueMap<String, ResponseCookie> responseCookies = new LinkedMultiValueMap<>();
         response.getCookies().forEach((k, v) -> {
-            responseCookies.add(k, formatCookie(v));
+            v.forEach(e -> {
+                responseCookies.add(k, formatCookie(e));
+            });
         });
         BodyBuilder builder = ServerResponse.status(response.getStatus());
 

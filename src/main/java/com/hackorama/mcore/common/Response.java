@@ -1,6 +1,7 @@
 package com.hackorama.mcore.common;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import javax.servlet.http.Cookie;
 public class Response {
 
     private String body;
-    private Map<String, Cookie> cookies = new HashMap<>();
+    private Map<String, List<Cookie>> cookies = new HashMap<>();
     private Map<String, List<String>> headers = new HashMap<>();
     private int status = HttpURLConnection.HTTP_OK;
 
@@ -30,7 +31,7 @@ public class Response {
         return body;
     }
 
-    public Map<String, Cookie> getCookies() {
+    public Map<String, List<Cookie>> getCookies() {
         return cookies;
     }
 
@@ -47,7 +48,7 @@ public class Response {
         return this;
     }
 
-    public Response setCookies(Map<String, Cookie> cookies) {
+    public Response setCookies(Map<String, List<Cookie>> cookies) {
         this.cookies = cookies;
         return this;
     }
@@ -63,7 +64,13 @@ public class Response {
     }
 
     public Response setCookie(Cookie cookie) {
-        cookies.put(cookie.getName(), cookie);
+        if (cookies.containsKey(cookie.getName())) {
+            cookies.get(cookie.getName()).add(cookie);
+        } else {
+            List<Cookie> values = new ArrayList<>();
+            values.add(cookie);
+            cookies.put(cookie.getName(), values);
+        }
         return this;
     }
 

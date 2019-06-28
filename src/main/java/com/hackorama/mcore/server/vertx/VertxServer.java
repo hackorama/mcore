@@ -1,6 +1,7 @@
 package com.hackorama.mcore.server.vertx;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,15 +94,21 @@ public class VertxServer extends BaseServer {
         return params;
     }
 
-    private Map<String, Cookie> formatCookies(RoutingContext routingContext) {
-        Map<String, Cookie> cookies = new HashMap<>();
+    private Map<String, List<Cookie>> formatCookies(RoutingContext routingContext) {
+        Map<String, List<Cookie>> cookies = new HashMap<>();
         routingContext.cookies().forEach(e -> {
             Cookie cookie = new Cookie(e.getName(), e.getValue());
             cookie.setPath(e.getPath());
-            if(e.getDomain() != null) { // TODO Look up cookie specs and document
-            cookie.setDomain(e.getDomain());
+            if (e.getDomain() != null) { // TODO Look up cookie specs and document
+                cookie.setDomain(e.getDomain());
             }
-            cookies.put(e.getName(), cookie);
+            if (cookies.containsKey(cookie.getName())) {
+                cookies.get(cookie.getName()).add(cookie);
+            } else {
+                List<Cookie> values = new ArrayList<Cookie>();
+                values.add(cookie);
+                cookies.put(cookie.getName(), values);
+            }
         });
         return cookies;
     }
@@ -146,7 +153,9 @@ public class VertxServer extends BaseServer {
             });
         });
         response.getCookies().forEach((k, v) -> {
-            routingContext.addCookie(convertCookie(v));
+            v.forEach(e -> {
+                routingContext.addCookie(convertCookie(e));
+            });
         });
         routingContext.response().headers().addAll(headers);
         routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());

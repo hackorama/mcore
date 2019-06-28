@@ -9,7 +9,7 @@ import javax.servlet.http.Cookie;
 public class Request {
 
     private String body;
-    private Map<String, Cookie> cookies = new HashMap<>();
+    private Map<String, List<Cookie>> cookies = new HashMap<>();
     private Map<String, List<String>> headers = new HashMap<>();
     private Map<String, String> pathParams = new HashMap<>();
     private Map<String, List<String>> queryParams = new HashMap<>();
@@ -25,7 +25,7 @@ public class Request {
         return body;
     }
 
-    public Map<String, Cookie> getCookies() {
+    public Map<String, List<Cookie>> getCookies() {
         return cookies;
     }
 
@@ -46,7 +46,7 @@ public class Request {
         return this;
     }
 
-    public Request setCookies(Map<String, Cookie> cookies) {
+    public Request setCookies(Map<String, List<Cookie>> cookies) {
         this.cookies = cookies;
         return this;
     }
