@@ -3,6 +3,7 @@ package com.hackorama.mcore.service;
 import static org.junit.Assert.*;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
@@ -87,7 +89,16 @@ public class HeadersTest {
 
         public Response getResponseHeaders(Request request) {
             Response response = new Response("OK");
-            response.setHeaders(request.getHeaders());
+            Map<String, List<String>> responseHeaders = request.getHeaders();
+            Map<String, List<String>> requestHeaders = request.getHeaders();
+            requestHeaders.forEach((k, v) -> {
+                List<String> values = new ArrayList<>();
+                v.forEach(e -> {
+                    values.add(k + "_" + e);
+                });
+                responseHeaders.put(k, values);
+            });
+            response.setHeaders(responseHeaders);
             return response;
         }
     }
@@ -114,13 +125,14 @@ public class HeadersTest {
         headers.put("UNO", "one");
         headers.put("DOS", "two");
         headers.put("TRES", "three");
-        Unirest.get(TestServer.getEndPoint() + "test/response/headers").headers(headers);
-        Map<String, List<String>> responseHeaders = TestServer.getResponseHeaders("/TestServer", headers);
-        assertTrue(responseHeaders.get("UNO").contains("one"));
-        assertTrue(responseHeaders.get("DOS").contains("two"));
-        assertTrue(responseHeaders.get("TRES").contains("three"));
+        Map<String, List<String>> responseHeaders = TestServer.getResponseHeaders("/test/response/headers", headers);
+        assertTrue(responseHeaders.get("UNO").contains("UNO_one"));
+        assertTrue(responseHeaders.get("DOS").contains("DOS_two"));
+        assertTrue(responseHeaders.get("TRES").contains("TRES_three"));
+        assertFalse(responseHeaders.get("UNO").contains("one"));
         assertFalse(responseHeaders.get("UNO").contains("dos"));
-        assertFalse(responseHeaders.get("UNO").contains("tres"));
+        assertFalse(responseHeaders.get("UNO").contains("UNO"));
+        assertFalse(responseHeaders.get("UNO").contains("DOS"));
         TestServer.awaitShutdown();
     }
 
@@ -151,6 +163,30 @@ public class HeadersTest {
         headers.put("TRES", "three_1,three_2,three_3");
         assertTrue(
                 TestServer.validResponseCode("/test/multi/value/request/headers", headers, HttpURLConnection.HTTP_OK));
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendMultiValueHeaders_expectResponseToEchoTheHeaders()
+            throws UnirestException, InterruptedException {
+        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        HttpResponse<String> response = Unirest.get(TestServer.getEndPoint() + "/test/response/headers")
+                .header("UNO", "one").header("DOS", "two_1").header("DOS", "two_2").header("TRES", "three_1")
+                .header("TRES", "three_2").header("TRES", "three_3").asString();
+        Map<String, List<String>> responseHeaders = response.getHeaders();
+        assertEquals(1, responseHeaders.get("UNO").size());
+        assertTrue(responseHeaders.get("UNO").contains("UNO_one"));
+        assertEquals(2, responseHeaders.get("DOS").size());
+        assertTrue(responseHeaders.get("DOS").contains("DOS_two_1"));
+        assertTrue(responseHeaders.get("DOS").contains("DOS_two_2"));
+        assertEquals(3, responseHeaders.get("TRES").size());
+        assertTrue(responseHeaders.get("TRES").contains("TRES_three_1"));
+        assertTrue(responseHeaders.get("TRES").contains("TRES_three_2"));
+        assertTrue(responseHeaders.get("TRES").contains("TRES_three_3"));
+        assertFalse(responseHeaders.get("UNO").contains("one"));
+        assertFalse(responseHeaders.get("UNO").contains("dos"));
+        assertFalse(responseHeaders.get("UNO").contains("UNO"));
         TestServer.awaitShutdown();
     }
 

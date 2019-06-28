@@ -12,9 +12,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
 
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
@@ -31,7 +31,7 @@ public class TestServer extends Test {
 
     private static Logger logger = LoggerFactory.getLogger(TestServer.class);
 
-    private static final int DEFAULT_SERVER_PORT = 7654; //TODO Check if the port need to be unique from TestService
+    private static final int DEFAULT_SERVER_PORT = 7654; // TODO Check if the port need to be unique from TestService
     private static final String DEFAULT_SERVER_ENDPOINT = "http://" + DEFAULT_SERVER_HOST + ":" + DEFAULT_SERVER_PORT;
     private static final BasicCookieStore cookieStore = new BasicCookieStore();
 
@@ -94,12 +94,13 @@ public class TestServer extends Test {
         return DEFAULT_SERVER_ENDPOINT;
     }
 
-    public static Map<String, List<String>> getResponseHeaders(String url) {
+    public static Map<String, List<String>> getResponseHeaders(String url) throws UnirestException {
         return getResponseHeaders(url, new HashMap<String, String>());
     }
 
-    public static Map<String, List<String>> getResponseHeaders(String url, Map<String, String> headers) {
-        GetRequest response = Unirest.get(DEFAULT_SERVER_ENDPOINT + url).headers(headers);
+    public static Map<String, List<String>> getResponseHeaders(String url, Map<String, String> headers)
+            throws UnirestException {
+        HttpResponse<String> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + url).headers(headers).asString();
         return response.getHeaders();
     }
 
