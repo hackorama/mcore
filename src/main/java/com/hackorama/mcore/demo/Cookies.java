@@ -48,11 +48,11 @@ public class Cookies {
         System.out.println("Testing cookies ...");
 
         CookieUnirestClient client = new CookieUnirestClient();
-        client.debugCookies();
+        client.debugPrintCookies();
         client.get("http://localhost:8080/test");
-        client.debugCookies();
+        client.debugPrintCookies();
         client.get("http://localhost:8080/test/cookie");
-        client.debugCookies();
+        client.debugPrintCookies();
 
         service.stop();
     }

@@ -10,12 +10,14 @@ import org.apache.http.impl.client.HttpClients;
 
 import com.mashape.unirest.http.Unirest;
 
+import com.hackorama.mcore.common.Debug;
+
 public class CookieUnirestClient extends UnirestClient {
 
     private BasicCookieStore cookieStore;
 
     public CookieUnirestClient() {
-        cookieStore =  new BasicCookieStore();
+        cookieStore = new BasicCookieStore();
         Unirest.setHttpClient(HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
                 .setDefaultCookieStore(cookieStore).build());
@@ -25,21 +27,12 @@ public class CookieUnirestClient extends UnirestClient {
         cookieStore.clear();
     }
 
-    public void debugCookies() {
-        System.out.println("[COOKIE STORE");
-        getCookies().forEach(e -> {
-            System.out.println("NAME: " + e.getName());
-            System.out.println(" VALUE: " + e.getValue());
-            System.out.println(" PATH: " + e.getPath());
-            System.out.println(" DOMAIN: " + e.getDomain());
-            System.out.println(" EXPIRYDATE: " + e.getExpiryDate());
-            System.out.println(" VERSION: " + e.getVersion());
-            System.out.println(" SECURE: " + e.isSecure());
-            System.out.println(" PERSISTENT: " + e.isPersistent());
-            System.out.println(" COMMENT: " + e.getComment());
-            System.out.println(" COMMENTURL: " + e.getCommentURL());
-        });
-        System.out.println("COOKIE STORE]");
+    public void debugLogCookies() {
+        Debug.log(cookieStore);
+    }
+
+    public void debugPrintCookies() {
+        Debug.print(cookieStore);
     }
 
     public List<Cookie> getCookies() {

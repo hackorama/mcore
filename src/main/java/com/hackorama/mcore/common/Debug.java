@@ -2,156 +2,249 @@ package com.hackorama.mcore.common;
 
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.impl.client.BasicCookieStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Debug {
 
+    private static Logger logger = LoggerFactory.getLogger(Debug.class);
+
+    public static void log(BasicCookieStore cookieStore) {
+        printOrLog(cookieStore, false);
+    }
+
+    public static void log(boolean console) {
+        if (console) {
+            System.out.println();
+        } else {
+            logger.info("");
+        }
+    }
+
+    public static void log(Cookie cookie) {
+        printOrLog(cookie, false);
+    }
+
+    public static void log(HttpServletRequest request) {
+        printOrLog(request, false);
+    }
+
+    public static void log(List<org.apache.http.cookie.Cookie> cookies) {
+        printOrLog(cookies, false);
+    }
+
+    public static void log(org.apache.http.cookie.Cookie cookie) {
+        printOrLog(cookie, false);
+    }
+
+    public static void log(Request request) {
+        printOrLog(request, false);
+    }
+
+    public static void log(Response response) {
+        printOrLog(response, false);
+    }
+
+    public static void log(spark.Request request) {
+        printOrLog(request, false);
+    }
+
+    public static void log(String line, boolean console) {
+        if (console) {
+            System.out.println(line);
+        } else {
+            logger.info(line);
+        }
+    }
+
     public static void print(BasicCookieStore cookieStore) {
-        System.out.println("[COOKIE STORE");
-        cookieStore.getCookies().forEach(e -> {
-            print(e);
-        });
-        System.out.println("COOKIE STORE]");
+        printOrLog(cookieStore, true);
     }
 
     public static void print(Cookie cookie) {
-        if (cookie == null) {
-            System.out.println("COOKIE: NULL");
-            return;
-        }
-        System.out.println();
-        System.out.println("[COOKIE");
-        System.out.println(" NAME: " + cookie.getName());
-        System.out.println(" VALUE: " + cookie.getValue());
-        System.out.println(" PATH: " + cookie.getPath());
-        System.out.println(" DOMAIN: " + cookie.getDomain());
-        System.out.println(" MAXAGE: " + cookie.getMaxAge());
-        System.out.println(" VERSION: " + cookie.getVersion());
-        System.out.println(" COMMENT: " + cookie.getComment());
-        System.out.println("COOKIE]");
-        System.out.println();
+        printOrLog(cookie, true);
     }
 
-    private static void print(HttpServletRequest request) {
-        System.out.println();
-        System.out.println("HTTPSERVLETREQUEST]");
-        System.out.println("HEADERS");
+    public static void print(HttpServletRequest request) {
+        printOrLog(request, true);
+    }
+
+    public static void print(List<org.apache.http.cookie.Cookie> cookies) {
+        printOrLog(cookies, true);
+    }
+
+    public static void print(org.apache.http.cookie.Cookie cookie) {
+        printOrLog(cookie, true);
+    }
+
+    public static void print(Request request) {
+        printOrLog(request, true);
+    }
+
+    public static void print(Response response) {
+        printOrLog(response, true);
+    }
+
+    public static void print(spark.Request request) {
+        printOrLog(request, true);
+    }
+
+    private static void printOrLog(BasicCookieStore cookieStore, boolean console) {
+        log("[COOKIE STORE", console);
+        cookieStore.getCookies().forEach(e -> {
+            printOrLog(e, console);
+        });
+        log("COOKIE STORE]", console);
+    }
+
+    private static void printOrLog(Cookie cookie, boolean console) {
+        if (cookie == null) {
+            log("COOKIE: NULL", console);
+            return;
+        }
+        log(console);
+        log("[COOKIE", console);
+        log(" NAME: " + cookie.getName(), console);
+        log(" VALUE: " + cookie.getValue(), console);
+        log(" PATH: " + cookie.getPath(), console);
+        log(" DOMAIN: " + cookie.getDomain(), console);
+        log(" MAXAGE: " + cookie.getMaxAge(), console);
+        log(" VERSION: " + cookie.getVersion(), console);
+        log(" COMMENT: " + cookie.getComment(), console);
+        log("COOKIE]", console);
+        log(console);
+    }
+
+    private static void printOrLog(HttpServletRequest request, boolean console) {
+        log(console);
+        log("HTTPSERVLETREQUEST]", console);
+        log("HEADERS", console);
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
             String header = headers.nextElement();
             Enumeration<String> values = request.getHeaders(header);
             while (values.hasMoreElements()) {
-                System.out.println(" " + header + ":" + values.nextElement());
+                log(" " + header + ":" + values.nextElement(), console);
             }
         }
-        System.out.println("HTTPSERVLETREQUEST]");
-        System.out.println();
+        log("HTTPSERVLETREQUEST]", console);
+        log(console);
     }
 
-    public static void print(org.apache.http.cookie.Cookie cookie) {
-        System.out.println("NAME: " + cookie.getName());
-        System.out.println(" VALUE: " + cookie.getValue());
-        System.out.println(" PATH: " + cookie.getPath());
-        System.out.println(" DOMAIN: " + cookie.getDomain());
-        System.out.println(" EXPIRYDATE: " + cookie.getExpiryDate());
-        System.out.println(" VERSION: " + cookie.getVersion());
-        System.out.println(" SECURE: " + cookie.isSecure());
-        System.out.println(" PERSISTENT: " + cookie.isPersistent());
-        System.out.println(" COMMENT: " + cookie.getComment());
-        System.out.println(" COMMENTURL: " + cookie.getCommentURL());
+    private static void printOrLog(List<org.apache.http.cookie.Cookie> cookies, boolean console) {
+        log("[STORE", console);
+        cookies.forEach(e -> {
+            printOrLog(e, console);
+        });
+        log("STORE]", console);
     }
 
-    public static void print(Request request) {
+    private static void printOrLog(org.apache.http.cookie.Cookie cookie, boolean console) {
+        log("NAME: " + cookie.getName(), console);
+        log(" VALUE: " + cookie.getValue(), console);
+        log(" PATH: " + cookie.getPath(), console);
+        log(" DOMAIN: " + cookie.getDomain(), console);
+        log(" EXPIRYDATE: " + cookie.getExpiryDate(), console);
+        log(" VERSION: " + cookie.getVersion(), console);
+        log(" SECURE: " + cookie.isSecure(), console);
+        log(" PERSISTENT: " + cookie.isPersistent(), console);
+        log(" COMMENT: " + cookie.getComment(), console);
+        log(" COMMENTURL: " + cookie.getCommentURL(), console);
+    }
+
+    private static void printOrLog(Request request, boolean console) {
         if (request == null) {
-            System.out.println("REQUEST: NULL");
+            log("REQUEST: NULL", console);
             return;
         }
-        System.out.println();
-        System.out.println("[REQUEST");
-        System.out.println("BODY");
-        System.out.println(" " + request.getBody());
-        System.out.println("PATH PARAMS");
+        log(console);
+        log("[REQUEST", console);
+        log("BODY", console);
+        log(" " + request.getBody(), console);
+        log("PATH PARAMS", console);
         request.getPathParams().forEach((k, v) -> {
-            System.out.println(" " + k + ": " + v);
+            log(" " + k + ": " + v, console);
         });
-        System.out.println("QUERY PARAMS");
+        log("QUERY PARAMS", console);
         request.getQueryParams().forEach((k, v) -> {
-            System.out.println(" " + k + ": " + v);
+            log(" " + k + ": " + v, console);
         });
-        System.out.println("HEADERS");
+        log("HEADERS", console);
         request.getHeaders().forEach((k, v) -> {
-            System.out.println(" " + k + ":" + v);
+            log(" " + k + ":" + v, console);
         });
-        System.out.println("COOKIES");
+        log("COOKIES", console);
         request.getCookies().forEach((k, v) -> {
             v.forEach(e -> {
-                System.out.println("COOKIE " + k);
-                print(e);
+                log("COOKIE " + k, console);
+                printOrLog(e, console);
             });
         });
-        System.out.println("REQUEST]");
-        System.out.println();
+        log("REQUEST]", console);
+        log(console);
     }
 
-    public static void print(Response response) {
+    private static void printOrLog(Response response, boolean console) {
         if (response == null) {
-            System.out.println("RESPONSE: NULL");
+            log("RESPONSE: NULL", console);
             return;
         }
-        System.out.println();
-        System.out.println("[RESPONSE");
-        System.out.println("BODY");
-        System.out.println(" " + response.getBody());
-        System.out.println("STATUS: " + response.getStatus());
-        System.out.println("HEADERS");
+        log(console);
+        log("[RESPONSE", console);
+        log("BODY", console);
+        log(" " + response.getBody(), console);
+        log("STATUS: " + response.getStatus(), console);
+        log("HEADERS", console);
         response.getHeaders().forEach((k, v) -> {
-            System.out.println(" " + k + ":" + v);
+            log(" " + k + ":" + v, console);
         });
-        System.out.println("COOKIES");
+        log("COOKIES", console);
         response.getCookies().forEach((k, v) -> {
             v.forEach(e -> {
-                System.out.println("COOKIE " + k);
-                print(e);
+                log("COOKIE " + k, console);
+                printOrLog(e, console);
             });
         });
-        System.out.println("RESPONSE]");
-        System.out.println();
+        log("RESPONSE]", console);
+        log(console);
     }
 
-    public static void print(spark.Request request) {
+    private static void printOrLog(spark.Request request, boolean console) {
         if (request == null) {
-            System.out.println("SPAEK REQUEST: NULL");
+            log("SPAEK REQUEST: NULL", console);
             return;
         }
-        System.out.println();
-        System.out.println("[SPARK REQUEST");
-        System.out.println("BODY");
-        System.out.println(" " + request.body());
-        System.out.println("PATH PARAMS");
+        log(console);
+        log("[SPARK REQUEST", console);
+        log("BODY", console);
+        log(" " + request.body(), console);
+        log("PATH PARAMS", console);
         request.params().forEach((k, v) -> {
-            System.out.println(" " + k + ": " + v);
+            log(" " + k + ": " + v, console);
         });
-        System.out.println("QUERY PARAMS");
+        log("QUERY PARAMS", console);
         request.queryMap().toMap().forEach((k, v) -> {
             Arrays.asList(v).forEach(e -> {
-                System.out.println(" " + k + ": " + e);
+                log(" " + k + ": " + e, console);
             });
         });
-        System.out.println("HEADERS");
+        log("HEADERS", console);
         request.headers().forEach(k -> {
-            System.out.println(" " + k + ":" + request.headers(k));
+            log(" " + k + ":" + request.headers(k), console);
         });
         print(request.raw());
-        System.out.println("COOKIES");
+        log("COOKIES", console);
         request.cookies().forEach((k, v) -> {
-            System.out.println("COOKIE " + k + ": " + v);
+            log("COOKIE " + k + ": " + v, console);
         });
-        System.out.println("SPARK REQUEST]");
-        System.out.println();
+        log("SPARK REQUEST]", console);
+        log(console);
 
     }
 
