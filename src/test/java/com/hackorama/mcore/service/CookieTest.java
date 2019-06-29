@@ -2,6 +2,10 @@ package com.hackorama.mcore.service;
 
 import static org.junit.Assert.*;
 
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.Cookie;
 
 import org.junit.After;
@@ -12,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.Request;
@@ -25,26 +30,132 @@ public class CookieTest {
 
         @Override
         public void configure() {
-            GET("/test", this::getCookie);
-            GET("/test/multi", this::getMultiCookie);
-            GET("/test/", this::getCookie);
-            GET("/test/{any}", this::getCookie);
+            GET("/test/cookie/response", this::getCookieResponse);
+            GET("/test/multi/cookie/response", this::getMultipleCookieResponse);
+            GET("/test/cookie/request", this::getCookieRequest);
+            GET("/test/multi/cookie/request", this::getMultipleCookieRequest);
+            GET("/test/multi/cookie/request/as/single/header", this::getMultipleCookieRequestAsSingleHeader);
         }
 
-        public Response getCookie(Request request) {
-            Response response = new Response("OK");
-            Cookie cookie = new Cookie("FOO", "BAR");
+        public Response getCookieRequest(Request request) {
+            Map<String, List<Cookie>> cookies = request.getCookies();
+            boolean result = cookies.get("ONLY").size() == 1;
+            result &= "ONLY".equals(cookies.get("ONLY").get(0).getName());
+            result &= "ONE".equals(cookies.get("ONLY").get(0).getValue());
+            return new Response("COOKIE_REQUEST",
+                    result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getCookieResponse(Request request) {
+            Response response = new Response("COOKIE_RESPONSE");
+            Cookie cookie = new Cookie("ONLY", "ONE");
             response.setCookie(cookie);
             return response;
         }
 
-        public Response getMultiCookie(Request request) {
-            Response response = new Response("OK");
-            Cookie cookie = new Cookie("FOO", "BAR");
-            cookie.setPath("/bar");
+        public Response getMultipleCookieRequest(Request request) {
+            Map<String, List<Cookie>> cookies = request.getCookies();
+            boolean result = cookies.get("ONLY").size() == 1;
+            if (TestServer.isVertxServer()) {
+                // ONLY=ONE
+                result &= cookies.containsKey("MANY") == false;
+                result &= cookies.containsKey("DUPLICATE") == false;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+            } else if (TestServer.isSparkServer()) {
+                // ONLY=ONE
+                // MANY=LAST
+                // DUPLICATE=SAME
+                result &= cookies.get("MANY").size() == 1;
+                result &= cookies.get("DUPLICATE").size() == 1;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "LAST".equals(e.getValue()));
+                result &= cookies.get("DUPLICATE").stream()
+                        .anyMatch(e -> "DUPLICATE".equals(e.getName()) && "SAME".equals(e.getValue()));
+            } else { // Spring and future server types
+                // ONLY=ONE
+                // MANY=FIRST
+                // MANY=SECOND
+                // MANY=LAST
+                // DUPLICATE=SAME
+                // DUPLICATE=SAME
+                result &= cookies.get("MANY").size() == 3;
+                result &= cookies.get("DUPLICATE").size() == 2;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "FIRST".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "SECOND".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "LAST".equals(e.getValue()));
+                result &= cookies.get("DUPLICATE").stream()
+                        .anyMatch(e -> "DUPLICATE".equals(e.getName()) && "SAME".equals(e.getValue()));
+            }
+            return new Response("MULTIPLE_COOKIE_REQUEST",
+                    result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getMultipleCookieRequestAsSingleHeader(Request request) {
+            Map<String, List<Cookie>> cookies = request.getCookies();
+            boolean result = cookies.get("ONLY").size() == 1;
+            if (TestServer.isVertxServer()) {
+                // ONLY=ONE
+                // MANY=FIRST
+                // DUPLICATE=SAME
+                result &= cookies.get("MANY").size() == 1;
+                result &= cookies.get("DUPLICATE").size() == 1;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "FIRST".equals(e.getValue()));
+                result &= cookies.get("DUPLICATE").stream()
+                        .anyMatch(e -> "DUPLICATE".equals(e.getName()) && "SAME".equals(e.getValue()));
+            } else if (TestServer.isSparkServer()) {
+                // ONLY=ONE
+                // MANY=LAST
+                // DUPLICATE=SAME
+                result &= cookies.get("MANY").size() == 1;
+                result &= cookies.get("DUPLICATE").size() == 1;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "LAST".equals(e.getValue()));
+                result &= cookies.get("DUPLICATE").stream()
+                        .anyMatch(e -> "DUPLICATE".equals(e.getName()) && "SAME".equals(e.getValue()));
+            } else { // Spring and future server types
+                // ONLY=ONE
+                // MANY=FIRST
+                // MANY=SECOND
+                // MANY=LAST
+                // DUPLICATE=SAME
+                // DUPLICATE=SAME
+                result &= cookies.get("MANY").size() == 3;
+                result &= cookies.get("DUPLICATE").size() == 2;
+                result &= cookies.get("ONLY").stream()
+                        .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "FIRST".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "SECOND".equals(e.getValue()));
+                result &= cookies.get("MANY").stream()
+                        .anyMatch(e -> "MANY".equals(e.getName()) && "LAST".equals(e.getValue()));
+                result &= cookies.get("DUPLICATE").stream()
+                        .anyMatch(e -> "DUPLICATE".equals(e.getName()) && "SAME".equals(e.getValue()));
+            }
+            return new Response("MULTIPLE_COOKIE_REQUEST",
+                    result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+        }
+
+        public Response getMultipleCookieResponse(Request request) {
+            Response response = new Response("MULTIPLE_COOKIE_RESPONSE");
+            Cookie cookie = new Cookie("MANY", "FIRST");
+            cookie.setPath("/first");
             response.setCookie(cookie);
-            cookie = new Cookie("FOO", "BAZ");
-            cookie.setPath("/baz");
+            cookie = new Cookie("MANY", "SECOND");
+            cookie.setPath("/second");
             response.setCookie(cookie);
             return response;
         }
@@ -65,62 +176,109 @@ public class CookieTest {
     }
 
     @Test
-    public void service_verifyCookieInResponse() throws UnirestException {
+    public void service_receiveMultipleCookies_verifyMultipleCookiesInResponse() throws UnirestException {
         new TestCookies().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
         TestServer.useCookies();
         TestServer.clearCookies();
-        assertTrue(TestServer.validResponse("/test", "OK"));
-        assertTrue("Check cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "BAR".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAR".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAR".equals(e.getName()) && "BAR".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "BAR".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
-    }
-
-    @Test
-    public void service_verifyMultipleValueCookieInResponse() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
-        assertTrue(TestServer.validResponse("/test/multi", "OK"));
+        assertTrue(TestServer.validResponse("/test/multi/cookie/response", "MULTIPLE_COOKIE_RESPONSE"));
         if (!TestServer.isVertxServer()) {
             // Vertx does not allow two cookies of same name, overwrites with the last one
             assertTrue("Check cookie name and value", TestServer.getCookies().stream()
-                    .anyMatch(e -> "FOO".equals(e.getName()) && "BAR".equals(e.getValue())));
+                    .anyMatch(e -> "MANY".equals(e.getName()) && "FIRST".equals(e.getValue())));
         }
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAR".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAR".equals(e.getName()) && "BAR".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "BAR".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FIRST".equals(e.getName()) && "MANY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FIRST".equals(e.getName()) && "FIRST".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "MANY".equals(e.getName()) && "MANY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "FIRST".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "MANY".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
 
-        assertTrue("Check cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "BAZ".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAZ".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "BAZ".equals(e.getName()) && "BAZ".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FOO".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "BAZ".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FOO".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream().anyMatch( e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        assertTrue("Check cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "MANY".equals(e.getName()) && "SECOND".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "SECOND".equals(e.getName()) && "MANY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "SECOND".equals(e.getName()) && "SECOND".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "MANY".equals(e.getName()) && "MANY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "SECOND".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "MANY".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
         TestServer.clearCookies();
         TestServer.awaitShutdown();
     }
 
     @Test
-    public void service_withPathParams_verifyCookieInResponse() throws UnirestException {
+    public void service_recieveCookie_verifyCookieInResponse() throws UnirestException {
         new TestCookies().configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup();
         TestServer.useCookies();
         TestServer.clearCookies();
-        assertTrue(TestServer.validResponse("/test/param", "OK"));
-        assertEquals("Check cookie name", "FOO", TestServer.getCookies().get(0).getName());
-        assertEquals("Check cookie value", "BAR", TestServer.getCookies().get(0).getValue());
+        assertTrue(TestServer.validResponse("/test/cookie/response", "COOKIE_RESPONSE"));
+        assertTrue("Check cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "ONE".equals(e.getName()) && "ONLY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "ONE".equals(e.getName()) && "ONE".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "ONLY".equals(e.getName()) && "ONLY".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "ONE".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "ONLY".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
+                .anyMatch(e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
+        TestServer.clearCookies();
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendCookie_verifyCookieInRequest() throws UnirestException {
+        new TestCookies().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        TestServer.useCookies();
+        TestServer.clearCookies();
+        assertEquals(HttpURLConnection.HTTP_OK, Unirest.get(TestServer.getEndPoint() + "/test/cookie/request")
+                .header("Cookie", "ONLY=ONE").asString().getStatus());
+        TestServer.clearCookies();
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendMultipleCookies_verifyMultipleCookiesInRequest() throws UnirestException {
+        new TestCookies().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        TestServer.useCookies();
+        TestServer.clearCookies();
+        assertEquals(HttpURLConnection.HTTP_OK,
+                Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request").header("Cookie", "ONLY=ONE")
+                        .header("Cookie", "MANY=FIRST").header("Cookie", "MANY=SECOND").header("Cookie", "MANY=LAST")
+                        .header("Cookie", "DUPLICATE=SAME").header("Cookie", "DUPLICATE=SAME").asString().getStatus());
+        TestServer.clearCookies();
+        TestServer.awaitShutdown();
+    }
+
+    @Test
+    public void service_sendMultipleCookiesAsSingleHeader_verifyMultipleCookiesInRequest() throws UnirestException {
+        new TestCookies().configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup();
+        TestServer.useCookies();
+        TestServer.clearCookies();
+        assertEquals(HttpURLConnection.HTTP_OK,
+                Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request/as/single/header")
+                        .header("Cookie", "ONLY=ONE;MANY=FIRST;MANY=SECOND;MANY=LAST;DUPLICATE=SAME;DUPLICATE=SAME")
+                        .asString().getStatus());
         TestServer.clearCookies();
         TestServer.awaitShutdown();
     }
