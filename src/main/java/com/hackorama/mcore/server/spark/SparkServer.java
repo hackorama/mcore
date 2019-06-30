@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.servlet.http.Cookie;
 
@@ -37,17 +38,10 @@ public class SparkServer extends BaseServer {
     }
 
     private void activateRoutes() {
-        routeHandlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
-            Spark.get(path, this::router);
-        });
-        routeHandlerMap.get(HttpMethod.POST).keySet().forEach(path -> {
-            Spark.post(path, this::router);
-        });
-        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach(path -> {
-            Spark.put(path, this::router);
-        });
-        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach(path -> {
-            Spark.delete(path, this::router);
+        Stream.of(HttpMethod.values()).forEach(e -> {
+            routeHandlerMap.get(e).keySet().forEach(path -> {
+                Spark.get(path, this::router);
+            });
         });
     }
 

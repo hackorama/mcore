@@ -20,26 +20,29 @@ public class Router {
 
     @Bean
     public RouterFunction<ServerResponse> route(Handler handler) {
-        routerFunction = RouterFunctions
-                .route(RequestPredicates.GET("/").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+        // TODO IMPROVEMENT Externalize the fixed JSON MediaType
+        // TODO IMPROVEMENT Use HttpMethod -> RequestPredicates mapping method
+        // TODO FIXME Add missing TRACE method routing
+        routerFunction = RouterFunctions.route(
+                RequestPredicates.GET("/").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                     try {
                         return handler.router(request);
                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                             | InterruptedException | ExecutionException e) {
-                        e.printStackTrace(); //TODO Log and report
+                        e.printStackTrace(); // TODO Log and report
                     }
-                    return null; //TODO Return error message
+                    return null; // TODO Return error message
                 });
         handler.getHandlerMap().get(HttpMethod.GET).forEach((k, v) -> {
-            routerFunction = routerFunction
-                    .andRoute(RequestPredicates.GET(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+            routerFunction = routerFunction.andRoute(
+                    RequestPredicates.GET(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
                             return handler.router(request);
                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                                 | InterruptedException | ExecutionException e) {
-                            e.printStackTrace(); //TODO Log and report
+                            e.printStackTrace(); // TODO Log and report
                         }
-                    return null; //TODO Return error message
+                        return null; // TODO Return error message
                     });
         });
         handler.getHandlerMap().get(HttpMethod.POST).forEach((k, v) -> {
@@ -49,21 +52,21 @@ public class Router {
                             return handler.router(request);
                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                                 | InterruptedException | ExecutionException e) {
-                              e.printStackTrace(); //TODO Log and report
+                            e.printStackTrace(); // TODO Log and report
                         }
-                    return null; //TODO Return error message
+                        return null; // TODO Return error message
                     });
         });
         handler.getHandlerMap().get(HttpMethod.PUT).forEach((k, v) -> {
-            routerFunction = routerFunction
-                    .andRoute(RequestPredicates.PUT(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+            routerFunction = routerFunction.andRoute(
+                    RequestPredicates.PUT(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
                             return handler.router(request);
                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                                 | InterruptedException | ExecutionException e) {
-                              e.printStackTrace(); //TODO Log and report
+                            e.printStackTrace(); // TODO Log and report
                         }
-                    return null; //TODO Return error message
+                        return null; // TODO Return error message
                     });
         });
         handler.getHandlerMap().get(HttpMethod.DELETE).forEach((k, v) -> {
@@ -73,9 +76,46 @@ public class Router {
                             return handler.router(request);
                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                                 | InterruptedException | ExecutionException e) {
-                              e.printStackTrace(); //TODO Log and report
+                            e.printStackTrace(); // TODO Log and report
                         }
-                    return null; //TODO Return error message
+                        return null; // TODO Return error message
+                    });
+        });
+
+        handler.getHandlerMap().get(HttpMethod.PATCH).forEach((k, v) -> {
+            routerFunction = routerFunction.andRoute(
+                    RequestPredicates.PATCH(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+                        try {
+                            return handler.router(request);
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                                | InterruptedException | ExecutionException e) {
+                            e.printStackTrace(); // TODO Log and report
+                        }
+                        return null; // TODO Return error message
+                    });
+        });
+        handler.getHandlerMap().get(HttpMethod.HEAD).forEach((k, v) -> {
+            routerFunction = routerFunction.andRoute(
+                    RequestPredicates.HEAD(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+                        try {
+                            return handler.router(request);
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                                | InterruptedException | ExecutionException e) {
+                            e.printStackTrace(); // TODO Log and report
+                        }
+                        return null; // TODO Return error message
+                    });
+        });
+        handler.getHandlerMap().get(HttpMethod.OPTIONS).forEach((k, v) -> {
+            routerFunction = routerFunction.andRoute(
+                    RequestPredicates.OPTIONS(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
+                        try {
+                            return handler.router(request);
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                                | InterruptedException | ExecutionException e) {
+                            e.printStackTrace(); // TODO Log and report
+                        }
+                        return null; // TODO Return error message
                     });
         });
         return routerFunction;

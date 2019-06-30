@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.servlet.http.Cookie;
 
@@ -54,17 +55,10 @@ public class VertxServer extends BaseServer {
     private void activateRoutes() {
         router.route().handler(CookieHandler.create()); // enable cookies for all paths
         router.route().handler(BodyHandler.create()); // Must be set before the routes
-        routeHandlerMap.get(HttpMethod.GET).keySet().forEach(path -> {
-            router.get(path).handler(this::route);
-        });
-        routeHandlerMap.get(HttpMethod.POST).keySet().forEach(path -> {
-            router.post(path).handler(this::route);
-        });
-        routeHandlerMap.get(HttpMethod.PUT).keySet().forEach(path -> {
-            router.put(path).handler(this::route);
-        });
-        routeHandlerMap.get(HttpMethod.DELETE).keySet().forEach(path -> {
-            router.delete(path).handler(this::route);
+        Stream.of(HttpMethod.values()).forEach(e -> {
+            routeHandlerMap.get(e).keySet().forEach(path -> {
+                router.get(path).handler(this::route);
+            });
         });
     }
 

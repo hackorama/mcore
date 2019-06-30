@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -91,10 +92,9 @@ public abstract class BaseServer implements Server {
     }
 
     protected void init() {
-        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
+        Stream.of(HttpMethod.values()).forEach(e -> {
+            routeHandlerMap.put(e, new HashMap<>());
+        });
     }
 
     @Override

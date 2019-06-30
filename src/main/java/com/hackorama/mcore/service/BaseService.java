@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +46,9 @@ public abstract class BaseService implements Service {
     protected Server server;
 
     {
-        routeHandlerMap.put(HttpMethod.GET, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.POST, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.PUT, new HashMap<>());
-        routeHandlerMap.put(HttpMethod.DELETE, new HashMap<>());
+        Stream.of(HttpMethod.values()).forEach(e -> {
+            routeHandlerMap.put(e, new HashMap<>());
+        });
     }
 
     @Override
@@ -107,6 +107,27 @@ public abstract class BaseService implements Service {
             Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
         ROUTE(HttpMethod.PUT, path, handler);
     }
+
+    public void PATCH(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.PATCH, path, handler);
+    }
+
+    public void OPTIONS(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.OPTIONS, path, handler);
+    }
+
+    public void TRACE(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.TRACE, path, handler);
+    }
+
+    public void HEAD(String path,
+            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+        ROUTE(HttpMethod.HEAD, path, handler);
+    }
+
 
     public void ROUTE(HttpMethod method, String path,
             Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
