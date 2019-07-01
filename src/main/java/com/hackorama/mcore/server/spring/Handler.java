@@ -103,9 +103,15 @@ public class Handler {
         });
         BodyBuilder builder = ServerResponse.status(response.getStatus());
 
-        Mono<ServerResponse> resp = builder.contentType(MediaType.APPLICATION_JSON)
-                .headers(headers -> headers.addAll(responseHeaders)).cookies(cookies -> cookies.addAll(responseCookies))
-                .body(BodyInserters.fromObject(response.getBody()));
+        Mono<ServerResponse> resp = null;
+        if (response.getBody() != null && !response.getBody().isEmpty()) {
+            resp = builder.contentType(MediaType.APPLICATION_JSON).headers(headers -> headers.addAll(responseHeaders))
+                    .cookies(cookies -> cookies.addAll(responseCookies))
+                    .body(BodyInserters.fromObject(response.getBody()));
+        } else {
+            resp = builder.contentType(MediaType.APPLICATION_JSON).headers(headers -> headers.addAll(responseHeaders))
+                    .cookies(cookies -> cookies.addAll(responseCookies)).build();
+        }
         return resp;
     }
 
