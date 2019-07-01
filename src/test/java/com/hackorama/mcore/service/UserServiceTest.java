@@ -1,6 +1,7 @@
 package com.hackorama.mcore.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -114,6 +115,25 @@ public class UserServiceTest {
     }
 
     @Test
+    public void userService_patchUser_expectsUpdatedUserproperties() throws UnirestException {
+        HttpResponse<JsonNode> jsonResponse;
+        jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user").header("accept", "application/json")
+                .body("{ \"name\" : \"one\", \"email\" : \"one@example.com\" }").asJson();
+        String id = jsonResponse.getBody().getObject().getString("id");
+        String originalName = jsonResponse.getBody().getObject().getString("name");
+        String originalEmail = jsonResponse.getBody().getObject().getString("email");
+        jsonResponse = Unirest.patch(DEFAULT_SERVER_ENDPOINT + "/user/" + id).header("accept", "application/json")
+                .body("{ \"name\" : \"updatedone\" }").asJson();
+        assertEquals("Check the same resource was modified", id, jsonResponse.getBody().getObject().getString("id"));
+        assertNotEquals("Check one of the property was modified", originalName,
+                jsonResponse.getBody().getObject().getString("name"));
+        assertEquals("Check one of the property was modified", "updatedone",
+                jsonResponse.getBody().getObject().getString("name"));
+        assertEquals("Check the other the property was not modified", originalEmail,
+                jsonResponse.getBody().getObject().getString("email"));
+    }
+
+    @Test
     public void userService_postingMultiple_expectsSameOnGetAll() throws UnirestException {
         HttpResponse<JsonNode> jsonResponse;
         jsonResponse = Unirest.post(DEFAULT_SERVER_ENDPOINT + "/user").header("accept", "application/json")
@@ -138,6 +158,23 @@ public class UserServiceTest {
             assertEquals("two", jsonResponse.getBody().getArray().getJSONObject(0).getString("name"));
             assertEquals(idOne, jsonResponse.getBody().getArray().getJSONObject(1).getString("id"));
         }
+    }
+
+    @Test
+    public void userService_sendHeadRequest_expectsHeadersWithoutBody() throws UnirestException {
+        HttpResponse<JsonNode> jsonResponse;
+        jsonResponse = Unirest.head(DEFAULT_SERVER_ENDPOINT + "/user").header("accept", "application/json").asJson();
+        assertEquals("Check no body in response", null, jsonResponse.getBody());
+        assertEquals("Check expected header in response", "OK", jsonResponse.getHeaders().get("HEAD").get(0));
+    }
+
+    @Test
+    public void userService_sendOptionsRequest_expectsAllowedMethodsInAllowHeader() throws UnirestException {
+        HttpResponse<JsonNode> jsonResponse;
+        jsonResponse = Unirest.options(DEFAULT_SERVER_ENDPOINT + "/user").header("accept", "application/json").asJson();
+        assertEquals("Check empty body in response", "{}", jsonResponse.getBody().toString());
+        assertEquals("Check allowed methods in Allow header", "GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS",
+                jsonResponse.getHeaders().get("Allow").get(0));
     }
 
     @Test
