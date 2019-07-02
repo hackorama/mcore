@@ -35,6 +35,10 @@ public class CookieUnirestClient extends UnirestClient {
         Debug.print(cookieStore);
     }
 
+    public Cookie getCookie(String name) {
+        return getCookies().stream().filter(e -> name.equals(e.getName())).findAny().get();
+    }
+
     public List<Cookie> getCookies() {
         return cookieStore.getCookies();
     }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
 
 public class Request {
 
@@ -13,6 +14,7 @@ public class Request {
     private Map<String, List<String>> headers = new HashMap<>();
     private Map<String, String> pathParams = new HashMap<>();
     private Map<String, List<String>> queryParams = new HashMap<>();
+    HttpSession session;
 
     public Request() {
     }
@@ -41,6 +43,10 @@ public class Request {
         return queryParams;
     }
 
+    public HttpSession getSession() {
+        return session;
+    }
+
     public Request setBody(String body) {
         this.body = body;
         return this;
@@ -63,6 +69,11 @@ public class Request {
 
     public Request setQueryParams(Map<String, List<String>> queryParams) {
         this.queryParams = queryParams;
+        return this;
+    }
+
+    public Request setSession(HttpSession session) {
+        this.session = session;
         return this;
     }
 

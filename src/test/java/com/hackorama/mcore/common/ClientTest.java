@@ -90,8 +90,8 @@ public class ClientTest {
         TestServer.awaitStartup();
         assertEquals("COOKIE_OK", Unirest.get(TestServer.getEndPoint() + "/test/cookie")
                 .header("Cookie", "CLIENT=VANILLA").asString().getBody());
-        assertEquals("SERVER", cookieClient.getCookies().get(0).getName());
-        assertEquals("CHOCO", cookieClient.getCookies().get(0).getValue());
+        assertEquals("SERVER", cookieClient.getCookie("SERVER").getName());
+        assertEquals("CHOCO", cookieClient.getCookie("SERVER").getValue());
         cookieClient.debugPrintCookies();
         cookieClient.debugLogCookies();
         TestServer.awaitShutdown();

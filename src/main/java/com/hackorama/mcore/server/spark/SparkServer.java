@@ -101,7 +101,7 @@ public class SparkServer extends BaseServer {
     private com.hackorama.mcore.common.Request formatRequest(Request req) {
         return new com.hackorama.mcore.common.Request().setBody(req.body()).setPathParams(formatPathParams(req))
                 .setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req))
-                .setCookies(formatCookies(req.cookies()));
+                .setCookies(formatCookies(req.cookies())).setSession(req.raw().getSession());
     }
 
     private void formatResponse(com.hackorama.mcore.common.Response response, Response res) {
