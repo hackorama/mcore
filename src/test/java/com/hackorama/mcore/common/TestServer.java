@@ -86,6 +86,10 @@ public class TestServer extends Test {
         return server;
     }
 
+    public static void debugCookies() {
+        Debug.print(cookieStore);
+    }
+
     public static List<Cookie> getCookies() {
         return cookieStore.getCookies();
     }
@@ -94,13 +98,21 @@ public class TestServer extends Test {
         return DEFAULT_SERVER_ENDPOINT;
     }
 
-    public static Map<String, List<String>> getResponseHeaders(String url) throws UnirestException {
-        return getResponseHeaders(url, new HashMap<String, String>());
+    public static HttpResponse<String> getResponse() throws UnirestException {
+        return Unirest.get(DEFAULT_SERVER_ENDPOINT).asString();
     }
 
-    public static Map<String, List<String>> getResponseHeaders(String url, Map<String, String> headers)
+    public static HttpResponse<String> getResponse(String path) throws UnirestException {
+        return Unirest.get(DEFAULT_SERVER_ENDPOINT + path).asString();
+    }
+
+    public static Map<String, List<String>> getResponseHeaders(String path) throws UnirestException {
+        return getResponseHeaders(path, new HashMap<String, String>());
+    }
+
+    public static Map<String, List<String>> getResponseHeaders(String path, Map<String, String> headers)
             throws UnirestException {
-        HttpResponse<String> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + url).headers(headers).asString();
+        HttpResponse<String> response = Unirest.get(DEFAULT_SERVER_ENDPOINT + path).headers(headers).asString();
         return response.getHeaders();
     }
 
@@ -166,10 +178,6 @@ public class TestServer extends Test {
 
     // Don't let anyone else instantiate this class
     private TestServer() {
-    }
-
-    public static void debugCookies() {
-        Debug.print(cookieStore);
     }
 
 }

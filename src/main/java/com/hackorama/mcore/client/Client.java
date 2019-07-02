@@ -12,13 +12,22 @@ import com.hackorama.mcore.common.Response;
 public interface Client {
 
     /**
-     * Get the response from the given URL
+     * Get the response from the given URL as JSON, the default format
      *
      * @param url
      *            The URL to get the response from
      * @return
      */
     public Response get(String url);
+
+    /**
+     * Get the response from the given URL as String
+     *
+     * @param url
+     *            The URL to get the response from
+     * @return
+     */
+    public Response getAsString(String url);
 
     /**
      * Post a request to the given URL and get the response

@@ -13,13 +13,29 @@ import org.slf4j.LoggerFactory;
 
 public class Debug {
 
+    private static boolean enabled = true;
     private static Logger logger = LoggerFactory.getLogger(Debug.class);
+
+    public static void disable() {
+        Debug.enabled = false;
+    }
+
+    public static void enable() {
+        Debug.enabled = true;
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
 
     public static void log(BasicCookieStore cookieStore) {
         printOrLog(cookieStore, false);
     }
 
     public static void log(boolean console) {
+        if (!enabled) {
+            return;
+        }
         if (console) {
             System.out.println();
         } else {
@@ -56,6 +72,9 @@ public class Debug {
     }
 
     public static void log(String line, boolean console) {
+        if (!enabled) {
+            return;
+        }
         if (console) {
             System.out.println(line);
         } else {

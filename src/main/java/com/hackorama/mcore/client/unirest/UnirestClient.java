@@ -33,7 +33,22 @@ public class UnirestClient implements Client {
             response.setStatus(jsonResponse.getStatus());
         } catch (UnirestException e) {
             logger.debug("Error accessing {}", url, e);
-            response.setBody(Util.toJsonString("error", e.getMessage()));
+            response.setBody(Util.toJsonString("Unirest Client Error", e.getMessage()));
+            response.setStatus(0);
+        }
+        return response;
+    }
+
+    @Override
+    public Response getAsString(String url) {
+        Response response = new Response();
+        try {
+            HttpResponse<String> jsonResponse = Unirest.get(url).asString();
+            response.setBody(jsonResponse.getBody());
+            response.setStatus(jsonResponse.getStatus());
+        } catch (UnirestException e) {
+            logger.debug("Error accessing {}", url, e);
+            response.setBody("Unirest Client Error: " + e.getMessage());
             response.setStatus(0);
         }
         return response;
