@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +153,11 @@ public class VertxServer extends BaseServer {
             });
         });
         routingContext.response().headers().addAll(headers);
-        routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
+        if (StringUtils.isEmpty(response.getBody())) {
+            routingContext.response().setStatusCode(response.getStatus()).end();
+        } else {
+            routingContext.response().setStatusCode(response.getStatus()).end(response.getBody());
+        }
     }
 
     @Override

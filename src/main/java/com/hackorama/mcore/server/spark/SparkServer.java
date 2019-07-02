@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,7 +121,11 @@ public class SparkServer extends BaseServer {
             });
         });
         res.status(response.getStatus());
-        res.body(response.getBody());
+        if (StringUtils.isEmpty(response.getBody())) {
+            res.body(""); // Must set an empty string as body
+        } else {
+            res.body(response.getBody());
+        }
     }
 
     public String router(Request req, Response res)

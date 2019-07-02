@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -104,13 +105,13 @@ public class Handler {
         BodyBuilder builder = ServerResponse.status(response.getStatus());
 
         Mono<ServerResponse> resp = null;
-        if (response.getBody() != null && !response.getBody().isEmpty()) {
+        if (StringUtils.isEmpty(response.getBody())) {
+            resp = builder.contentType(MediaType.APPLICATION_JSON).headers(headers -> headers.addAll(responseHeaders))
+                    .cookies(cookies -> cookies.addAll(responseCookies)).build();
+        } else {
             resp = builder.contentType(MediaType.APPLICATION_JSON).headers(headers -> headers.addAll(responseHeaders))
                     .cookies(cookies -> cookies.addAll(responseCookies))
                     .body(BodyInserters.fromObject(response.getBody()));
-        } else {
-            resp = builder.contentType(MediaType.APPLICATION_JSON).headers(headers -> headers.addAll(responseHeaders))
-                    .cookies(cookies -> cookies.addAll(responseCookies)).build();
         }
         return resp;
     }
