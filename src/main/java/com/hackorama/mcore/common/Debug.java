@@ -67,6 +67,11 @@ public class Debug {
         printOrLog(response, false);
     }
 
+    public static void log(Session session) {
+        printOrLog(session, false);
+
+    }
+
     public static void log(spark.Request request) {
         printOrLog(request, false);
     }
@@ -110,6 +115,10 @@ public class Debug {
         printOrLog(response, true);
     }
 
+    public static void print(Session session) {
+        printOrLog(session, true);
+    }
+
     public static void print(spark.Request request) {
         printOrLog(request, true);
     }
@@ -127,8 +136,7 @@ public class Debug {
             log("COOKIE: NULL", console);
             return;
         }
-        log(console);
-        log("[COOKIE", console);
+        log("COOKIE", console);
         log(" NAME: " + cookie.getName(), console);
         log(" VALUE: " + cookie.getValue(), console);
         log(" PATH: " + cookie.getPath(), console);
@@ -136,8 +144,6 @@ public class Debug {
         log(" MAXAGE: " + cookie.getMaxAge(), console);
         log(" VERSION: " + cookie.getVersion(), console);
         log(" COMMENT: " + cookie.getComment(), console);
-        log("COOKIE]", console);
-        log(console);
     }
 
     private static void printOrLog(HttpServletRequest request, boolean console) {
@@ -198,13 +204,12 @@ public class Debug {
         request.getHeaders().forEach((k, v) -> {
             log(" " + k + ":" + v, console);
         });
-        log("COOKIES", console);
         request.getCookies().forEach((k, v) -> {
             v.forEach(e -> {
-                log("COOKIE " + k, console);
                 printOrLog(e, console);
             });
         });
+        printOrLog(request.getSession(), console);
         log("REQUEST]", console);
         log(console);
     }
@@ -223,20 +228,34 @@ public class Debug {
         response.getHeaders().forEach((k, v) -> {
             log(" " + k + ":" + v, console);
         });
-        log("COOKIES", console);
         response.getCookies().forEach((k, v) -> {
             v.forEach(e -> {
-                log("COOKIE " + k, console);
                 printOrLog(e, console);
             });
         });
+        printOrLog(response.getSession(), console);
         log("RESPONSE]", console);
         log(console);
     }
 
+    private static void printOrLog(Session session, boolean console) {
+        if (session == null) {
+            log("SESSION: NULL", console);
+            return;
+        }
+        log("SESSION", console);
+        log(" ID: " + session.getId(), console);
+        log(" LAST ACCESS: " + session.getLastAccessedTime(), console);
+        log(" INACTIVE TIMEOUT: " + session.getMaxInactiveInterval(), console);
+        log(" VALID: " + session.valid(), console);
+        session.getAttributes().forEach((k, v) -> {
+            log(" " + k + ": " + v.toString(), console);
+        });
+    }
+
     private static void printOrLog(spark.Request request, boolean console) {
         if (request == null) {
-            log("SPAEK REQUEST: NULL", console);
+            log("SPARK REQUEST: NULL", console);
             return;
         }
         log(console);
@@ -258,10 +277,16 @@ public class Debug {
             log(" " + k + ":" + request.headers(k), console);
         });
         print(request.raw());
-        log("COOKIES", console);
         request.cookies().forEach((k, v) -> {
-            log("COOKIE " + k + ": " + v, console);
+            log(" COOKIE " + k + ": " + v, console);
         });
+        if (request.session() != null) {
+            log("SESSION", console);
+            log(" ID: " + request.session().id(), console);
+            request.session().attributes().forEach(e -> {
+                log(" " + e + "=" + request.session().attribute(e), console);
+            });
+        }
         log("SPARK REQUEST]", console);
         log(console);
 

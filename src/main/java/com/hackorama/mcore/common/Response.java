@@ -13,6 +13,7 @@ public class Response {
     private String body;
     private Map<String, List<Cookie>> cookies = new HashMap<>();
     private Map<String, List<String>> headers = new HashMap<>();
+    Session session;
     private int status = HttpURLConnection.HTTP_OK;
 
     public Response() {
@@ -39,12 +40,27 @@ public class Response {
         return headers;
     }
 
+    public Session getSession() {
+        return session;
+    }
+
     public int getStatus() {
         return status;
     }
 
     public Response setBody(String body) {
         this.body = body;
+        return this;
+    }
+
+    public Response setCookie(Cookie cookie) {
+        if (cookies.containsKey(cookie.getName())) {
+            cookies.get(cookie.getName()).add(cookie);
+        } else {
+            List<Cookie> values = new ArrayList<>();
+            values.add(cookie);
+            cookies.put(cookie.getName(), values);
+        }
         return this;
     }
 
@@ -58,19 +74,13 @@ public class Response {
         return this;
     }
 
-    public Response setStatus(int status) {
-        this.status = status;
+    public Response setSession(Session session) {
+        this.session = session;
         return this;
     }
 
-    public Response setCookie(Cookie cookie) {
-        if (cookies.containsKey(cookie.getName())) {
-            cookies.get(cookie.getName()).add(cookie);
-        } else {
-            List<Cookie> values = new ArrayList<>();
-            values.add(cookie);
-            cookies.put(cookie.getName(), values);
-        }
+    public Response setStatus(int status) {
+        this.status = status;
         return this;
     }
 

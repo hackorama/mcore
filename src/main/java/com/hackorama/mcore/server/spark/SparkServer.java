@@ -12,7 +12,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,6 +26,7 @@ import spark.Response;
 import spark.Spark;
 
 import com.hackorama.mcore.common.HttpMethod;
+import com.hackorama.mcore.common.Session;
 import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.server.BaseServer;
 
@@ -101,48 +105,60 @@ public class SparkServer extends BaseServer {
     private com.hackorama.mcore.common.Request formatRequest(Request req) {
         return new com.hackorama.mcore.common.Request().setBody(req.body()).setPathParams(formatPathParams(req))
                 .setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req))
-                .setCookies(formatCookies(req.cookies())).setSession(req.raw().getSession());
+                .setCookies(formatCookies(req.cookies())).setSession(formatSession(req.raw().getSession()));
     }
 
-    private void formatResponse(com.hackorama.mcore.common.Response response, Response res) {
+    private void formatResponse(com.hackorama.mcore.common.Response response, Response sparkResponse) {
         response.getHeaders().forEach((k, v) -> {
             v.forEach(e -> {
-                res.header(k, e);
+                sparkResponse.header(k, e);
             });
         });
         response.getCookies().forEach((k, v) -> {
             v.forEach(e -> {
                 if (e.getDomain() != null) { // TODO Add check for all fields if needed
-                    res.cookie(e.getDomain(), e.getPath(), e.getName(), e.getValue(), e.getMaxAge(), e.getSecure(),
-                            e.isHttpOnly());
+                    sparkResponse.cookie(e.getDomain(), e.getPath(), e.getName(), e.getValue(), e.getMaxAge(),
+                            e.getSecure(), e.isHttpOnly());
                 } else {
-                    res.cookie(e.getPath(), e.getName(), e.getValue(), e.getMaxAge(), e.getSecure(), e.isHttpOnly());
+                    sparkResponse.cookie(e.getPath(), e.getName(), e.getValue(), e.getMaxAge(), e.getSecure(),
+                            e.isHttpOnly());
                 }
             });
         });
-        res.status(response.getStatus());
+        sparkResponse.status(response.getStatus());
         if (StringUtils.isEmpty(response.getBody())) {
-            res.body(""); // Must set an empty string as body
+            sparkResponse.body(""); // Must set an empty string as body
         } else {
-            res.body(response.getBody());
+            sparkResponse.body(response.getBody());
         }
     }
 
-    public String router(Request req, Response res)
+    private @Nonnull Session formatSession(@Nonnull HttpSession sparkSession) {
+        Session session = new Session().setId(sparkSession.getId())
+                .setLastAccessedTime(sparkSession.getLastAccessedTime())
+                .setMaxInactiveInterval(sparkSession.getMaxInactiveInterval());
+        Collections.list(sparkSession.getAttributeNames()).forEach(e -> { // TODO PERF Handle large enumeration size ?
+            session.setAttribute(e, sparkSession.getAttribute(e));
+        });
+        return session;
+    }
+
+    public String router(Request sparkRequest, Response sparkResponse)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        com.hackorama.mcore.common.Request request = formatRequest(req);
-        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(req.requestMethod())),
-                req.pathInfo(), req.params());
+        com.hackorama.mcore.common.Request request = formatRequest(sparkRequest);
+        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(sparkRequest.requestMethod())),
+                sparkRequest.pathInfo(), sparkRequest.params());
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
-                    .get(HttpMethod.valueOf(req.requestMethod())).get(matchingPath).apply(request);
-            formatResponse(response, res);
+                    .get(HttpMethod.valueOf(sparkRequest.requestMethod())).get(matchingPath).apply(request);
+            formatResponse(response, sparkResponse);
+            updateSession(sparkRequest.session(), response.getSession());
         } else {
-            formatNotFoundResponse(res);
+            formatNotFoundResponse(sparkResponse);
         }
-        logger.debug("Routing request {} on thread id {} thread name : {} ", req.pathInfo(),
+        logger.debug("Routing request {} on thread id {} thread name : {} ", sparkRequest.pathInfo(),
                 Thread.currentThread().getId(), Thread.currentThread().getName());
-        return res.body();
+        return sparkResponse.body();
     }
 
     @Override
@@ -164,6 +180,25 @@ public class SparkServer extends BaseServer {
     public void stop() {
         Spark.awaitInitialization();
         Spark.stop();
+    }
+
+    private void updateSession(@Nonnull spark.Session sparkSession, @Nullable Session session) {
+        if (session == null) {
+            return;
+        }
+        assert(StringUtils.equals(sparkSession.id(), session.getId()));
+        // TODO PERF Improve the loops
+        session.getAttributes().forEach((k, v) -> { // Updated/Old/New attributes
+            sparkSession.attribute(k, v);
+        });
+        sparkSession.attributes().forEach(e -> { // Removed attributes
+            if (!session.getAttributes().keySet().contains(e)) {
+                sparkSession.removeAttribute(e);
+            }
+        });
+        if (session.invalid()) {
+            sparkSession.invalidate();
+        }
     }
 
 }
