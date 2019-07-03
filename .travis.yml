@@ -17,6 +17,5 @@ before_script:
   - chmod +x gradlew
 
 after_success:
-  - cat /home/travis/build/hackorama/mcore/build/reports/spotbugs/main.html
   - bash <(curl -s https://codecov.io/bash)
 
