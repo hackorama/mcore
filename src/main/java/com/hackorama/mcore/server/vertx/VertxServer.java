@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,11 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.SessionHandler;
+import io.vertx.ext.web.sstore.LocalSessionStore;
 
 /**
  * Vertx server implementation
@@ -54,7 +58,9 @@ public class VertxServer extends BaseServer {
     }
 
     private void activateRoutes() {
-        router.route().handler(CookieHandler.create()); // enable cookies for all paths
+        router.route().handler(CookieHandler.create()); // Enable cookies for all paths, must be set before session
+                                                        // handler
+        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))); // Enable sessions
         router.route().handler(BodyHandler.create()); // Must be set before the routes
         Stream.of(HttpMethod.values()).forEach(e -> {
             routeHandlerMap.get(e).keySet().forEach(path -> {
@@ -65,7 +71,7 @@ public class VertxServer extends BaseServer {
 
     private io.vertx.ext.web.Cookie convertCookie(Cookie cookie) {
         io.vertx.ext.web.Cookie responseCookie = io.vertx.ext.web.Cookie.cookie(cookie.getName(), cookie.getValue());
-        // TODO Check missing ischanged, isfromuseragent properties
+        // TODO Check missing isChanged, isFromUseragent properties
         responseCookie.setDomain(cookie.getDomain());
         responseCookie.setHttpOnly(cookie.isHttpOnly());
         if (cookie.getMaxAge() > 0) { // TODO Check the cookie spec
@@ -137,7 +143,8 @@ public class VertxServer extends BaseServer {
         return new com.hackorama.mcore.common.Request(routingContext.getBodyAsString())
                 .setPathParams(routingContext.pathParams())
                 .setQueryParams(fomatQueryParams(routingContext.queryParams()))
-                .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext));
+                .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext))
+                .setSession(formatSession(routingContext.session()));
     }
 
     private void formatResponse(Response response, RoutingContext routingContext) {
@@ -160,6 +167,19 @@ public class VertxServer extends BaseServer {
         }
     }
 
+    private @Nullable com.hackorama.mcore.common.Session formatSession(@Nullable Session vSession) {
+        // Could be null without a session handler
+        if (vSession == null) { // TODO Check isDestroyed and isEmpty
+            return null;
+        }
+        com.hackorama.mcore.common.Session session = new com.hackorama.mcore.common.Session().setId(vSession.id())
+                .setLastAccessedTime(vSession.lastAccessed()).setMaxInactiveInterval(vSession.timeout());
+        vSession.data().forEach((k, v) -> {
+            session.setAttribute(k, v);
+        });
+        return session;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -176,6 +196,7 @@ public class VertxServer extends BaseServer {
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(routingContext.request().rawMethod())).get(matchingPath).apply(request);
+            updateSession(routingContext.session(), request.getSession());
             formatResponse(response, routingContext);
         } else {
             formatNotFoundResponse(routingContext);
@@ -203,6 +224,26 @@ public class VertxServer extends BaseServer {
             vertx.close();
             logger.info("Stopped vertx server {} on {}", name, port);
         }
+    }
+
+    private void updateSession(@Nullable Session vSession, @Nullable com.hackorama.mcore.common.Session session) {
+        if (session == null || vSession == null) {
+            return;
+        }
+        assert (StringUtils.equals(vSession.id(), session.getId()));
+        // TODO PERF Improve the loops
+        session.getAttributes().forEach((k, v) -> { // Updated/Old/New attributes
+            vSession.put(k, v);
+        });
+        vSession.data().keySet().forEach(e -> { // Removed attributes
+            if (!session.getAttributes().keySet().contains(e)) {
+                vSession.remove(e);
+            }
+        });
+        if (session.invalid()) {
+            vSession.destroy();
+        }
+
     }
 
 }
