@@ -47,8 +47,6 @@ public class TestServer extends Test {
         if (!TestUtil.waitForPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
             throw new RuntimeException("Server did not start as expectded");
         }
-        // Grace time after port is up for any other server initialization
-        TestUtil.waitForSeconds(1);
     }
 
     public static void clearCookies() {
