@@ -29,7 +29,6 @@ public class Session {
                 Response response = new Response("Ended session for: " + request.getSession().getAttribute("NAME"));
                 request.getSession().removeAttribute("NAME"); // Not required if invalidating, like in this case
                 request.getSession().invalidate();
-                response.setSession(request.getSession());
                 Debug.print(response);
                 return response;
             }
@@ -39,7 +38,6 @@ public class Session {
                 Debug.print(request);
                 request.getSession().setAttribute("NAME", request.getPathParams().get("name"));
                 Response response = new Response("Started session for: " + request.getSession().getAttribute("NAME"));
-                response.setSession(request.getSession());
                 Debug.print(response);
                 return response;
             }
@@ -54,7 +52,6 @@ public class Session {
                 } else {
                     response = new Response("In session for: " + request.getSession().getAttribute("NAME"));
                 }
-                response.setSession(request.getSession());
                 Debug.print(response);
                 return response;
             }

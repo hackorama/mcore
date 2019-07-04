@@ -233,7 +233,6 @@ public class Debug {
                 printOrLog(e, console);
             });
         });
-        printOrLog(response.getSession(), console);
         log("RESPONSE]", console);
         log(console);
     }
@@ -249,7 +248,7 @@ public class Debug {
         log(" INACTIVE TIMEOUT: " + session.getMaxInactiveInterval(), console);
         log(" VALID: " + session.valid(), console);
         session.getAttributes().forEach((k, v) -> {
-            log(" " + k + ": " + v.toString(), console);
+            log("  " + k + ": " + v.toString(), console);
         });
     }
 

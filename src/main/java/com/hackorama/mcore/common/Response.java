@@ -13,7 +13,6 @@ public class Response {
     private String body;
     private Map<String, List<Cookie>> cookies = new HashMap<>();
     private Map<String, List<String>> headers = new HashMap<>();
-    Session session;
     private int status = HttpURLConnection.HTTP_OK;
 
     public Response() {
@@ -38,10 +37,6 @@ public class Response {
 
     public Map<String, List<String>> getHeaders() {
         return headers;
-    }
-
-    public Session getSession() {
-        return session;
     }
 
     public int getStatus() {
@@ -71,11 +66,6 @@ public class Response {
 
     public Response setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
-        return this;
-    }
-
-    public Response setSession(Session session) {
-        this.session = session;
         return this;
     }
 

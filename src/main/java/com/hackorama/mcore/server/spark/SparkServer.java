@@ -151,8 +151,8 @@ public class SparkServer extends BaseServer {
         if (matchingPath != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(sparkRequest.requestMethod())).get(matchingPath).apply(request);
+            updateSession(sparkRequest.session(), request.getSession());
             formatResponse(response, sparkResponse);
-            updateSession(sparkRequest.session(), response.getSession());
         } else {
             formatNotFoundResponse(sparkResponse);
         }
@@ -180,6 +180,7 @@ public class SparkServer extends BaseServer {
     public void stop() {
         Spark.awaitInitialization();
         Spark.stop();
+        Spark.awaitStop();
     }
 
     private void updateSession(@Nonnull spark.Session sparkSession, @Nullable Session session) {
