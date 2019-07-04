@@ -37,16 +37,13 @@ public abstract class ServerTest { // Making abstract so JUnit will not try to r
         return TestServer.getServerTypeList();
     }
 
-    private Service service;
-
     public ServerTest(String serverType) {
         TestServer.setServerType(serverType);
     }
 
     @Before
     public void setUp() throws Exception {
-        service.configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup(); // Wait for the server
+        usingService(useDefaultService());
         System.out.println("Testing with server type: " + TestServer.getServerType());
     }
 
@@ -55,8 +52,12 @@ public abstract class ServerTest { // Making abstract so JUnit will not try to r
         TestServer.awaitShutdown();
     }
 
+    protected abstract Service useDefaultService();
+
     protected void usingService(Service service) {
-        this.service = service;
+        TestServer.awaitShutdown(); // Stop any tests
+        service.configureUsing(TestServer.createNewServer()).start();
+        TestServer.awaitStartup(); // Wait for the server
     }
 
 }

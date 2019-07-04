@@ -20,29 +20,57 @@ import com.hackorama.mcore.server.ServerTest;
  */
 public class DemoServiceTest extends ServerTest {
 
-    /*
-     * Create a test service
-     */
-    private static class DemoService extends TestService {
+    // Create one or more test services
+
+    private static class DemoServiceOne extends TestService {
 
         @Override
         public void configure() {
-            GET("/test", this::test);
+            GET("/one", this::test);
         }
 
         public Response test(Request request) {
-            return new Response("test");
+            return new Response("ONE");
+        }
+    }
+
+    private static class DemoServiceTwo extends TestService {
+        @Override
+        public void configure() {
+            GET("/two", this::test);
+        }
+
+        public Response test(Request request) {
+            return new Response("TWO");
         }
     }
 
     public DemoServiceTest(String serverType) {
         super(serverType);
-        usingService(new DemoService());
     }
 
     @Test
-    public void test() throws UnirestException {
-        assertEquals("Check response body", "test", TestServer.getResponse("/test").getBody());
+    public void test_multipleServices() throws UnirestException {
+        // This shows using multiple test services using usingService() which overrides
+        // the default service from DemoServiceOne()
+        usingService(new DemoServiceOne());
+        assertEquals("Check response body", "ONE", TestServer.getResponse("/one").getBody());
+        usingService(new DemoServiceTwo());
+        assertEquals("Check response body", "TWO", TestServer.getResponse("/two").getBody());
+    }
+
+    @Test
+    public void test_SingleService() throws UnirestException {
+        // This will run against the default service DemoServiceOne defined in
+        // useDefaultService()
+        assertEquals("Check response body", "ONE", TestServer.getResponse("/one").getBody());
+    }
+
+    @Override
+    protected Service useDefaultService() {
+        // This defines the default service tests will use if a service is not specified
+        // using usingService()
+        return new DemoServiceOne();
     }
 
 }
