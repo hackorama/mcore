@@ -99,7 +99,6 @@ check.dependsOn jacocoTestReport
 // code quality
 
 spotbugs {
-    ignoreFailures = true
     toolVersion = '3.1.10'
 }
 
