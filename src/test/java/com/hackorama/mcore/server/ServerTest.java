@@ -49,13 +49,12 @@ public abstract class ServerTest { // Making abstract so JUnit will not try to r
 
     @After
     public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+        // TestServer shutdown happens on each test start
     }
 
     protected abstract Service useDefaultService();
 
     protected void usingService(Service service) {
-        TestServer.awaitShutdown(); // Stop any tests
         service.configureUsing(TestServer.createNewServer()).start();
         TestServer.awaitStartup(); // Wait for the server
     }

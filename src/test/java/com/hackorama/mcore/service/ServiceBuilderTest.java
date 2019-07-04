@@ -5,27 +5,20 @@ import static org.junit.Assert.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
-import com.hackorama.mcore.common.TestService;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
 import com.hackorama.mcore.demo.HelloService;
+import com.hackorama.mcore.server.ServerTest;
 
-@RunWith(Parameterized.class)
-public class ServiceBuilderTest {
+public class ServiceBuilderTest extends ServerTest {
 
     private static class ServiceOne extends BaseService {
 
@@ -52,18 +45,8 @@ public class ServiceBuilderTest {
         }
     }
 
-    @AfterClass
-    public static void afterAllTests() throws Exception {
-        TestServer.awaitShutdown();
-    }
-
-    @Parameters
-    public static Iterable<? extends Object> data() {
-        return TestServer.getServerTypeList();
-    }
-
     public ServiceBuilderTest(String serverType) {
-        TestServer.setServerType(serverType);
+        super(serverType);
     }
 
     @Test
@@ -74,19 +57,17 @@ public class ServiceBuilderTest {
         assertTrue(TestServer.validResponse("/two", "TWO"));
         assertFalse(TestServer.validResponse("/one", "TWO"));
         assertFalse(TestServer.validResponse("/two", "ONE"));
-        TestServer.awaitShutdown();
     }
 
     @Test
-    public void service_attachServicesUnderSameServerAttchBeforeConfigure_expectsNoErrors()
-            throws UnirestException {
-        new ServiceOne().attach(new ServiceTwo()).configureUsing(TestServer.createNewServer()).attach(new ServiceTwo()).start();
+    public void service_attachServicesUnderSameServerAttchBeforeConfigure_expectsNoErrors() throws UnirestException {
+        new ServiceOne().attach(new ServiceTwo()).configureUsing(TestServer.createNewServer()).attach(new ServiceTwo())
+                .start();
         TestServer.awaitStartup();
         assertTrue(TestServer.validResponse("/one", "ONE"));
         assertTrue(TestServer.validResponse("/two", "TWO"));
         assertFalse(TestServer.validResponse("/one", "TWO"));
         assertFalse(TestServer.validResponse("/two", "ONE"));
-        TestServer.awaitShutdown();
     }
 
     @Test
@@ -94,7 +75,7 @@ public class ServiceBuilderTest {
             throws FileNotFoundException, IOException, UnirestException {
         DataStore store = null;
         Service service = null;
-        if (TestService.getEnv("REDIS_TEST")) {
+        if (com.hackorama.mcore.common.TestService.getEnv("REDIS_TEST")) {
             store = new RedisDataStoreCacheQueue();
             service = new HelloService().configureUsing(TestServer.createNewServer()).configureUsing(store)
                     .configureUsing(store.asQueue()).configureUsing(store.asCache()).start();
@@ -106,17 +87,11 @@ public class ServiceBuilderTest {
         }
         TestServer.awaitStartup();
         assertTrue(TestServer.validResponse("/hello/mcore", "hello mcore"));
-        TestServer.awaitShutdown();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        System.out.println("Testing with server type: " + TestServer.getServerType());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+    @Override
+    protected Service useDefaultService() {
+        return new ServiceOne();
     }
 
 }

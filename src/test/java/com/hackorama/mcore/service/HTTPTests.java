@@ -2,22 +2,16 @@ package com.hackorama.mcore.service;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
+import com.hackorama.mcore.server.ServerTest;
 
-@RunWith(Parameterized.class)
-public class HTTPTests {
+public class HTTPTests extends ServerTest {
 
     private static class TestService extends BaseService {
 
@@ -87,33 +81,18 @@ public class HTTPTests {
 
     }
 
-    @AfterClass
-    public static void afterAllTests() throws Exception {
-        TestServer.awaitShutdown();
-    }
-
-    @Parameters
-    public static Iterable<? extends Object> data() {
-        return TestServer.getServerTypeList();
-    }
-
     public HTTPTests(String serverType) {
-        TestServer.setServerType(serverType);
+        super(serverType);
     }
 
     @Test
     public void service_receiveEmptyBody_verifyEmptyBodyIsHandledWithoutErrors() throws UnirestException {
-        new TestService().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         assertTrue("Check empty response body", TestServer.getResponse("/empty").getBody().isEmpty());
         assertTrue("Check empty response body", TestServer.getResponse("/null").getBody().isEmpty());
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendDifferentPathFormats_verifyPathsAreHandledWithoutErrors() throws UnirestException {
-        new TestService().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         assertEquals("Check response body", "root", TestServer.getResponse("/").getBody());
         assertEquals("Check response body", "a", TestServer.getResponse("/a").getBody());
         assertEquals("Check response body", "A", TestServer.getResponse("/A").getBody());
@@ -128,17 +107,11 @@ public class HTTPTests {
                 TestServer.getResponse("/TheQuickBrownFoxJumpsOverTheLazyDog0123456789").getBody());
         assertEquals("Check response body", "TheQuickBrownFoxJumpsOverTheLazyDog-0123456789",
                 TestServer.getResponse("/TheQuickBrownFoxJumpsOverTheLazyDog-0123456789").getBody());
-        TestServer.awaitShutdown();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        System.out.println("Testing with server type: " + TestServer.getServerType());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+    @Override
+    protected Service useDefaultService() {
+        return new TestService();
     }
 
 }

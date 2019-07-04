@@ -8,13 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -22,11 +16,11 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
+import com.hackorama.mcore.server.ServerTest;
 
-@RunWith(Parameterized.class)
-public class CookieTest {
+public class CookieTest extends ServerTest {
 
-    private static class TestCookies extends BaseService {
+    private static class TestCookiesService extends BaseService {
 
         @Override
         public void configure() {
@@ -161,26 +155,12 @@ public class CookieTest {
         }
     }
 
-    @AfterClass
-    public static void afterAllTests() throws Exception {
-        TestServer.awaitShutdown();
-    }
-
-    @Parameters
-    public static Iterable<? extends Object> data() {
-        return TestServer.getServerTypeList();
-    }
-
     public CookieTest(String serverType) {
-        TestServer.setServerType(serverType);
+        super(serverType);
     }
 
     @Test
     public void service_receiveMultipleCookies_verifyMultipleCookiesInResponse() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
         assertTrue(TestServer.validResponse("/test/multi/cookie/response", "MULTIPLE_COOKIE_RESPONSE"));
         if (!TestServer.isVertxServer()) {
             // Vertx does not allow two cookies of same name, overwrites with the last one
@@ -214,16 +194,10 @@ public class CookieTest {
                 .anyMatch(e -> "MANY".equals(e.getName()) && "FAIL".equals(e.getValue())));
         assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
                 .anyMatch(e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_recieveCookie_verifyCookieInResponse() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
         assertTrue(TestServer.validResponse("/test/cookie/response", "COOKIE_RESPONSE"));
         assertTrue("Check cookie name and value", TestServer.getCookies().stream()
                 .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue())));
@@ -239,58 +213,46 @@ public class CookieTest {
                 .anyMatch(e -> "ONLY".equals(e.getName()) && "FAIL".equals(e.getValue())));
         assertFalse("Check invalid cookie name and value", TestServer.getCookies().stream()
                 .anyMatch(e -> "FAIL".equals(e.getName()) && "FAIL".equals(e.getValue())));
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendCookie_verifyCookieInRequest() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
         assertEquals(HttpURLConnection.HTTP_OK, Unirest.get(TestServer.getEndPoint() + "/test/cookie/request")
                 .header("Cookie", "ONLY=ONE").asString().getStatus());
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendMultipleCookies_verifyMultipleCookiesInRequest() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
         assertEquals(HttpURLConnection.HTTP_OK,
                 Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request").header("Cookie", "ONLY=ONE")
                         .header("Cookie", "MANY=FIRST").header("Cookie", "MANY=SECOND").header("Cookie", "MANY=LAST")
                         .header("Cookie", "DUPLICATE=SAME").header("Cookie", "DUPLICATE=SAME").asString().getStatus());
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendMultipleCookiesAsSingleHeader_verifyMultipleCookiesInRequest() throws UnirestException {
-        new TestCookies().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
-        TestServer.useCookies();
-        TestServer.clearCookies();
         assertEquals(HttpURLConnection.HTTP_OK,
                 Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request/as/single/header")
                         .header("Cookie", "ONLY=ONE;MANY=FIRST;MANY=SECOND;MANY=LAST;DUPLICATE=SAME;DUPLICATE=SAME")
                         .asString().getStatus());
-        TestServer.clearCookies();
-        TestServer.awaitShutdown();
     }
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        System.out.println("Testing with server type: " + TestServer.getServerType());
+        super.setUp();
+        TestServer.useCookies();
+        TestServer.clearCookies();
     }
 
-    @After
+    @Override
     public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+        super.tearDown();
+        TestServer.clearCookies();
+    }
+
+    @Override
+    protected Service useDefaultService() {
+        return new TestCookiesService();
     }
 
 }

@@ -6,13 +6,7 @@ import java.net.HttpURLConnection;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -21,10 +15,11 @@ import com.hackorama.mcore.client.Client;
 import com.hackorama.mcore.client.unirest.CachingUnirestClient;
 import com.hackorama.mcore.client.unirest.CookieUnirestClient;
 import com.hackorama.mcore.client.unirest.UnirestClient;
+import com.hackorama.mcore.server.ServerTest;
 import com.hackorama.mcore.service.BaseService;
+import com.hackorama.mcore.service.Service;
 
-@RunWith(Parameterized.class)
-public class ClientTest {
+public class ClientTest extends ServerTest {
 
     private static class TestService extends BaseService {
 
@@ -51,24 +46,12 @@ public class ClientTest {
         }
     }
 
-    @AfterClass
-    public static void afterAllTests() throws Exception {
-        TestServer.awaitShutdown();
-    }
-
-    @Parameters
-    public static Iterable<? extends Object> data() {
-        return TestServer.getServerTypeList();
-    }
-
     public ClientTest(String serverType) {
-        TestServer.setServerType(serverType);
+        super(serverType);
     }
 
     @Test
     public void client_useDifferentClients_expectMatchingResponse() throws UnirestException {
-        new TestService().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         Client client = new UnirestClient();
         Client cachingClient = new CachingUnirestClient();
         Client cookieClient = new CookieUnirestClient();
@@ -79,32 +62,23 @@ public class ClientTest {
                 cachingClientResponse.getBody());
         assertEquals("Validate same response from all clients", clientResponse.getBody(),
                 cookieClientResponse.getBody());
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void cookieClient_verifyCookieProcessing() throws UnirestException {
         CookieUnirestClient cookieClient = new CookieUnirestClient();
         cookieClient.clearCookies();
-        new TestService().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         assertEquals("COOKIE_OK", Unirest.get(TestServer.getEndPoint() + "/test/cookie")
                 .header("Cookie", "CLIENT=VANILLA").asString().getBody());
         assertEquals("SERVER", cookieClient.getCookie("SERVER").getName());
         assertEquals("CHOCO", cookieClient.getCookie("SERVER").getValue());
         cookieClient.debugPrintCookies();
         cookieClient.debugLogCookies();
-        TestServer.awaitShutdown();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        System.out.println("Testing with server type: " + TestServer.getServerType());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+    @Override
+    protected Service useDefaultService() {
+        return new TestService();
     }
 
 }

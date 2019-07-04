@@ -9,12 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -24,11 +19,11 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
+import com.hackorama.mcore.server.ServerTest;
 
-@RunWith(Parameterized.class)
-public class HeadersTest {
+public class HeadersTest extends ServerTest {
 
-    private static class TestHeaders extends BaseService {
+    private static class TestHeadersService extends BaseService {
 
         @Override
         public void configure() {
@@ -98,37 +93,27 @@ public class HeadersTest {
         }
     }
 
-    @AfterClass
-    public static void afterAllTests() throws Exception {
-        TestServer.awaitShutdown();
-    }
-
     @Parameters
     public static Iterable<? extends Object> data() {
         return TestServer.getServerTypeList();
     }
 
     public HeadersTest(String serverType) {
-        TestServer.setServerType(serverType);
+        super(serverType);
     }
 
     @Test
     public void service_sendHeaders_expectCorrectHeadersInRequest() throws UnirestException {
-        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         Map<String, String> headers = new HashMap<>();
         headers.put("UNO", "one");
         headers.put("DOS", "two");
         headers.put("TRES", "three");
         assertTrue(TestServer.validResponseCode("/test/headers/request", headers, HttpURLConnection.HTTP_OK));
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendHeaders_expectResponseToEchoTheHeadersFromRequest()
             throws UnirestException, InterruptedException {
-        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         Map<String, String> headers = new HashMap<>();
         headers.put("UNO", "one");
         headers.put("DOS", "two");
@@ -141,27 +126,21 @@ public class HeadersTest {
         assertFalse(responseHeaders.get("UNO").contains("dos"));
         assertFalse(responseHeaders.get("UNO").contains("UNO"));
         assertFalse(responseHeaders.get("UNO").contains("DOS"));
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendMultipleValueHeaders_expectCorrectHeadersInRequest() throws UnirestException {
-        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         Map<String, String> headers = new HashMap<>();
         headers.put("ONLY", "ONE");
         headers.put("MANY", "FIRST,SECOND,LAST");
         headers.put("DUPLICATE", "SAME,SAME");
         assertTrue(
                 TestServer.validResponseCode("/test/multi/value/request/headers", headers, HttpURLConnection.HTTP_OK));
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendMultipleValueHeaders_expectResponseToEchoTheHeaders()
             throws UnirestException, InterruptedException {
-        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         HttpResponse<String> response = Unirest.get(TestServer.getEndPoint() + "/test/headers/response")
                 .header("ONLY", "ONE").header("MANY", "FIRST").header("MANY", "SECOND").header("MANY", "LAST")
                 .header("DUPLICATE", "SAME").header("DUPLICATE", "SAME").asString();
@@ -175,30 +154,21 @@ public class HeadersTest {
         assertEquals(2, responseHeaders.get("DUPLICATE").size());
         assertTrue(responseHeaders.get("DUPLICATE").contains("DUPLICATE_SAME"));
         assertTrue(responseHeaders.get("DUPLICATE").get(0).equals(responseHeaders.get("DUPLICATE").get(1)));
-        TestServer.awaitShutdown();
     }
 
     @Test
     public void service_sendMultipleValueHeadersAsSeparateHeaders_expectCorrectHeadersInRequest()
             throws UnirestException {
-        new TestHeaders().configureUsing(TestServer.createNewServer()).start();
-        TestServer.awaitStartup();
         assertEquals(
                 Unirest.get(TestServer.getEndPoint() + "/test/multi/value/separate/request/headers")
                         .header("ONLY", "ONE").header("MANY", "FIRST").header("MANY", "SECOND").header("MANY", "LAST")
                         .header("DUPLICATE", "SAME").header("DUPLICATE", "SAME").asString().getStatus(),
                 HttpURLConnection.HTTP_OK);
-        TestServer.awaitShutdown();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        System.out.println("Testing with server type: " + TestServer.getServerType());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TestServer.awaitShutdown();
+    @Override
+    protected Service useDefaultService() {
+        return new TestHeadersService();
     }
 
 }
