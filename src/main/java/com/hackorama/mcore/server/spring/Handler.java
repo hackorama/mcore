@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,12 +28,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.function.server.ServerResponse.BodyBuilder;
+import org.springframework.web.server.WebSession;
 
 import reactor.core.publisher.Mono;
 
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
+import com.hackorama.mcore.common.Session;
 import com.hackorama.mcore.common.Util;
 
 @Component
@@ -86,7 +90,8 @@ public class Handler {
     private Request formatRequest(ServerRequest req) throws InterruptedException, ExecutionException {
         // TODO Use future get
         return new Request(req.bodyToMono(String.class).toFuture().get()).setPathParams(req.pathVariables())
-                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)).setCookies(formatCookies(req));
+                .setQueryParams(req.queryParams()).setHeaders(formatHeaders(req)).setCookies(formatCookies(req))
+                .setSession(formatSession(req.session()));
     }
 
     private Mono<ServerResponse> formatResponse(Response response) {
@@ -114,6 +119,18 @@ public class Handler {
                     .body(BodyInserters.fromObject(response.getBody()));
         }
         return resp;
+    }
+
+    private @Nonnull Session formatSession(@Nonnull Mono<WebSession> webSessionMono) {
+        Session session = new Session();
+        webSessionMono.subscribe(webSession -> {
+            session.setId(webSession.getId()).setLastAccessedTime(webSession.getLastAccessTime().toEpochMilli())
+                    .setMaxInactiveInterval(webSession.getMaxIdleTime().getSeconds());
+            webSession.getAttributes().forEach((k, v) -> {
+                session.setAttribute(k, v);
+            });
+        });
+        return session;
     }
 
     Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
@@ -144,20 +161,43 @@ public class Handler {
         return null;
     }
 
-    public Mono<ServerResponse> router(ServerRequest req) throws InterruptedException, ExecutionException,
+    public Mono<ServerResponse> router(ServerRequest springRequest) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        Request request = formatRequest(req);
-        String matchingPath = getMatchingPath(Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName())),
-                req.path(), req.pathVariables());
-        logger.debug("Routing request {} on thread id {} thread name : {} ", req.path(), Thread.currentThread().getId(),
-                Thread.currentThread().getName());
+        Request request = formatRequest(springRequest);
+        String matchingPath = getMatchingPath(
+                Handler.routeHandlerMap.get(HttpMethod.valueOf(springRequest.methodName())), springRequest.path(),
+                springRequest.pathVariables());
+        logger.debug("Routing request {} on thread id {} thread name : {} ", springRequest.path(),
+                Thread.currentThread().getId(), Thread.currentThread().getName());
         if (matchingPath != null) {
-            Response response = (Response) Handler.routeHandlerMap.get(HttpMethod.valueOf(req.methodName()))
+            Response response = (Response) Handler.routeHandlerMap.get(HttpMethod.valueOf(springRequest.methodName()))
                     .get(matchingPath).apply(request);
+            updateSession(springRequest.session(), request.getSession());
             return formatResponse(response);
         } else {
             return formatNotFoundResponse();
         }
+    }
+
+    private void updateSession(@Nonnull Mono<WebSession> springSession, @Nullable Session session) {
+        if (session == null) {
+            return;
+        }
+        springSession.subscribe(webSession -> {
+            assert (StringUtils.equals(webSession.getId(), session.getId()));
+            // TODO PERF Improve the loops
+            session.getAttributes().forEach((k, v) -> { // Updated/Old/New attributes
+                webSession.getAttributes().put(k, v);
+            });
+            webSession.getAttributes().keySet().forEach(e -> { // Removed attributes
+                if (!session.getAttributes().keySet().contains(e)) {
+                    webSession.getAttributes().remove(e);
+                }
+            });
+            if (session.invalid()) {
+                webSession.invalidate();
+            }
+        });
     }
 
 }

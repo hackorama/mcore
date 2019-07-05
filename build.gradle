@@ -38,6 +38,7 @@ dependencies {
 
     implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
+    implementation 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
     implementation 'io.vertx:vertx-web:3.6.2' // rest framework
 
     testImplementation 'junit:junit:4.12'
