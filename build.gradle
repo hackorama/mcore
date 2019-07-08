@@ -5,12 +5,17 @@ plugins {
     id 'jacoco'
     id "com.diffplug.gradle.spotless" version "3.16.0"
     id "com.github.spotbugs" version "1.6.8"
-    id 'pmd'
+    // id 'pmd' // disabling for scala dependency issues from play framework
     id "com.github.johnrengelman.shadow" version "4.0.3"
+    id 'org.gradle.playframework' version '0.6'
 }
 
 repositories {
     jcenter()
+    maven {
+        name "lightbend-maven-release"
+        url "https://repo.lightbend.com/lightbend/maven-releases"
+    }
 }
 
 dependencies {
@@ -40,6 +45,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
     implementation 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
     implementation 'io.vertx:vertx-web:3.6.2' // rest framework
+    implementation 'com.typesafe.play:play-server_2.13:2.7.3' // rest framework
 
     testImplementation 'junit:junit:4.12'
 }
@@ -111,11 +117,12 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
     }
 }
 
+/* disabling for scala issues on adding play framework
 pmd {
     ignoreFailures = true
     ruleSetFiles = files(file("config/pmd/ruleset.xml"))
     ruleSets = []
-}
+}*/
 
 application {
     mainClassName = "com.hackorama.mcore.Main"
