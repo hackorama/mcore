@@ -66,6 +66,7 @@ public class Handler {
         req.cookies().keySet().forEach(k -> {
             List<Cookie> values = new ArrayList<>();
             req.cookies().get(k).forEach(e -> {
+                // NOTE No domain, path, age, secure attributes
                 values.add(new Cookie(e.getName(), e.getValue()));
             });
             cookies.put(k, values);

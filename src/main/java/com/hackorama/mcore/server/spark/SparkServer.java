@@ -53,6 +53,7 @@ public class SparkServer extends BaseServer {
     private Map<String, List<Cookie>> formatCookies(Map<String, String> cookieMap) {
         Map<String, List<Cookie>> cookies = new HashMap<>();
         cookieMap.forEach((k, v) -> {
+            // NOTE No domain, path, age, secure attributes
             Cookie cookie = new Cookie(k, v);
             if (cookies.containsKey(k)) {
                 cookies.get(cookie.getName()).add(cookie);

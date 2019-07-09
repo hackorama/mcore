@@ -103,6 +103,7 @@ public class VertxServer extends BaseServer {
             if (e.getDomain() != null) { // TODO Look up cookie specs and document
                 cookie.setDomain(e.getDomain());
             }
+            // TODO FIXME Add domain, path, age, secure attributes
             if (cookies.containsKey(cookie.getName())) {
                 cookies.get(cookie.getName()).add(cookie);
             } else {
