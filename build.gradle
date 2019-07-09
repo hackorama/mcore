@@ -5,16 +5,22 @@ plugins {
     id 'jacoco'
     id "com.diffplug.gradle.spotless" version "3.16.0"
     id "com.github.spotbugs" version "1.6.8"
-    // id 'pmd' // disabling for scala dependency issues from play framework
+    id 'pmd'
     id "com.github.johnrengelman.shadow" version "4.0.3"
-    id 'org.gradle.playframework' version '0.6'
+    id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
 }
 
 repositories {
     jcenter()
+    // Play Framework https://gradle.github.io/playframework/#applying_the_plugin
     maven {
         name "lightbend-maven-release"
         url "https://repo.lightbend.com/lightbend/maven-releases"
+    }
+    ivy {
+        name "lightbend-ivy-release"
+        url "https://repo.lightbend.com/lightbend/ivy-releases"
+        layout "ivy"
     }
 }
 
@@ -24,7 +30,7 @@ dependencies {
     implementation 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
     implementation 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
     implementation 'com.google.guava:guava:27.0.1-jre' // multimap implementation for many to many
-    implementation 'com.google.code.gson:gson:2.8.5' // json library 
+    implementation 'com.google.code.gson:gson:2.8.5' // json library
 
     implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
     implementation 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
@@ -45,10 +51,25 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
     implementation 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
     implementation 'io.vertx:vertx-web:3.6.2' // rest framework
-    implementation 'com.typesafe.play:play-server_2.13:2.7.3' // rest framework
+    // Using the default version from https://gradle.github.io/playframework/#play_framework
+    implementation 'com.typesafe.play:play-server_2.12:2.6.15' // rest framework
+    implementation 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
+    implementation 'com.typesafe.play:play_2.12:2.6.15' // rest framework
 
     testImplementation 'junit:junit:4.12'
 }
+
+// Play Framework (https://gradle.github.io/playframework/#targeting-play-version)
+
+play {
+    platform {
+        playVersion = '2.6.15'
+        scalaVersion = '2.12'
+        javaVersion = JavaVersion.VERSION_1_8
+    }
+}
+
+// Spring Boot
 
 configurations {
     all*.exclude module : 'spring-boot-starter-logging'
@@ -62,11 +83,11 @@ spotless {
         indentWithSpaces(4)
         endWithNewline()
         importOrder 'java', 'javax', 'org', 'com', 'com.hackorama'
-        removeUnusedImports() 
+        removeUnusedImports()
     }
 }
 
-// code coverage 
+// code coverage
 
 jacoco {
     toolVersion = "0.8.2"
@@ -74,7 +95,7 @@ jacoco {
 
 jacocoTestReport {
     reports {
-        xml.enabled true 
+        xml.enabled true
         csv.enabled false
         html.enabled true
     }
@@ -117,12 +138,11 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
     }
 }
 
-/* disabling for scala issues on adding play framework
 pmd {
     ignoreFailures = true
     ruleSetFiles = files(file("config/pmd/ruleset.xml"))
     ruleSets = []
-}*/
+}
 
 application {
     mainClassName = "com.hackorama.mcore.Main"
