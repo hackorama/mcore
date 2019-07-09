@@ -3,15 +3,22 @@ package com.hackorama.mcore.server.play;
 import static play.mvc.Controller.*;
 
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.lang3.StringUtils;
+
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.routing.RoutingDsl;
@@ -20,23 +27,26 @@ import play.server.Server;
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Session;
+import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.server.BaseServer;
 
 /**
  *
  * Play Framework Server Implementation
- *
+ * <p>
  * NOTES: Alternatively could leverage OnRouteRequest override
- *
- * - https://www.playframework.com/documentation/2.1.0/JavaGlobal -
- * https://www.playframework.com/documentation/2.1.0/JavaInterceptors
+ * <p>
+ * <ul>
+ * <li>https://www.playframework.com/documentation/2.1.0/JavaGlobal
+ * <li>https://www.playframework.com/documentation/2.1.0/JavaInterceptors
+ * </ul>
  *
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
 public class PlayServer extends BaseServer {
 
-    class MatchingPath {
+    static class MatchingPath {
         Map<String, String> params = new HashMap<>();
         String path;
     }
@@ -47,16 +57,41 @@ public class PlayServer extends BaseServer {
         super(name);
     }
 
+    public PlayServer(String name, int port) {
+        super(name, port);
+    }
+
     private Map<String, List<Cookie>> formatCookies(Request playRequest) {
+        Map<String, List<Cookie>> cookies = new HashMap<>();
+        playRequest.cookies().forEach(e -> {
+            // TODO Check missing sameSite property
+            Cookie cookie = new Cookie(e.name(), e.value());
+            if (e.domain() != null) { // TODO Look up cookie specs and document
+                cookie.setDomain(e.domain());
+            }
+            cookie.setHttpOnly(e.httpOnly());
+            cookie.setMaxAge(e.maxAge());
+            cookie.setPath(e.path());
+            cookie.setSecure(e.secure());
+            // TODO : Move this as helper to BaseServer
+            if (cookies.containsKey(cookie.getName())) {
+                cookies.get(cookie.getName()).add(cookie);
+            } else {
+                List<Cookie> values = new ArrayList<Cookie>();
+                values.add(cookie);
+                cookies.put(cookie.getName(), values);
+            }
+        });
         return null;
     }
 
     private Map<String, List<String>> formatHeaders(Request playRequest) {
-        return null;
+        return playRequest.getHeaders().toMap();
     }
 
+    // TODO Move message to BaseServer
     private Result formatNotFoundResponse() {
-        return notFound("No matching path");
+        return notFound(Util.toJsonString("message", "404 Not found"));
     }
 
     private Map<String, List<String>> formatQueryParams(Request request) {
@@ -76,11 +111,32 @@ public class PlayServer extends BaseServer {
     }
 
     private Result formatResponse(Response response) {
-        return ok(response.getBody());
+        Result result = ok(response.getBody());
+        for (Entry<String, List<String>> header : response.getHeaders().entrySet()) {
+            for (String value : header.getValue()) {
+                result = result.withHeader(header.getKey(), value);
+            }
+        }
+        for (Entry<String, List<Cookie>> cookies : response.getCookies().entrySet()) {
+            for (Cookie cookie : cookies.getValue()) {
+                Http.Cookie httpCookie = Http.Cookie.builder(cookie.getName(), cookie.getValue())
+                        .withDomain(cookie.getDomain()).withPath(cookie.getPath()).withSecure(cookie.getSecure())
+                        .withHttpOnly(cookie.isHttpOnly()).withMaxAge(Duration.ofSeconds(cookie.getMaxAge())).build();
+                result = result.withCookies(httpCookie);
+            }
+        }
+        return result;
     }
 
+    // TODO : Session configuration
+    // https://www.playframework.com/documentation/2.7.x/SettingsSession
     private Session formatSession(Request playRequest) {
-        return null;
+        play.mvc.Http.Session playSession = playRequest.asScala().session().asJava();
+        Session session = new Session().setId("PLAY_SESSION"); // No id from Play Session
+        playSession.forEach((k, v) -> {
+            session.setAttribute(k, v);
+        });
+        return session;
     }
 
     private MatchingPath getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, Response>> paths,
@@ -156,8 +212,15 @@ public class PlayServer extends BaseServer {
                     return route(request());
                 }).DELETE("/*path").routeTo(path -> {
                     return route(request());
+                }).PUT("/*path").routeTo(path -> {
+                    return route(request());
+                }).PATCH("/*path").routeTo(path -> {
+                    return route(request());
+                }).OPTIONS("/*path").routeTo(path -> {
+                    return route(request());
+                }).HEAD("/*path").routeTo(path -> {
+                    return route(request());
                 }).build());
-        System.out.println(server.httpPort());
     }
 
     @Override
@@ -167,8 +230,16 @@ public class PlayServer extends BaseServer {
         }
     }
 
-    private void updateSession(Request playRequest, Session session) {
+    private void updateSession(@Nonnull Request playRequest, @Nullable Session session) {
+        if (session == null) {
+            return;
+        }
+        assert (StringUtils.equals("PLAY_SESSION", session.getId())); // No id from Play Session
+        play.mvc.Http.Session playSession = playRequest.asScala().session().asJava();
+        session.getAttributes().forEach((k, v) -> {
 
+            playSession.putIfAbsent(k, v.toString());
+        });
     }
 
 }
