@@ -18,12 +18,14 @@ import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
 
+import play.http.HttpEntity;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.routing.RoutingDsl;
 import play.server.Server;
 
+import com.hackorama.mcore.common.Debug;
 import com.hackorama.mcore.common.HttpMethod;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Session;
@@ -70,7 +72,9 @@ public class PlayServer extends BaseServer {
                 cookie.setDomain(e.domain());
             }
             cookie.setHttpOnly(e.httpOnly());
-            cookie.setMaxAge(e.maxAge());
+            if (e.maxAge() != null) { // TODO Handle transient cookie
+                cookie.setMaxAge(e.maxAge());
+            }
             cookie.setPath(e.path());
             cookie.setSecure(e.secure());
             // TODO : Move this as helper to BaseServer
@@ -82,7 +86,7 @@ public class PlayServer extends BaseServer {
                 cookies.put(cookie.getName(), values);
             }
         });
-        return null;
+        return cookies;
     }
 
     private Map<String, List<String>> formatHeaders(Request playRequest) {
@@ -95,13 +99,11 @@ public class PlayServer extends BaseServer {
     }
 
     private Map<String, List<String>> formatQueryParams(Request request) {
-        StringBuilder queryString = new StringBuilder("QUERYSTRING: ");
+        Map<String, List<String>> params = new HashMap<>();
         request.queryString().forEach((k, v) -> {
-            Arrays.stream(v).forEach(e -> {
-                queryString.append(k).append(":").append(e).append(" ");
-            });
+            params.put(k, Arrays.asList(v));
         });
-        return new HashMap<>();
+        return params;
     }
 
     private com.hackorama.mcore.common.Request formatRequest(Request playRequest) {
@@ -111,7 +113,8 @@ public class PlayServer extends BaseServer {
     }
 
     private Result formatResponse(Response response) {
-        Result result = ok(response.getBody());
+        //TODO FIXME Charset helper
+        Result result = new Result(response.getStatus(), HttpEntity.fromString(response.getBody(), "UTF-8"));
         for (Entry<String, List<String>> header : response.getHeaders().entrySet()) {
             for (String value : header.getValue()) {
                 result = result.withHeader(header.getKey(), value);
@@ -175,16 +178,11 @@ public class PlayServer extends BaseServer {
         com.hackorama.mcore.common.Request request = formatRequest(playRequest);
         MatchingPath matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(playRequest.method())),
                 playRequest.path());
-        System.out.println(matchingPath.path);
-        matchingPath.params.forEach((k, v) -> {
-            System.out.println(" " + k + ":" + v);
-        });
         request.setPathParams(matchingPath.params);
         if (matchingPath.path != null) {
             com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
                     .get(HttpMethod.valueOf(playRequest.method())).get(matchingPath.path).apply(request);
             updateSession(playRequest, request.getSession());
-            response.setBody("Found " + matchingPath.path + ", response not implemented yet");
             return formatResponse(response);
         } else {
             return formatNotFoundResponse();
@@ -237,8 +235,7 @@ public class PlayServer extends BaseServer {
         assert (StringUtils.equals("PLAY_SESSION", session.getId())); // No id from Play Session
         play.mvc.Http.Session playSession = playRequest.asScala().session().asJava();
         session.getAttributes().forEach((k, v) -> {
-
-            playSession.putIfAbsent(k, v.toString());
+            playSession.put(k, v.toString());
         });
     }
 
