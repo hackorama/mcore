@@ -17,6 +17,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.server.Server;
+import com.hackorama.mcore.server.play.PlayServer;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
 import com.hackorama.mcore.server.vertx.VertxServer;
@@ -31,9 +32,10 @@ public class TestServer extends Test {
 
     private static Logger logger = LoggerFactory.getLogger(TestServer.class);
 
+    private static final BasicCookieStore cookieStore = new BasicCookieStore();
+
     private static final int DEFAULT_SERVER_PORT = 7654; // TODO Check if the port need to be unique from TestService
     private static final String DEFAULT_SERVER_ENDPOINT = "http://" + DEFAULT_SERVER_HOST + ":" + DEFAULT_SERVER_PORT;
-    private static final BasicCookieStore cookieStore = new BasicCookieStore();
 
     public synchronized static void awaitShutdown() {
         if (server != null) {
@@ -53,11 +55,20 @@ public class TestServer extends Test {
         cookieStore.clear();
     }
 
+    public static Server createNewPlayServer() {
+        awaitShutdown();
+        server = new PlayServer("Play test server", DEFAULT_SERVER_PORT);
+        logger.info("Created Play Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+        return server;
+    }
+
     public static Server createNewServer() {
         if (SERVER_TYPE_SPRING.equalsIgnoreCase(serverType)) {
             return createNewSpringServer();
         } else if (SERVER_TYPE_VERTX.equalsIgnoreCase(serverType)) {
             return createNewVertxServer();
+        } else if (SERVER_TYPE_PLAY.equalsIgnoreCase(serverType)) {
+            return createNewPlayServer();
         } else {
             return createNewSparkServer();
         }
@@ -118,8 +129,28 @@ public class TestServer extends Test {
         return serverType;
     }
 
-    public static Iterable<? extends Object> getServerTypeList() {
+    public static List<String> getServerTypeList() {
         return serverTypes;
+    }
+
+    public static String getServerTypePlay() {
+        return SERVER_TYPE_PLAY;
+    }
+
+    public static String getServerTypeSpark() {
+        return SERVER_TYPE_SPARK;
+    }
+
+    public static String getServerTypeSpring() {
+        return SERVER_TYPE_SPRING;
+    }
+
+    public static String getServerTypeVertx() {
+        return SERVER_TYPE_VERTX;
+    }
+
+    public static boolean isPlayServer() {
+        return SERVER_TYPE_PLAY.equals(serverType);
     }
 
     public static boolean isSparkServer() {
@@ -136,6 +167,10 @@ public class TestServer extends Test {
 
     public static void setServerType(String serverType) {
         TestServer.serverType = serverType;
+    }
+
+    public static void setServerTypePlay() {
+        serverType = SERVER_TYPE_PLAY;
     }
 
     public static void setServerTypeSpark() {
