@@ -11,6 +11,8 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import play.mvc.Result;
+
 public class Debug {
 
     private static boolean enabled = true;
@@ -59,12 +61,21 @@ public class Debug {
         printOrLog(cookie, false);
     }
 
+    public static void log(play.mvc.Http.Cookie cookie) {
+        printOrLog(cookie, false);
+    }
+
     public static void log(Request request) {
         printOrLog(request, false);
     }
 
     public static void log(Response response) {
         printOrLog(response, false);
+    }
+
+    public static void log(Result result) {
+        printOrLog(result, false);
+
     }
 
     public static void log(Session session) {
@@ -107,12 +118,20 @@ public class Debug {
         printOrLog(cookie, true);
     }
 
+    public static void print(play.mvc.Http.Cookie cookie) {
+        printOrLog(cookie, true);
+    }
+
     public static void print(Request request) {
         printOrLog(request, true);
     }
 
     public static void print(Response response) {
         printOrLog(response, true);
+    }
+
+    public static void print(Result result) {
+        printOrLog(result, true);
     }
 
     public static void print(Session session) {
@@ -183,6 +202,17 @@ public class Debug {
         log(" COMMENTURL: " + cookie.getCommentURL(), console);
     }
 
+    private static void printOrLog(play.mvc.Http.Cookie cookie, boolean console) {
+        log("NAME: " + cookie.name(), console);
+        log(" VALUE: " + cookie.value(), console);
+        log(" PATH: " + cookie.path(), console);
+        log(" DOMAIN: " + cookie.domain(), console);
+        log(" MAXAGE: " + cookie.maxAge(), console);
+        log(" SECURE: " + cookie.secure(), console);
+        log(" HTTPONLY: " + cookie.httpOnly(), console);
+        log(" SAMESITE: " + cookie.sameSite(), console);
+    }
+
     private static void printOrLog(Request request, boolean console) {
         if (request == null) {
             log("REQUEST: NULL", console);
@@ -235,6 +265,29 @@ public class Debug {
         });
         log("RESPONSE]", console);
         log(console);
+    }
+
+    private static void printOrLog(Result result, boolean console) {
+        if (result == null) {
+            log("PLAY RESPONSE: NULL", console);
+            return;
+        }
+        log(console);
+        log("[PLAY RESPONSE", console);
+        log("BODY", console);
+        log(" " + result.body().as("text/html"), console); // TODO FIXME Content Type
+        log("STATUS: " + result.status(), console);
+        log("HEADERS", console);
+        result.headers().forEach((k, v) -> {
+            log(" " + k + ":" + v, console);
+        });
+        log("COOKIES", console);
+        result.cookies().forEach(e -> {
+            printOrLog(e, console);
+        });
+        log("PLAY RESPONSE]", console);
+        log(console);
+
     }
 
     private static void printOrLog(Session session, boolean console) {
