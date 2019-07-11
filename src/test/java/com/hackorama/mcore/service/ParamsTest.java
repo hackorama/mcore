@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import com.hackorama.mcore.common.Debug;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
@@ -35,13 +36,16 @@ public class ParamsTest extends ServerTest {
         }
 
         public Response getPathQueryParams(Request request) {
+            Debug.print(request);
             boolean result = request.getQueryParams().get("one").contains("uno");
             result &= request.getQueryParams().get("two").contains("dos");
             result &= request.getQueryParams().get("three").contains("tres");
             result &= "one".equals(request.getPathParams().get("one"));
             result &= "two".equals(request.getPathParams().get("two"));
             result &= "three".equals(request.getPathParams().get("three"));
-            return new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+            Response response = new Response("QUERYOK", result ? HttpURLConnection.HTTP_OK : HttpURLConnection.HTTP_BAD_REQUEST);
+            Debug.print(response);
+            return response;
         }
 
         public Response getQueryParams(Request request) {
@@ -54,14 +58,11 @@ public class ParamsTest extends ServerTest {
 
     public ParamsTest(String serverType) {
         super(serverType);
+        Debug.disable();
     }
 
     @Test
     public void service_sendPathAndQueryParameters_expectCorrectParamProcessing() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping param tests for Play Server ...");
-            return;
-        }
         assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three?one=uno&two=dos&three=tres",
                 HttpURLConnection.HTTP_OK));
         assertTrue(TestServer.validResponseCode("/testpathqueryparams/one/two/three/?one=uno&two=dos&three=tres",
@@ -70,10 +71,6 @@ public class ParamsTest extends ServerTest {
 
     @Test
     public void service_sendPathParameters_expectCorrectParamProcessing() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping param tests for Play Server ...");
-            return;
-        }
         assertTrue(TestServer.validResponseCode("/testpathparams/one/two/three", HttpURLConnection.HTTP_OK));
         assertTrue(TestServer.validResponseCode("/testpathparams/one/two/three/", HttpURLConnection.HTTP_OK));
         assertFalse(TestServer.validResponseCode("/testpathparams/one/two/three/x", HttpURLConnection.HTTP_OK));

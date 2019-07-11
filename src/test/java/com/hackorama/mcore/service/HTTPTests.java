@@ -87,10 +87,6 @@ public class HTTPTests extends ServerTest {
 
     @Test
     public void service_receiveEmptyBody_verifyEmptyBodyIsHandledWithoutErrors() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping HTTP tests for Play Server ...");
-            return;
-        }
         assertTrue("Check empty response body", TestServer.getResponse("/empty").getBody().isEmpty());
         assertTrue("Check empty response body", TestServer.getResponse("/null").getBody().isEmpty());
     }

@@ -16,6 +16,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import com.hackorama.mcore.common.Debug;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
@@ -42,6 +43,7 @@ public class HeadersTest extends ServerTest {
         }
 
         public Response getHeadersResponse(Request request) {
+            Debug.print(request);
             Response response = new Response("HEADER_RESPONSE");
             Map<String, List<String>> responseHeaders = new HashMap<>();
             Map<String, List<String>> requestHeaders = request.getHeaders();
@@ -53,6 +55,7 @@ public class HeadersTest extends ServerTest {
                 responseHeaders.put(k, values);
             });
             response.setHeaders(responseHeaders);
+            Debug.print(response);
             return response;
         }
 
@@ -100,6 +103,7 @@ public class HeadersTest extends ServerTest {
 
     public HeadersTest(String serverType) {
         super(serverType);
+        Debug.disable();
     }
 
     @Test
@@ -141,23 +145,29 @@ public class HeadersTest extends ServerTest {
     @Test
     public void service_sendMultipleValueHeaders_expectResponseToEchoTheHeaders()
             throws UnirestException, InterruptedException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping headers tests for Play Server ...");
-            return;
-        }
         HttpResponse<String> response = Unirest.get(TestServer.getEndPoint() + "/test/headers/response")
                 .header("ONLY", "ONE").header("MANY", "FIRST").header("MANY", "SECOND").header("MANY", "LAST")
                 .header("DUPLICATE", "SAME").header("DUPLICATE", "SAME").asString();
         Map<String, List<String>> responseHeaders = response.getHeaders();
         assertEquals(1, responseHeaders.get("ONLY").size());
         assertTrue(responseHeaders.get("ONLY").contains("ONLY_ONE"));
-        assertEquals(3, responseHeaders.get("MANY").size());
-        assertTrue(responseHeaders.get("MANY").contains("MANY_FIRST"));
-        assertTrue(responseHeaders.get("MANY").contains("MANY_SECOND"));
-        assertTrue(responseHeaders.get("MANY").contains("MANY_LAST"));
-        assertEquals(2, responseHeaders.get("DUPLICATE").size());
-        assertTrue(responseHeaders.get("DUPLICATE").contains("DUPLICATE_SAME"));
-        assertTrue(responseHeaders.get("DUPLICATE").get(0).equals(responseHeaders.get("DUPLICATE").get(1)));
+        if (TestServer.isPlayServer()) { // Play sends multi-value as a single value
+            assertEquals(1, responseHeaders.get("MANY").size());
+            assertTrue(responseHeaders.get("MANY").get(0).contains("MANY_FIRST"));
+            assertTrue(responseHeaders.get("MANY").get(0).contains("MANY_SECOND"));
+            assertTrue(responseHeaders.get("MANY").get(0).contains("MANY_LAST"));
+            assertEquals(1, responseHeaders.get("DUPLICATE").size());
+            assertTrue(responseHeaders.get("DUPLICATE").get(0).contains("DUPLICATE_SAME"));
+
+        } else {
+            assertEquals(3, responseHeaders.get("MANY").size());
+            assertTrue(responseHeaders.get("MANY").contains("MANY_FIRST"));
+            assertTrue(responseHeaders.get("MANY").contains("MANY_SECOND"));
+            assertTrue(responseHeaders.get("MANY").contains("MANY_LAST"));
+            assertEquals(2, responseHeaders.get("DUPLICATE").size());
+            assertTrue(responseHeaders.get("DUPLICATE").contains("DUPLICATE_SAME"));
+            assertTrue(responseHeaders.get("DUPLICATE").get(0).equals(responseHeaders.get("DUPLICATE").get(1)));
+        }
     }
 
     @Test

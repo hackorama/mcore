@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -112,12 +113,14 @@ public class PlayServer extends BaseServer {
     }
 
     private Result formatResponse(Response response) {
-        //TODO FIXME Charset helper
-        Result result = new Result(response.getStatus(), HttpEntity.fromString(response.getBody(), "UTF-8"));
+        // TODO FIXME Charset helper
+        // TODO Must set an empty string as body
+        Result result = response.getBody() == null
+                ? new Result(response.getStatus(), HttpEntity.fromString("", "UTF-8"))
+                : new Result(response.getStatus(), HttpEntity.fromString(response.getBody(), "UTF-8"));
         for (Entry<String, List<String>> header : response.getHeaders().entrySet()) {
-            for (String value : header.getValue()) {
-                result = result.withHeader(header.getKey(), value);
-            }
+            // TODO Check Play API : Sending multi-value as a comma separated single value
+            result = result.withHeader(header.getKey(), StringUtils.join(header.getValue().toArray(), ","));
         }
         for (Entry<String, List<Cookie>> cookies : response.getCookies().entrySet()) {
             for (Cookie cookie : cookies.getValue()) {
@@ -148,23 +151,25 @@ public class PlayServer extends BaseServer {
             matchingPath.path = path;
             return matchingPath;
         }
-        paths.keySet().forEach(p -> {
-            List<String> potential = new ArrayList<>();
-            Paths.get(p).forEach(e -> potential.add(e.toString()));
-            List<String> target = new ArrayList<>();
-            Paths.get(path).forEach(e -> target.add(e.toString()));
+        paths.keySet().forEach(mappedPath -> {
+            List<String> mappedPathElements = new ArrayList<>();
+            Paths.get(mappedPath).forEach(e -> mappedPathElements.add(e.toString()));
+            List<String> pathElements = new ArrayList<>();
+            Paths.get(path).forEach(e -> pathElements.add(e.toString()));
 
-            if (potential.size() == target.size()) {
+            if (mappedPathElements.size() == pathElements.size()) {
                 boolean match = true;
-                for (int i = 0; i < potential.size(); i++) {
-                    if (potential.get(i).startsWith(":")) {
-                        matchingPath.params.put(potential.get(i).substring(1), target.get(i));
-                    } else if (!potential.get(i).equals(target.get(i))) {
+                for (int i = 0; i < mappedPathElements.size(); i++) {
+                    if (mappedPathElements.get(i).startsWith("{") && mappedPathElements.get(i).endsWith("}")) {
+                        matchingPath.params.put(
+                                mappedPathElements.get(i).substring(1, mappedPathElements.get(i).length() - 1),
+                                pathElements.get(i));
+                    } else if (!mappedPathElements.get(i).equals(pathElements.get(i))) {
                         match = false;
                     }
                 }
                 if (match) {
-                    matchingPath.path = path;
+                    matchingPath.path = mappedPath;
                     return;
                 }
             }
@@ -224,6 +229,16 @@ public class PlayServer extends BaseServer {
     public void stop() {
         if (server != null) {
             server.stop();
+        }
+    }
+
+    // TODO Move to super as common for :param and {param} types
+    @Override
+    protected void trackParamList(String path) {
+        List<String> params = new ArrayList<String>(Arrays.asList(path.split("/"))).stream()
+                .filter(e -> e.startsWith("{") && e.endsWith("}")).collect(Collectors.toList());
+        if (!params.isEmpty()) {
+            paramListMap.put(path, params);
         }
     }
 

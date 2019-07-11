@@ -16,6 +16,7 @@ import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.SuppressFBWarnings;
 import com.hackorama.mcore.server.Server;
+import com.hackorama.mcore.server.play.PlayServer;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
 import com.hackorama.mcore.server.vertx.VertxServer;
@@ -26,6 +27,7 @@ public class Servers {
 
     public static void main(String[] args) throws InterruptedException, UnirestException {
         Map<String, List<org.apache.http.cookie.Cookie>> cookieResults = new HashMap<>();
+        cookieResults.put("PLAY", runOnServer(new PlayServer("Play")));
         cookieResults.put("SPARK", runOnServer(new SparkServer("Spark")));
         cookieResults.put("SPRING", runOnServer(new SpringServer("Spring")));
         cookieResults.put("VERTX (Behaviour differs for multi value)", runOnServer(new VertxServer("Vertx")));
