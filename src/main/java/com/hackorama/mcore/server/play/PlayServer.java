@@ -251,6 +251,19 @@ public class PlayServer extends BaseServer {
         session.getAttributes().forEach((k, v) -> {
             playSession.put(k, v.toString());
         });
+        // TODO FIXME PERF Concurrent modification remove double loop
+        List<String> keysToRemove = new ArrayList<>();
+        playSession.keySet().forEach(e -> { // Removed attributes
+            if (!session.getAttributes().keySet().contains(e)) {
+                keysToRemove.add(e);
+            }
+        });
+        keysToRemove.forEach(e -> {
+                playSession.remove(e);
+        });
+        if (session.invalid()) { // TODO If invalid then don't set attributes ?
+            playSession.clear();
+        }
     }
 
 }

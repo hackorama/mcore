@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import com.hackorama.mcore.common.Debug;
 import com.hackorama.mcore.common.Request;
 import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
@@ -25,25 +26,32 @@ public class SessionTest extends ServerTest {
         }
 
         public Response endSession(Request request) {
+            Debug.print(request);
             Response response = new Response("END SESSION : " + request.getSession().getAttribute("NAME"));
             request.getSession().removeAttribute("NAME"); // Not required if invalidating, like in this case
             request.getSession().invalidate();
+            Debug.print(response);
             return response;
         }
 
         public Response endSessionInvalidate(Request request) {
+            Debug.print(request);
             Response response = new Response("END SESSION : " + request.getSession().getAttribute("NAME"));
             request.getSession().invalidate();
+            Debug.print(response);
             return response;
         }
 
         public Response endSessionNoInvalidate(Request request) {
+            Debug.print(request);
             Response response = new Response("END SESSION : " + request.getSession().getAttribute("NAME"));
             request.getSession().removeAttribute("NAME");
+            Debug.print(response);
             return response;
         }
 
         public Response inSession(Request request) {
+            Debug.print(request);
             Response response = null;
             if (request.getSession().getAttribute("NAME") == null
                     || request.getSession().getAttribute("NAME").toString().isEmpty()) {
@@ -51,12 +59,15 @@ public class SessionTest extends ServerTest {
             } else {
                 response = new Response("IN SESSION : " + request.getSession().getAttribute("NAME"));
             }
+            Debug.print(response);
             return response;
         }
 
         public Response startSession(Request request) {
+            Debug.print(request);
             request.getSession().setAttribute("NAME", request.getPathParams().get("name"));
             Response response = new Response("START SESSION : " + request.getSession().getAttribute("NAME"));
+            Debug.print(response);
             return response;
         }
 
@@ -64,14 +75,11 @@ public class SessionTest extends ServerTest {
 
     public SessionTest(String serverType) {
         super(serverType);
+        Debug.disable();
     }
 
     @Test
     public void service_testSessions() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping session tests for Play Server ...");
-            return;
-        }
         final String NAME = "mcore";
         assertEquals("Check not in session", "NO SESSION", TestServer.getResponse("/session").getBody());
         assertEquals("Check started session", "START SESSION : " + NAME,
@@ -84,10 +92,6 @@ public class SessionTest extends ServerTest {
 
     @Test
     public void service_testSessions_withNoSessionInvalidation() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping session tests for Play Server ...");
-            return;
-        }
         final String NAME = "mcore";
         assertEquals("Check not in session", "NO SESSION", TestServer.getResponse("/session").getBody());
         assertEquals("Check started session", "START SESSION : " + NAME,
@@ -101,10 +105,6 @@ public class SessionTest extends ServerTest {
 
     @Test
     public void service_testSessions_withSessionInvalidation() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping session tests for Play Server ...");
-            return;
-        }
         final String NAME = "mcore";
         assertEquals("Check not in session", "NO SESSION", TestServer.getResponse("/session").getBody());
         assertEquals("Check started session", "START SESSION : " + NAME,
