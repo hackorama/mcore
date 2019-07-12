@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import play.http.HttpEntity;
 import play.mvc.Http;
+import play.mvc.Http.CookieBuilder;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.routing.RoutingDsl;
@@ -124,9 +125,13 @@ public class PlayServer extends BaseServer {
         }
         for (Entry<String, List<Cookie>> cookies : response.getCookies().entrySet()) {
             for (Cookie cookie : cookies.getValue()) {
-                Http.Cookie httpCookie = Http.Cookie.builder(cookie.getName(), cookie.getValue())
+                CookieBuilder cookieBuilder = Http.Cookie.builder(cookie.getName(), cookie.getValue())
                         .withDomain(cookie.getDomain()).withPath(cookie.getPath()).withSecure(cookie.getSecure())
-                        .withHttpOnly(cookie.isHttpOnly()).withMaxAge(Duration.ofSeconds(cookie.getMaxAge())).build();
+                        .withHttpOnly(cookie.isHttpOnly());
+                // TODO Check the cookie spec for MaxAge default
+                Http.Cookie httpCookie = cookie.getMaxAge() > 0
+                        ? cookieBuilder.withMaxAge(Duration.ofSeconds(cookie.getMaxAge())).build()
+                        : cookieBuilder.build();
                 result = result.withCookies(httpCookie);
             }
         }

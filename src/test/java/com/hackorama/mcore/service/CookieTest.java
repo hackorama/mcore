@@ -50,7 +50,7 @@ public class CookieTest extends ServerTest {
         public Response getMultipleCookieRequest(Request request) {
             Map<String, List<Cookie>> cookies = request.getCookies();
             boolean result = cookies.get("ONLY").size() == 1;
-            if (TestServer.isVertxServer()) {
+            if (TestServer.isVertxServer() || TestServer.isPlayServer()) {
                 // ONLY=ONE
                 result &= cookies.containsKey("MANY") == false;
                 result &= cookies.containsKey("DUPLICATE") == false;
@@ -95,7 +95,7 @@ public class CookieTest extends ServerTest {
         public Response getMultipleCookieRequestAsSingleHeader(Request request) {
             Map<String, List<Cookie>> cookies = request.getCookies();
             boolean result = cookies.get("ONLY").size() == 1;
-            if (TestServer.isVertxServer()) {
+            if (TestServer.isVertxServer() || TestServer.isPlayServer()) {
                 // ONLY=ONE
                 // MANY=FIRST
                 // DUPLICATE=SAME
@@ -161,13 +161,9 @@ public class CookieTest extends ServerTest {
 
     @Test
     public void service_receiveMultipleCookies_verifyMultipleCookiesInResponse() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping Cookie tests for Play Server ...");
-            return;
-        }
         assertTrue(TestServer.validResponse("/test/multi/cookie/response", "MULTIPLE_COOKIE_RESPONSE"));
-        if (!TestServer.isVertxServer()) {
-            // Vertx does not allow two cookies of same name, overwrites with the last one
+        if (!(TestServer.isVertxServer() || TestServer.isPlayServer())) {
+            // Vertx/Play does not allow two cookies of same name, overwrites with the last one
             assertTrue("Check cookie name and value", TestServer.getCookies().stream()
                     .anyMatch(e -> "MANY".equals(e.getName()) && "FIRST".equals(e.getValue())));
         }
@@ -202,10 +198,6 @@ public class CookieTest extends ServerTest {
 
     @Test
     public void service_recieveCookie_verifyCookieInResponse() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping Cookie tests for Play Server ...");
-            return;
-        }
         assertTrue(TestServer.validResponse("/test/cookie/response", "COOKIE_RESPONSE"));
         assertTrue("Check cookie name and value", TestServer.getCookies().stream()
                 .anyMatch(e -> "ONLY".equals(e.getName()) && "ONE".equals(e.getValue())));
@@ -231,10 +223,6 @@ public class CookieTest extends ServerTest {
 
     @Test
     public void service_sendMultipleCookies_verifyMultipleCookiesInRequest() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping Cookie tests for Play Server ...");
-            return;
-        }
         assertEquals(HttpURLConnection.HTTP_OK,
                 Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request").header("Cookie", "ONLY=ONE")
                         .header("Cookie", "MANY=FIRST").header("Cookie", "MANY=SECOND").header("Cookie", "MANY=LAST")
@@ -243,10 +231,6 @@ public class CookieTest extends ServerTest {
 
     @Test
     public void service_sendMultipleCookiesAsSingleHeader_verifyMultipleCookiesInRequest() throws UnirestException {
-        if(TestServer.isPlayServer()) { // TODO FIXME PLAY
-            System.out.println("Skipping Cookie tests for Play Server ...");
-            return;
-        }
         assertEquals(HttpURLConnection.HTTP_OK,
                 Unirest.get(TestServer.getEndPoint() + "/test/multi/cookie/request/as/single/header")
                         .header("Cookie", "ONLY=ONE;MANY=FIRST;MANY=SECOND;MANY=LAST;DUPLICATE=SAME;DUPLICATE=SAME")
