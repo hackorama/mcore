@@ -1,12 +1,13 @@
 plugins {
     id 'application'
-    id 'java-library'
     id 'eclipse'
     id 'jacoco'
-    id "com.diffplug.gradle.spotless" version "3.16.0"
-    id "com.github.spotbugs" version "1.6.8"
+    id 'java-library'
+    id 'maven-publish'
     id 'pmd'
+    id "com.diffplug.gradle.spotless" version "3.16.0"
     id "com.github.johnrengelman.shadow" version "4.0.3"
+    id "com.github.spotbugs" version "1.6.8"
     id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
 }
 
@@ -57,6 +58,20 @@ dependencies {
     implementation 'com.typesafe.play:play_2.12:2.6.15' // rest framework
 
     testImplementation 'junit:junit:4.12'
+}
+
+// Maven publishing
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'm.core'
+            artifactId = 'mcore-all'
+            version = '0.1.1'
+
+            from components.java
+        }
+    }
 }
 
 // Play Framework (https://gradle.github.io/playframework/#targeting-play-version)
