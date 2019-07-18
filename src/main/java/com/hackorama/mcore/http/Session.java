@@ -1,4 +1,4 @@
-package com.hackorama.mcore.common;
+package com.hackorama.mcore.http;
 
 import java.util.HashMap;
 import java.util.Map;

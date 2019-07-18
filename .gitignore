@@ -9,6 +9,7 @@
 # build
 build/
 bin/
+target/
 
 # gradle
 gradle.properties

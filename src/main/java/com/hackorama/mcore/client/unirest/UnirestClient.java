@@ -10,9 +10,9 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.client.Client;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.config.Configuration;
+import com.hackorama.mcore.http.Response;
 
 public class UnirestClient implements Client {
 

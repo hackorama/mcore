@@ -25,9 +25,9 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Session;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Session;
 import com.hackorama.mcore.server.BaseServer;
 
 public class SparkServer extends BaseServer {
@@ -43,7 +43,7 @@ public class SparkServer extends BaseServer {
     }
 
     private void activateRoutes() {
-        Stream.of(HttpMethod.values()).forEach(e -> {
+        Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.get(e).keySet().forEach(path -> {
                 Spark.get(path, this::router);
             });
@@ -103,13 +103,13 @@ public class SparkServer extends BaseServer {
         return params;
     }
 
-    private com.hackorama.mcore.common.Request formatRequest(Request req) {
-        return new com.hackorama.mcore.common.Request().setBody(req.body()).setPathParams(formatPathParams(req))
+    private com.hackorama.mcore.http.Request formatRequest(Request req) {
+        return new com.hackorama.mcore.http.Request().setBody(req.body()).setPathParams(formatPathParams(req))
                 .setQueryParams(formatQueryParams(req)).setHeaders(formatHeaders(req))
                 .setCookies(formatCookies(req.cookies())).setSession(formatSession(req.raw().getSession()));
     }
 
-    private void formatResponse(com.hackorama.mcore.common.Response response, Response sparkResponse) {
+    private void formatResponse(com.hackorama.mcore.http.Response response, Response sparkResponse) {
         response.getHeaders().forEach((k, v) -> {
             v.forEach(e -> {
                 sparkResponse.header(k, e);
@@ -146,12 +146,12 @@ public class SparkServer extends BaseServer {
 
     public String router(Request sparkRequest, Response sparkResponse)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        com.hackorama.mcore.common.Request request = formatRequest(sparkRequest);
-        String matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(sparkRequest.requestMethod())),
+        com.hackorama.mcore.http.Request request = formatRequest(sparkRequest);
+        String matchingPath = getMatchingPath(routeHandlerMap.get(Method.valueOf(sparkRequest.requestMethod())),
                 sparkRequest.pathInfo(), sparkRequest.params());
         if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
-                    .get(HttpMethod.valueOf(sparkRequest.requestMethod())).get(matchingPath).apply(request);
+            com.hackorama.mcore.http.Response response = (com.hackorama.mcore.http.Response) routeHandlerMap
+                    .get(Method.valueOf(sparkRequest.requestMethod())).get(matchingPath).apply(request);
             updateSession(sparkRequest.session(), request.getSession());
             formatResponse(response, sparkResponse);
         } else {
@@ -163,8 +163,8 @@ public class SparkServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+    public void setRoutes(Method method, String path,
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
         String sparkPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);

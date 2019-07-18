@@ -15,9 +15,9 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.uri.UriTemplate;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 
 public abstract class BaseServer implements Server {
 
@@ -25,7 +25,7 @@ public abstract class BaseServer implements Server {
     protected String name = "mCore";
     protected Map<String, List<String>> paramListMap = new HashMap<>(); // used for matching paths
     protected int port = 8080;
-    protected Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
+    protected Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
 
     public BaseServer() {
         init();
@@ -92,16 +92,16 @@ public abstract class BaseServer implements Server {
     }
 
     protected void init() {
-        Stream.of(HttpMethod.values()).forEach(e -> {
+        Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.put(e, new HashMap<>());
         });
     }
 
     @Override
-    public abstract void setRoutes(HttpMethod method, String path, Function<Request, Response> handler);
+    public abstract void setRoutes(Method method, String path, Function<Request, Response> handler);
 
     @Override
-    public void setRoutes(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap) {
+    public void setRoutes(Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap) {
         routeHandlerMap.forEach((method, route) -> {
             route.forEach((path, handler) -> {
                 setRoutes(method, path, handler);

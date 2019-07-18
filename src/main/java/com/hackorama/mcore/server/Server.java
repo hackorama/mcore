@@ -4,9 +4,9 @@ package com.hackorama.mcore.server;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 
 public interface Server {
 
@@ -16,9 +16,9 @@ public interface Server {
 
     public int getPort();
 
-    public void setRoutes(HttpMethod method, String path, Function<Request, Response> handler);
+    public void setRoutes(Method method, String path, Function<Request, Response> handler);
 
-    public void setRoutes(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap);
+    public void setRoutes(Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap);
 
     public boolean start();
 

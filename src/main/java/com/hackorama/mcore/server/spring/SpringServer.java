@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.BaseServer;
 
 /**
@@ -31,7 +31,7 @@ public class SpringServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path,  Function<Request, Response> handler) {
+    public void setRoutes(Method method, String path,  Function<Request, Response> handler) {
         routeHandlerMap.get(method).put(path, handler);
         trackParamList(path);
     }

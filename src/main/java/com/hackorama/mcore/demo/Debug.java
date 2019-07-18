@@ -1,8 +1,8 @@
 package com.hackorama.mcore.demo;
 
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.SuppressFBWarnings;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.BaseService;
 

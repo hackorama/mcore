@@ -1,4 +1,4 @@
-package com.hackorama.mcore.common;
+package com.hackorama.mcore.http;
 
 /**
  * HTTP Methods https://tools.ietf.org/html/rfc2616#section-5.1.1
@@ -10,6 +10,6 @@ package com.hackorama.mcore.common;
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
  */
-public enum HttpMethod {
+public enum Method {
     OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, PATCH
 }

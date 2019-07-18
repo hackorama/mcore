@@ -6,9 +6,9 @@ import javax.servlet.http.Cookie;
 
 import com.hackorama.mcore.client.unirest.CookieUnirestClient;
 import com.hackorama.mcore.common.Debug;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.SuppressFBWarnings;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.BaseService;
 import com.hackorama.mcore.service.Service;

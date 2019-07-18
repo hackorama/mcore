@@ -20,10 +20,10 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import com.hackorama.mcore.client.unirest.CookieUnirestClient;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.SuppressFBWarnings;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.play.PlayServer;
 import com.hackorama.mcore.server.spark.SparkServer;

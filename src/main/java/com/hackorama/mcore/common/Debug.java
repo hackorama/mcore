@@ -13,6 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import play.mvc.Result;
 
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
+import com.hackorama.mcore.http.Session;
+
 public class Debug {
 
     private static boolean enabled = true;

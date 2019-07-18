@@ -15,10 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.BaseServer;
 
 import io.vertx.core.MultiMap;
@@ -62,7 +62,7 @@ public class VertxServer extends BaseServer {
                                                         // handler
         router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))); // Enable sessions
         router.route().handler(BodyHandler.create()); // Must be set before the routes
-        Stream.of(HttpMethod.values()).forEach(e -> {
+        Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.get(e).keySet().forEach(path -> {
                 router.get(path).handler(this::route);
             });
@@ -141,7 +141,7 @@ public class VertxServer extends BaseServer {
     }
 
     private Request formatRequest(RoutingContext routingContext) {
-        return new com.hackorama.mcore.common.Request(routingContext.getBodyAsString())
+        return new com.hackorama.mcore.http.Request(routingContext.getBodyAsString())
                 .setPathParams(routingContext.pathParams())
                 .setQueryParams(fomatQueryParams(routingContext.queryParams()))
                 .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext))
@@ -168,12 +168,12 @@ public class VertxServer extends BaseServer {
         }
     }
 
-    private @Nullable com.hackorama.mcore.common.Session formatSession(@Nullable Session vSession) {
+    private @Nullable com.hackorama.mcore.http.Session formatSession(@Nullable Session vSession) {
         // Could be null without a session handler
         if (vSession == null) { // TODO Check isDestroyed and isEmpty
             return null;
         }
-        com.hackorama.mcore.common.Session session = new com.hackorama.mcore.common.Session().setId(vSession.id())
+        com.hackorama.mcore.http.Session session = new com.hackorama.mcore.http.Session().setId(vSession.id())
                 .setLastAccessedTime(vSession.lastAccessed()).setMaxInactiveInterval(vSession.timeout());
         vSession.data().forEach((k, v) -> {
             session.setAttribute(k, v);
@@ -190,13 +190,13 @@ public class VertxServer extends BaseServer {
 
     private void route(RoutingContext routingContext) {
         debug(routingContext);
-        com.hackorama.mcore.common.Request request = formatRequest(routingContext);
+        com.hackorama.mcore.http.Request request = formatRequest(routingContext);
         String matchingPath = getMatchingPath(
-                routeHandlerMap.get(HttpMethod.valueOf(routingContext.request().rawMethod())),
+                routeHandlerMap.get(Method.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));
         if (matchingPath != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
-                    .get(HttpMethod.valueOf(routingContext.request().rawMethod())).get(matchingPath).apply(request);
+            com.hackorama.mcore.http.Response response = (com.hackorama.mcore.http.Response) routeHandlerMap
+                    .get(Method.valueOf(routingContext.request().rawMethod())).get(matchingPath).apply(request);
             updateSession(routingContext.session(), request.getSession());
             formatResponse(response, routingContext);
         } else {
@@ -205,7 +205,7 @@ public class VertxServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path, Function<Request, Response> handler) {
+    public void setRoutes(Method method, String path, Function<Request, Response> handler) {
         String vertexPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(vertexPath, handler);
         trackParamList(vertexPath);
@@ -227,7 +227,7 @@ public class VertxServer extends BaseServer {
         }
     }
 
-    private void updateSession(@Nullable Session vSession, @Nullable com.hackorama.mcore.common.Session session) {
+    private void updateSession(@Nullable Session vSession, @Nullable com.hackorama.mcore.http.Session session) {
         if (session == null || vSession == null) {
             return;
         }

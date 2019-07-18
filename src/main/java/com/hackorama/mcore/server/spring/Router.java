@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import com.hackorama.mcore.common.HttpMethod;
+import com.hackorama.mcore.http.Method;
 
 @Configuration
 public class Router {
@@ -33,7 +33,7 @@ public class Router {
                     }
                     return null; // TODO Return error message
                 });
-        handler.getHandlerMap().get(HttpMethod.GET).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.GET).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.GET(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -45,7 +45,7 @@ public class Router {
                         return null; // TODO Return error message
                     });
         });
-        handler.getHandlerMap().get(HttpMethod.POST).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.POST).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.POST(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -57,7 +57,7 @@ public class Router {
                         return null; // TODO Return error message
                     });
         });
-        handler.getHandlerMap().get(HttpMethod.PUT).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.PUT).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.PUT(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -69,7 +69,7 @@ public class Router {
                         return null; // TODO Return error message
                     });
         });
-        handler.getHandlerMap().get(HttpMethod.DELETE).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.DELETE).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.DELETE(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -82,7 +82,7 @@ public class Router {
                     });
         });
 
-        handler.getHandlerMap().get(HttpMethod.PATCH).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.PATCH).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.PATCH(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -94,7 +94,7 @@ public class Router {
                         return null; // TODO Return error message
                     });
         });
-        handler.getHandlerMap().get(HttpMethod.HEAD).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.HEAD).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.HEAD(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {
@@ -106,7 +106,7 @@ public class Router {
                         return null; // TODO Return error message
                     });
         });
-        handler.getHandlerMap().get(HttpMethod.OPTIONS).forEach((k, v) -> {
+        handler.getHandlerMap().get(Method.OPTIONS).forEach((k, v) -> {
             routerFunction = routerFunction.andRoute(
                     RequestPredicates.OPTIONS(k).and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), request -> {
                         try {

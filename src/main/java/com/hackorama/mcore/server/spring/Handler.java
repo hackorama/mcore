@@ -32,11 +32,11 @@ import org.springframework.web.server.WebSession;
 
 import reactor.core.publisher.Mono;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
-import com.hackorama.mcore.common.Session;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
+import com.hackorama.mcore.http.Session;
 
 @Component
 public class Handler {
@@ -44,13 +44,13 @@ public class Handler {
     private static final Logger logger = LoggerFactory.getLogger(Handler.class);
 
     private static Map<String, List<String>> paramListMap; // used for matching paths
-    private static Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap;
+    private static Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap;
 
     static void setParamListMap(Map<String, List<String>> paramListMap) {
         Handler.paramListMap = paramListMap;
     }
 
-    static void setRouteHandlerMap(Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap) {
+    static void setRouteHandlerMap(Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap) {
         Handler.routeHandlerMap = routeHandlerMap;
     }
 
@@ -134,7 +134,7 @@ public class Handler {
         return session;
     }
 
-    Map<HttpMethod, Map<String, Function<Request, Response>>> getHandlerMap() {
+    Map<Method, Map<String, Function<Request, Response>>> getHandlerMap() {
         return Handler.routeHandlerMap;
     }
 
@@ -166,12 +166,12 @@ public class Handler {
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Request request = formatRequest(springRequest);
         String matchingPath = getMatchingPath(
-                Handler.routeHandlerMap.get(HttpMethod.valueOf(springRequest.methodName())), springRequest.path(),
+                Handler.routeHandlerMap.get(Method.valueOf(springRequest.methodName())), springRequest.path(),
                 springRequest.pathVariables());
         logger.debug("Routing request {} on thread id {} thread name : {} ", springRequest.path(),
                 Thread.currentThread().getId(), Thread.currentThread().getName());
         if (matchingPath != null) {
-            Response response = (Response) Handler.routeHandlerMap.get(HttpMethod.valueOf(springRequest.methodName()))
+            Response response = (Response) Handler.routeHandlerMap.get(Method.valueOf(springRequest.methodName()))
                     .get(matchingPath).apply(request);
             updateSession(springRequest.session(), request.getSession());
             return formatResponse(response);

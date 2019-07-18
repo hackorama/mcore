@@ -1,7 +1,7 @@
 package com.hackorama.mcore.client;
 
 
-import com.hackorama.mcore.common.Response;
+import com.hackorama.mcore.http.Response;
 
 /**
  * HTTP client interface

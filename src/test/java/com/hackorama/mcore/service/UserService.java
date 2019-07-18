@@ -8,9 +8,9 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 
 public class UserService extends BaseService {
 

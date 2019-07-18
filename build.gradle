@@ -3,6 +3,7 @@ plugins {
     id 'eclipse'
     id 'jacoco'
     id 'java-library'
+    id 'maven'
     id 'maven-publish'
     id 'pmd'
     id "com.diffplug.gradle.spotless" version "3.16.0"
@@ -10,6 +11,9 @@ plugins {
     id "com.github.spotbugs" version "1.6.8"
     id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
 }
+
+sourceCompatibility = 8
+targetCompatibility = 8
 
 repositories {
     jcenter()
@@ -72,6 +76,26 @@ publishing {
             from components.java
         }
     }
+}
+
+// Maven POM
+
+task buildPom {
+    pom {
+        project {
+            groupId 'm.core'
+            artifactId 'mcore-all'
+            version '0.1.1'
+            inceptionYear '2019'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("pom.xml")
 }
 
 // Play Framework (https://gradle.github.io/playframework/#targeting-play-version)

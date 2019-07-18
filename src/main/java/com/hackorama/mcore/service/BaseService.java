@@ -10,13 +10,13 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.MemoryDataStore;
 import com.hackorama.mcore.data.cache.DataCache;
 import com.hackorama.mcore.data.queue.DataQueue;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.Server;
 
 public abstract class BaseService implements Service {
@@ -41,12 +41,12 @@ public abstract class BaseService implements Service {
 
     private List<Service> attachedServices = new ArrayList<>();
 
-    private Map<HttpMethod, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
+    private Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
 
     protected Server server;
 
     {
-        Stream.of(HttpMethod.values()).forEach(e -> {
+        Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.put(e, new HashMap<>());
         });
     }
@@ -90,47 +90,47 @@ public abstract class BaseService implements Service {
     }
 
     public void DELETE(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.DELETE, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.DELETE, path, handler);
     }
 
     public void GET(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.GET, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.GET, path, handler);
     }
     public void POST(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.POST, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.POST, path, handler);
     }
 
     public void PUT(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.PUT, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.PUT, path, handler);
     }
 
     public void PATCH(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.PATCH, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.PATCH, path, handler);
     }
 
     public void OPTIONS(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.OPTIONS, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.OPTIONS, path, handler);
     }
 
     public void TRACE(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.TRACE, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.TRACE, path, handler);
     }
 
     public void HEAD(String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
-        ROUTE(HttpMethod.HEAD, path, handler);
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
+        ROUTE(Method.HEAD, path, handler);
     }
 
 
-    public void ROUTE(HttpMethod method, String path,
-            Function<com.hackorama.mcore.common.Request, com.hackorama.mcore.common.Response> handler) {
+    public void ROUTE(Method method, String path,
+            Function<com.hackorama.mcore.http.Request, com.hackorama.mcore.http.Response> handler) {
         routeHandlerMap.get(method).put(path, handler);
     }
 

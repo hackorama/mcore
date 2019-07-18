@@ -27,10 +27,10 @@ import play.mvc.Result;
 import play.routing.RoutingDsl;
 import play.server.Server;
 
-import com.hackorama.mcore.common.HttpMethod;
-import com.hackorama.mcore.common.Response;
-import com.hackorama.mcore.common.Session;
 import com.hackorama.mcore.common.Util;
+import com.hackorama.mcore.http.Method;
+import com.hackorama.mcore.http.Response;
+import com.hackorama.mcore.http.Session;
 import com.hackorama.mcore.server.BaseServer;
 
 /**
@@ -107,8 +107,8 @@ public class PlayServer extends BaseServer {
         return params;
     }
 
-    private com.hackorama.mcore.common.Request formatRequest(Request playRequest) {
-        return new com.hackorama.mcore.common.Request().setBody(playRequest.body().asText())
+    private com.hackorama.mcore.http.Request formatRequest(Request playRequest) {
+        return new com.hackorama.mcore.http.Request().setBody(playRequest.body().asText())
                 .setQueryParams(formatQueryParams(playRequest)).setHeaders(formatHeaders(playRequest))
                 .setCookies(formatCookies(playRequest)).setSession(formatSession(playRequest));
     }
@@ -149,7 +149,7 @@ public class PlayServer extends BaseServer {
         return session;
     }
 
-    private MatchingPath getMatchingPath(Map<String, Function<com.hackorama.mcore.common.Request, Response>> paths,
+    private MatchingPath getMatchingPath(Map<String, Function<com.hackorama.mcore.http.Request, Response>> paths,
             String path) {
         MatchingPath matchingPath = new MatchingPath();
         if (paths.containsKey(path)) {
@@ -184,13 +184,13 @@ public class PlayServer extends BaseServer {
     }
 
     private Result route(Request playRequest) {
-        com.hackorama.mcore.common.Request request = formatRequest(playRequest);
-        MatchingPath matchingPath = getMatchingPath(routeHandlerMap.get(HttpMethod.valueOf(playRequest.method())),
+        com.hackorama.mcore.http.Request request = formatRequest(playRequest);
+        MatchingPath matchingPath = getMatchingPath(routeHandlerMap.get(Method.valueOf(playRequest.method())),
                 playRequest.path());
         request.setPathParams(matchingPath.params);
         if (matchingPath.path != null) {
-            com.hackorama.mcore.common.Response response = (com.hackorama.mcore.common.Response) routeHandlerMap
-                    .get(HttpMethod.valueOf(playRequest.method())).get(matchingPath.path).apply(request);
+            com.hackorama.mcore.http.Response response = (com.hackorama.mcore.http.Response) routeHandlerMap
+                    .get(Method.valueOf(playRequest.method())).get(matchingPath.path).apply(request);
             updateSession(playRequest, request.getSession());
             return formatResponse(response);
         } else {
@@ -199,8 +199,8 @@ public class PlayServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(HttpMethod method, String path,
-            Function<com.hackorama.mcore.common.Request, Response> handler) {
+    public void setRoutes(Method method, String path,
+            Function<com.hackorama.mcore.http.Request, Response> handler) {
         routeHandlerMap.get(method).put(path, handler); // Move to super
         trackParamList(path);
     }

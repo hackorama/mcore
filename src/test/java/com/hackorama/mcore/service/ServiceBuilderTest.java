@@ -9,13 +9,13 @@ import org.junit.Test;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import com.hackorama.mcore.common.Request;
-import com.hackorama.mcore.common.Response;
 import com.hackorama.mcore.common.TestServer;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
 import com.hackorama.mcore.demo.HelloService;
+import com.hackorama.mcore.http.Request;
+import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.ServerTest;
 
 public class ServiceBuilderTest extends ServerTest {
