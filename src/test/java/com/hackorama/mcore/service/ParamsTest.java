@@ -16,7 +16,7 @@ import com.hackorama.mcore.server.ServerTest;
 
 public class ParamsTest extends ServerTest {
 
-    private static class TestParamsService extends BaseService {
+    private static class TestParamsService extends Service {
 
         @Override
         public void configure() {

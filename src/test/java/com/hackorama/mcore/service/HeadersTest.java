@@ -24,7 +24,7 @@ import com.hackorama.mcore.server.ServerTest;
 
 public class HeadersTest extends ServerTest {
 
-    private static class TestHeadersService extends BaseService {
+    private static class TestHeadersService extends Service {
 
         @Override
         public void configure() {

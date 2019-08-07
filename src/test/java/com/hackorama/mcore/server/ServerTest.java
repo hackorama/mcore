@@ -8,7 +8,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hackorama.mcore.common.TestServer;
-import com.hackorama.mcore.service.BaseService;
 import com.hackorama.mcore.service.Service;
 
 /**
@@ -21,7 +20,7 @@ import com.hackorama.mcore.service.Service;
 @RunWith(Parameterized.class)
 public abstract class ServerTest { // Making abstract so JUnit will not try to run
 
-    protected static class TestService extends BaseService {
+    protected static class TestService extends Service {
         @Override
         public void configure() {
         }

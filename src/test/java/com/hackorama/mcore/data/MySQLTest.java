@@ -10,8 +10,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import com.hackorama.mcore.common.HelloService;
 import com.hackorama.mcore.data.jdbc.JDBCDataStore;
-import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.service.Service;
 

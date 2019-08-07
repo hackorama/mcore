@@ -13,7 +13,7 @@ import com.hackorama.mcore.server.ServerTest;
 
 public class HTTPTests extends ServerTest {
 
-    private static class TestService extends BaseService {
+    private static class TestService extends Service {
 
         @Override
         public void configure() {

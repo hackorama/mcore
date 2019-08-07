@@ -9,18 +9,18 @@ import org.junit.Test;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import com.hackorama.mcore.common.HelloService;
 import com.hackorama.mcore.common.TestServer;
 import com.hackorama.mcore.data.DataStore;
 import com.hackorama.mcore.data.mapdb.MapdbDataStore;
 import com.hackorama.mcore.data.redis.RedisDataStoreCacheQueue;
-import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.http.Request;
 import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.ServerTest;
 
 public class ServiceBuilderTest extends ServerTest {
 
-    private static class ServiceOne extends BaseService {
+    private static class ServiceOne extends Service {
 
         public static Response getOne(Request request) {
             return new Response("ONE");
@@ -33,7 +33,7 @@ public class ServiceBuilderTest extends ServerTest {
         }
     }
 
-    private static class ServiceTwo extends BaseService {
+    private static class ServiceTwo extends Service {
 
         public static Response getTwo(Request request) {
             return new Response("TWO");

@@ -18,12 +18,11 @@ import com.hackorama.mcore.client.unirest.UnirestClient;
 import com.hackorama.mcore.http.Request;
 import com.hackorama.mcore.http.Response;
 import com.hackorama.mcore.server.ServerTest;
-import com.hackorama.mcore.service.BaseService;
 import com.hackorama.mcore.service.Service;
 
 public class ClientTest extends ServerTest {
 
-    private static class TestService extends BaseService {
+    private static class TestService extends Service {
 
         @Override
         public void configure() {

@@ -1,15 +1,10 @@
 package com.hackorama.mcore.service;
 
-/**
- * A component is an entity with type and ID. Components can be linked to each
- * other to form hierarchies. A component can only have one parent. A root
- * component will have no parent.
- */
-public class Component {
+public class Entity {
 
     private String id;
 
-    public Component() {
+    public Entity() {
     }
 
     public String getId() {

@@ -20,7 +20,7 @@ import com.hackorama.mcore.server.ServerTest;
 
 public class CookieTest extends ServerTest {
 
-    private static class TestCookiesService extends BaseService {
+    private static class TestCookiesService extends Service {
 
         @Override
         public void configure() {

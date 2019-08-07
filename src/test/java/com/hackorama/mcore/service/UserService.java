@@ -12,7 +12,7 @@ import com.hackorama.mcore.common.Util;
 import com.hackorama.mcore.http.Request;
 import com.hackorama.mcore.http.Response;
 
-public class UserService extends BaseService {
+public class UserService extends Service {
 
     private static final Gson GSON = new Gson();
     private static final String STORE_NAME = "user";

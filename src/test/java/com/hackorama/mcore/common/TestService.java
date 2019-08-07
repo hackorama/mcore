@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hackorama.mcore.data.MemoryDataStore;
-import com.hackorama.mcore.demo.HelloService;
 import com.hackorama.mcore.server.Server;
 import com.hackorama.mcore.server.spark.SparkServer;
 import com.hackorama.mcore.server.spring.SpringServer;
