@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    // pre-release, use local maven repo for mcore jars
+    // git clone git@github.com:hackorama/mcore.git
+    // cd mcore ; ./gradlew publishToMavenLocal
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    implementation 'm.core:mcore-all:0.1.1'
+}
+
+mainClassName = 'm.core.samples.App'
