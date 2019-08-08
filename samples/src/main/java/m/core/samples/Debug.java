@@ -1,9 +1,9 @@
 package m.core.samples;
 
-import com.hackorama.mcore.http.Request;
-import com.hackorama.mcore.http.Response;
-import com.hackorama.mcore.server.spark.SparkServer;
-import com.hackorama.mcore.service.Service;
+import m.core.http.Request;
+import m.core.http.Response;
+import m.core.server.spark.SparkServer;
+import m.core.service.Service;
 
 public class Debug {
 
@@ -23,9 +23,9 @@ public class Debug {
             }
 
             public Response test(Request request) {
-                com.hackorama.mcore.common.Debug.print(request);
+                m.core.common.Debug.print(request);
                 Response response = new Response("DEBUG");
-                com.hackorama.mcore.common.Debug.print(response);
+                m.core.common.Debug.print(response);
                 return response;
             }
 

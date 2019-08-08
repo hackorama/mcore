@@ -1,4 +1,4 @@
-package m.core.samples;
+package m.core.common;
 
 import m.core.http.Request;
 import m.core.http.Response;

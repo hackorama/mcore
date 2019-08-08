@@ -1,6 +1,6 @@
 package m.core.samples;
 
-import com.hackorama.mcore.server.spark.SparkServer;
+import m.core.server.spark.SparkServer;
 
 public class Hello {
 

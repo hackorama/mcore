@@ -121,7 +121,7 @@ spotless {
         trimTrailingWhitespace()
         indentWithSpaces(4)
         endWithNewline()
-        importOrder 'java', 'javax', 'org', 'com', 'com.hackorama'
+        importOrder 'java', 'javax', 'org', 'com', 'm.core'
         removeUnusedImports()
     }
 }
@@ -158,6 +158,11 @@ task testSpring(type: Test) {
 
 task testVertx(type: Test) {
     environment 'SERVER_TYPE', 'VERTX' // Repeat all the tests with Vertx server
+    dependsOn cleanTest
+}
+
+task testPlay(type: Test) {
+    environment 'SERVER_TYPE', 'PLAY' // Repeat all the tests with Play server
     dependsOn cleanTest
 }
 

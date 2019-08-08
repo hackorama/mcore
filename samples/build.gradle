@@ -1,6 +1,8 @@
 plugins {
-    id 'java'
     id 'application'
+    id 'eclipse'
+    id 'java'
+    id "com.diffplug.gradle.spotless" version "3.16.0"
 }
 
 repositories {
@@ -15,4 +17,15 @@ dependencies {
     implementation 'm.core:mcore-all:0.1.1'
 }
 
-mainClassName = 'm.core.samples.App'
+spotless {
+    java {
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+        importOrder 'java', 'javax', 'org', 'com', 'm.core'
+        removeUnusedImports()
+    }
+}
+
+mainClassName = 'm.core.samples.Demo'
+

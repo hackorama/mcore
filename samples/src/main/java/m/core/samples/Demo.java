@@ -1,24 +1,27 @@
 package m.core.samples;
 
-import com.hackorama.mcore.http.Request;
-import com.hackorama.mcore.http.Response;
-import com.hackorama.mcore.server.spark.SparkServer;
-import com.hackorama.mcore.service.Service;
+import m.core.http.Request;
+import m.core.http.Response;
+import m.core.server.spark.SparkServer;
+import m.core.service.Service;
 
 public class Demo {
-
     public static void main(String[] args) {
         new Service() {
 
-            public Response demo(Request request) {
-                return new Response("DEMO");
+            public Response hello(Request request) {
+                if (request.getPathParams().containsKey("name")) {
+                    return new Response("Hello " + request.getPathParams().get("name"));
+                }
+                return new Response("Hello world");
             }
 
             @Override
             public void configure() {
-                GET("/demo", this::demo);
+                GET("/hello", this::hello);
+                GET("/hello/{name}", this::hello);
             }
 
-        }.configureUsing(new SparkServer("Demo")).start();
+        }.configureUsing(new SparkServer("Hello")).start();
     }
 }

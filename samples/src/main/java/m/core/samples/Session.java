@@ -2,12 +2,12 @@ package m.core.samples;
 
 import java.util.concurrent.TimeUnit;
 
-import com.hackorama.mcore.client.unirest.UnirestClient;
-import com.hackorama.mcore.common.Debug;
-import com.hackorama.mcore.http.Request;
-import com.hackorama.mcore.http.Response;
-import com.hackorama.mcore.server.spark.SparkServer;
-import com.hackorama.mcore.service.Service;
+import m.core.client.unirest.UnirestClient;
+import m.core.common.Debug;
+import m.core.http.Request;
+import m.core.http.Response;
+import m.core.server.spark.SparkServer;
+import m.core.service.Service;
 
 public class Session {
 
