@@ -1,0 +1,33 @@
+plugins {
+    id 'application'
+    id 'eclipse'
+    id 'java'
+    id "com.diffplug.gradle.spotless" version "3.16.0"
+}
+
+repositories {
+    // pre-release, use local maven repo for mcore jars
+    // git clone git@github.com:hackorama/mcore.git
+    // cd mcore ; ./gradlew publishToMavenLocal
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    implementation 'm.core:mcore-all:0.1.1'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+spotless {
+    java {
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+        importOrder 'java', 'javax', 'org', 'com', 'm.core'
+        removeUnusedImports()
+    }
+}
+
+mainClassName = 'm.core.demo.Main'
+
