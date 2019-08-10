@@ -1,8 +1,6 @@
 plugins {
-    id 'application'
-    id 'eclipse'
-    id 'jacoco'
     id 'java-library'
+    id 'jacoco'
     id 'maven'
     id 'maven-publish'
     id 'pmd'
@@ -16,6 +14,7 @@ sourceCompatibility = 8
 targetCompatibility = 8
 
 repositories {
+    mavenLocal()
     jcenter()
     // Play Framework https://gradle.github.io/playframework/#applying_the_plugin
     maven {
@@ -36,8 +35,10 @@ dependencies {
     implementation 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
     implementation 'com.google.guava:guava:27.0.1-jre' // multimap implementation for many to many
     implementation 'com.google.code.gson:gson:2.8.5' // json library
+    implementation 'javax.servlet:javax.servlet-api:4.0.1' // for cookie and session
 
     implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
+    implementation 'org.apache.httpcomponents:httpclient:4.5.6' // rest http cookie
     implementation 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
 
     implementation 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
@@ -53,7 +54,10 @@ dependencies {
     implementation 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
 
     implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
-    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE' // rest framework
+    implementation ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
+        // Use app logging https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-log4j-for-logging
+        exclude module: 'spring-boot-starter-logging'
+    }
     implementation 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
     implementation 'io.vertx:vertx-web:3.6.2' // rest framework
     // Using the default version from https://gradle.github.io/playframework/#play_framework
@@ -72,30 +76,30 @@ publishing {
             groupId = 'm.core'
             artifactId = 'mcore-all'
             version = '0.1.1'
-
             from components.java
-        }
-    }
-}
-
-// Maven POM
-
-task buildPom {
-    pom {
-        project {
-            groupId 'm.core'
-            artifactId 'mcore-all'
-            version '0.1.1'
-            inceptionYear '2019'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
+            pom {
+                name = 'mCore'
+                description = 'Microservices Framework'
+                url = 'm.core.hackorama.com'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'hackorama'
+                        name = 'Kishan Thomas'
+                        email = 'kishan.thomas@gmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/hackorama/mcore'
                 }
             }
         }
-    }.writeTo("pom.xml")
+    }
 }
 
 // Play Framework (https://gradle.github.io/playframework/#targeting-play-version)
@@ -106,12 +110,6 @@ play {
         scalaVersion = '2.12'
         javaVersion = JavaVersion.VERSION_1_8
     }
-}
-
-// Spring Boot
-
-configurations {
-    all*.exclude module : 'spring-boot-starter-logging'
 }
 
 // code formatting
@@ -186,8 +184,4 @@ pmd {
     ignoreFailures = true
     ruleSetFiles = files(file("config/pmd/ruleset.xml"))
     ruleSets = []
-}
-
-application {
-    mainClassName = "com.hackorama.mcore.Main"
 }

@@ -12,6 +12,7 @@ bin/
 target/
 
 # gradle
+!gradle-wrapper.jar
 gradle.properties
 
 # eclipse 
