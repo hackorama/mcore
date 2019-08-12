@@ -83,15 +83,15 @@ public class TestUtil {
     private static synchronized void initServer() {
         if (server == null) {
             logger.info("Using server type = {}", serverType);
-            if (SERVER_TYPE_SPRING.equalsIgnoreCase(serverType)) {
-                server = new SpringServer("Spring Server", DEFAULT_SERVER_PORT);
-                logger.info("Created Spring Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+            if (SERVER_TYPE_SPARK.equalsIgnoreCase(serverType)) {
+                server = new SparkServer("Spark Server", DEFAULT_SERVER_PORT);
+                logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
             } else if (SERVER_TYPE_VERTX.equalsIgnoreCase(serverType)) {
                 server = new VertxServer("Vertx Server", DEFAULT_SERVER_PORT);
                 logger.info("Created Vertx Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
             } else {
-                server = new SparkServer("Spark Server", DEFAULT_SERVER_PORT);
-                logger.info("Created Spark Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
+                server = new SpringServer("Spring Server", DEFAULT_SERVER_PORT);
+                logger.info("Created Spring Server {} on {}", server.getName(), DEFAULT_SERVER_PORT);
             }
         }
         if (dataStore == null) {

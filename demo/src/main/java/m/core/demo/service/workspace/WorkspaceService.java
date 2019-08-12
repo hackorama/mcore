@@ -19,7 +19,6 @@ import m.core.demo.common.Util;
 import m.core.demo.service.group.Group;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.Server;
 import m.core.service.Service;
 
 public class WorkspaceService extends Service {
@@ -30,14 +29,8 @@ public class WorkspaceService extends Service {
     private final String WORKSPACES_GROUPS_STORE = "WORKSPACES_GROUPS";
     private final String ENIVRNONMENTS_WORKSPACE_STORE = "ENVIRONMENTS_WORKSPACE";
     private final Gson GSON = new Gson();
-    private Server server;
     private Client client = new CachingUnirestClient();
 
-    @Override
-    public Service attach(Service service) {
-        service.configureUsing(server);
-        return this;
-    }
 
     private String environmentServiceURL;
     private String groupServiceURL;

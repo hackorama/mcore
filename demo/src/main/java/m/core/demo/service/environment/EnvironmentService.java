@@ -7,20 +7,12 @@ import com.google.gson.Gson;
 
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.Server;
 import m.core.service.Service;
 
 public class EnvironmentService extends Service {
 
     private final String STORE_NAME = "ENVIRONMENT";
     private final Gson GSON = new Gson();
-    private Server server;
-
-    @Override
-    public Service attach(Service service) {
-        service.configureUsing(server);
-        return this;
-    }
 
     public Response createEnvironment(Request request) {
         return editEnvironment(request);

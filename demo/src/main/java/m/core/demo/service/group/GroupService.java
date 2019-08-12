@@ -9,20 +9,12 @@ import com.google.gson.Gson;
 import m.core.demo.common.Util;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.Server;
 import m.core.service.Service;
 
 public class GroupService extends Service {
 
     private final String STORE_NAME = "group";
     private final Gson GSON = new Gson();
-    private Server server;
-
-    @Override
-    public Service attach(Service service) {
-        service.configureUsing(server);
-        return this;
-    }
 
     public Response createGroup(Request request) {
         return editGroup(request);
@@ -67,4 +59,5 @@ public class GroupService extends Service {
         PUT("/group/{id}", this::editGroup);
         DELETE("/group/{id}", this::deleteGroup);
     }
+
 }
