@@ -18,7 +18,7 @@ import m.core.common.Util;
 import m.core.data.MemoryDataStore;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.spring.SpringServer;
+import m.core.server.spark.SparkServer;
 import m.core.service.Service;
 
 public class UserService extends Service {
@@ -72,7 +72,7 @@ public class UserService extends Service {
     }
 
     public static void main(String[] args) throws UnirestException, InterruptedException {
-        Service userService = new UserService().configureUsing(new SpringServer("User Service"))
+        Service userService = new UserService().configureUsing(new SparkServer("User Service"))
                 .configureUsing(new MemoryDataStore()).start();
 
         Thread.sleep(TimeUnit.SECONDS.toMillis(3)); // wait for server to initialize
