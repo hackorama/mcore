@@ -1,5 +1,7 @@
 package m.core.server;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,6 +51,8 @@ public abstract class ServerTest { // Making abstract so JUnit will not try to r
     @After
     public void tearDown() throws Exception {
         // TestServer shutdown happens on each test start
+        // Wait for test service completion
+        Thread.sleep(TimeUnit.SECONDS.toMillis(1));
     }
 
     protected abstract Service useDefaultService();

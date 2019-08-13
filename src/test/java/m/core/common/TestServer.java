@@ -107,6 +107,10 @@ public class TestServer extends Test {
         return DEFAULT_SERVER_ENDPOINT;
     }
 
+    public static String buildUrl(String path) {
+        return DEFAULT_SERVER_ENDPOINT + "/" + path;
+    }
+
     public static HttpResponse<String> getResponse() throws UnirestException {
         return Unirest.get(DEFAULT_SERVER_ENDPOINT).asString();
     }
