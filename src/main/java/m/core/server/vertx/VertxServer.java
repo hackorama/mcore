@@ -64,7 +64,35 @@ public class VertxServer extends BaseServer {
         router.route().handler(BodyHandler.create()); // Must be set before the routes
         Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.get(e).keySet().forEach(path -> {
-                router.get(path).handler(this::route);
+                switch (e) {
+                case GET:
+                    router.get(path).handler(this::route);
+                    break;
+                case DELETE:
+                    router.delete(path).handler(this::route);
+                    break;
+                case HEAD:
+                    router.head(path).handler(this::route);
+                    break;
+                case OPTIONS:
+                    router.options(path).handler(this::route);
+                    break;
+                case PATCH:
+                    router.patch(path).handler(this::route);
+                    break;
+                case POST:
+                    router.post(path).handler(this::route);
+                    break;
+                case PUT:
+                    router.put(path).handler(this::route);
+                    break;
+                case TRACE:
+                    router.trace(path).handler(this::route);
+                    break;
+                default:
+                    // TODO: Log error
+                    break;
+                }
             });
         });
     }

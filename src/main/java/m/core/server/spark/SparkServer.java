@@ -45,7 +45,35 @@ public class SparkServer extends BaseServer {
     private void activateRoutes() {
         Stream.of(Method.values()).forEach(e -> {
             routeHandlerMap.get(e).keySet().forEach(path -> {
-                Spark.get(path, this::router);
+                switch (e) {
+                case GET:
+                    Spark.get(path, this::router);
+                    break;
+                case DELETE:
+                    Spark.delete(path, this::router);
+                    break;
+                case HEAD:
+                    Spark.head(path, this::router);
+                    break;
+                case OPTIONS:
+                    Spark.options(path, this::router);
+                    break;
+                case PATCH:
+                    Spark.patch(path, this::router);
+                    break;
+                case POST:
+                    Spark.post(path, this::router);
+                    break;
+                case PUT:
+                    Spark.put(path, this::router);
+                    break;
+                case TRACE:
+                    Spark.trace(path, this::router);
+                    break;
+                default:
+                    // TODO: Log error
+                    break;
+                }
             });
         });
     }
