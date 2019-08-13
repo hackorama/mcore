@@ -30,3 +30,9 @@ spotless {
 
 mainClassName = 'm.core.demo.Main'
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'm.core.demo.Main'
+    }
+}
+

@@ -31,7 +31,7 @@ public class Main {
     private static void usage(String[] args) {
         if (args.length > 0 && ("-h".equals(args[0]) || "--h".equals(args[0]) || "-help".equals(args[0]) || "--help".equals(args[0]) || "help".equals(args[0]))) {
             System.out.println("Usage : Main [path_to_property_file]");
-            System.exit(1);
+            System.exit(0);
         }
     }
 
