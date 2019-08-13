@@ -73,7 +73,7 @@ public class UnirestClient implements Client {
     public void setTimeOuts(int connectTimeoutMillis, int socketTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
         this.socketTimeoutMillis = socketTimeoutMillis;
-        //Unirest.setTimeouts(connectTimeoutMillis, socketTimeoutMillis);
+        // TODO Check Unirest.setTimeouts(connectTimeoutMillis, socketTimeoutMillis);
     }
 
 }
