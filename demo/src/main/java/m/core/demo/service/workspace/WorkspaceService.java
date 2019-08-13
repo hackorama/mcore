@@ -14,8 +14,8 @@ import com.google.gson.Gson;
 
 import m.core.client.Client;
 import m.core.client.unirest.CachingUnirestClient;
-import m.core.config.Configuration;
 import m.core.demo.common.Util;
+import m.core.demo.config.Configuration;
 import m.core.demo.service.group.Group;
 import m.core.http.Request;
 import m.core.http.Response;

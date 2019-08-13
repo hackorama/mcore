@@ -1,4 +1,4 @@
-package m.core.config;
+package m.core.demo.config;
 
 import org.aeonbits.owner.Config;
 

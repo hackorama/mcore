@@ -6,15 +6,17 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import m.core.config.Configuration;
 import m.core.data.DataStore;
 import m.core.data.MemoryDataStore;
 import m.core.data.mapdb.MapdbDataStore;
+import m.core.demo.config.Configuration;
 import m.core.demo.service.environment.EnvironmentService;
 import m.core.demo.service.group.GroupService;
 import m.core.demo.service.workspace.WorkspaceService;
 import m.core.server.Server;
+import m.core.server.spark.SparkServer;
 import m.core.server.spring.SpringServer;
+import m.core.server.vertx.VertxServer;
 import m.core.service.Service;
 
 /**
@@ -54,7 +56,7 @@ public class ServiceManager {
         if (Configuration.serviceConfig().environmentServerPort() != 0) {
             logger.info("Starting Environment Service server on 0.0.0.0:{} ...",
                     Configuration.serviceConfig().environmentServerPort());
-            ServiceManager.server = new SpringServer("environment",
+            ServiceManager.server = new VertxServer("environment",
                     Configuration.serviceConfig().environmentServerPort());
             ServiceManager.service = new EnvironmentService().configureUsing(server).configureUsing(dataStore);
         } else if (Configuration.serviceConfig().groupServerPort() != 0) {
@@ -67,7 +69,7 @@ public class ServiceManager {
                     ? Configuration.serviceConfig().workspaceServerPort()
                     : Configuration.defaultConfig().workspaceServerPort();
             logger.info("Starting Workspace Service server on 0.0.0.0:{} ...", port);
-            ServiceManager.server = new SpringServer("workspace", port);
+            ServiceManager.server = new SparkServer("workspace", port);
             ServiceManager.service = new WorkspaceService().configureUsing(server).configureUsing(dataStore);
             if (Configuration.serviceConfig().groupServiceURL() == null) {
                 logger.warn(
