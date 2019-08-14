@@ -46,7 +46,7 @@ public class TestServer extends Test {
     }
 
     public static void awaitStartup() {
-        if (!TestUtil.waitForPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
+        if (!TestUtil.waitForPortUp(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)) {
             throw new RuntimeException("Server did not start as expectded");
         }
     }
@@ -208,7 +208,7 @@ public class TestServer extends Test {
     }
 
     private static void waitForShutdown() {
-        if (!TestUtil.waitOnPort(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT, 60)) {
+        if (!TestUtil.waitForPortDown(DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)) {
             throw new RuntimeException("Server did not shutdown as expectded");
         }
     }

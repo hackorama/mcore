@@ -1,6 +1,4 @@
-package m.core.server;
-
-import java.util.concurrent.TimeUnit;
+package m.core.common;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,12 +7,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import m.core.common.TestServer;
 import m.core.service.Service;
 
 /**
- * Base test that runs on all server types using parameterization on
- * estServer.getServerTypeList()
+ * Base test for tests that had to run on all server implementation types
+ * parameterized on {@link TestServer#getServerTypeList()}
  *
  * @author Kishan Thomas (kishan.thomas@gmail.com)
  *
@@ -50,9 +47,8 @@ public abstract class ServerTest { // Making abstract so JUnit will not try to r
 
     @After
     public void tearDown() throws Exception {
-        // TestServer shutdown happens on each test start
-        // Wait for test service completion
-        Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        // Test server shutdown happens on each test start in :
+        // setUp() -> UsingService -> TestServer.createNewServer()
     }
 
     protected abstract Service useDefaultService();

@@ -1,4 +1,4 @@
-package m.core.server;
+package m.core;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ import m.core.client.unirest.CookieUnirestClient;
 import m.core.common.Util;
 import m.core.http.Request;
 import m.core.http.Response;
+import m.core.server.Server;
 import m.core.server.play.PlayServer;
 import m.core.server.spark.SparkServer;
 import m.core.server.spring.SpringServer;
@@ -110,7 +111,7 @@ public class Servers {
                 GET("/header", this::header);
             }
 
-            public Response cookie(Request request) {
+            private Response cookie(Request request) {
                 Response response = new Response("COOKIES");
                 Cookie cookie = new Cookie("RESPONSE_COOKIE_SINGLE_VALUE", "ONE");
                 response.setCookie(cookie);
@@ -129,7 +130,7 @@ public class Servers {
                 return response;
             }
 
-            public Response header(Request request) {
+            private Response header(Request request) {
                 Response response = new Response(Util.getGson().toJson(request.getHeaders()));
                 Map<String, List<String>> headers = new HashMap<>();
                 headers.put("RESPONSE_HEADER_ONE", Stream.of("ONE").collect(Collectors.toList()));

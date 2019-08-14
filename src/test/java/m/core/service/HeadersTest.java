@@ -17,10 +17,10 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import m.core.common.Debug;
+import m.core.common.ServerTest;
 import m.core.common.TestServer;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.ServerTest;
 
 public class HeadersTest extends ServerTest {
 

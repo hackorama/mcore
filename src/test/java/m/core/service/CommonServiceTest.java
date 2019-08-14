@@ -11,8 +11,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import m.core.common.ServerTest;
 import m.core.common.TestServer;
-import m.core.server.ServerTest;
 
 /**
  * Common tests for server implementations
@@ -22,7 +22,7 @@ import m.core.server.ServerTest;
  */
 public class CommonServiceTest extends ServerTest {
 
-    private static String DEFAULT_SERVER_ENDPOINT;
+    private String DEFAULT_SERVER_ENDPOINT;
 
     public CommonServiceTest(String serverType) {
         super(serverType);

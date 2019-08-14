@@ -10,13 +10,13 @@ import org.junit.Test;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import m.core.common.HelloService;
+import m.core.common.ServerTest;
 import m.core.common.TestServer;
 import m.core.data.DataStore;
 import m.core.data.mapdb.MapdbDataStore;
 import m.core.data.redis.RedisDataStoreCacheQueue;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.ServerTest;
 
 public class ServiceBuilderTest extends ServerTest {
 

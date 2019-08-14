@@ -4,9 +4,9 @@ plugins {
     id 'maven'
     id 'maven-publish'
     id 'pmd'
-    id "com.diffplug.gradle.spotless" version "3.16.0"
-    id "com.github.johnrengelman.shadow" version "4.0.3"
-    id "com.github.spotbugs" version "1.6.8"
+    id 'com.diffplug.gradle.spotless' version '3.24.1'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'com.github.spotbugs' version '2.0.0'
     id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
 }
 
@@ -29,46 +29,59 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-simple:1.7.25' // logging
-    implementation 'org.apache.commons:commons-lang3:3.8.1' // number and string utils
-    implementation 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
-    implementation 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
-    implementation 'com.google.guava:guava:27.0.1-jre' // multimap implementation for many to many
-    implementation 'com.google.code.gson:gson:2.8.5' // json library
-    implementation 'javax.servlet:javax.servlet-api:4.0.1' // for cookie and session
+    // Using `compile` instead of `implementation` to work around
+    // pom generation scope issue : https://github.com/gradle/gradle/issues/1118
+    compile 'org.slf4j:slf4j-simple:1.7.25' // logging
+    compile 'org.apache.commons:commons-lang3:3.8.1' // number and string utils
+    compile 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
+    compile 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
+    compile 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
+    compile 'com.google.guava:guava:27.0.1-jre' // multimap compile for many to many
+    compile 'com.google.code.gson:gson:2.8.5' // json library
+    compile 'javax.servlet:javax.servlet-api:4.0.1' // for cookie and session
 
-    implementation 'com.mashape.unirest:unirest-java:1.4.9' // rest client
-    implementation 'org.apache.httpcomponents:httpclient:4.5.6' // rest http cookie
-    implementation 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
+    compile 'com.mashape.unirest:unirest-java:1.4.9' // rest client
+    compile 'org.apache.httpcomponents:httpclient:4.5.6' // rest http cookie
+    compile 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
 
-    implementation 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
-    implementation 'mysql:mysql-connector-java:8.0.14' // jdbc drivers
-    implementation 'org.postgresql:postgresql:42.2.5' // jdbc drivers
-    implementation 'org.xerial:sqlite-jdbc:3.25.2' // jdbc drivers
-    implementation 'org.apache.derby:derby:10.14.2.0' // jdbc drivers
-    implementation 'org.hsqldb:hsqldb:2.4.1' // jdbc drivers
-    implementation 'org.mapdb:mapdb:3.0.7' // embedded key value database
-    implementation 'com.h2database:h2:1.4.197' // embedded JDBC database
-    implementation 'redis.clients:jedis:3.0.1' // client for key value store
-    implementation 'org.redisson:redisson:3.3.0' // client for key value store
-    implementation 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
+    compile 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
+    compile 'mysql:mysql-connector-java:8.0.14' // jdbc drivers
+    compile 'org.postgresql:postgresql:42.2.5' // jdbc drivers
+    compile 'org.xerial:sqlite-jdbc:3.25.2' // jdbc drivers
+    compile 'org.apache.derby:derby:10.14.2.0' // jdbc drivers
+    compile 'org.hsqldb:hsqldb:2.4.1' // jdbc drivers
+    compile 'org.mapdb:mapdb:3.0.7' // embedded key value database
+    compile 'com.h2database:h2:1.4.197' // embedded JDBC database
+    compile 'redis.clients:jedis:3.0.1' // client for key value store
+    compile 'org.redisson:redisson:3.3.0' // client for key value store
+    compile 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
 
-    implementation 'com.sparkjava:spark-core:2.8.0' // rest framework
-    implementation ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
+    compile 'com.sparkjava:spark-core:2.8.0' // rest framework
+    compile ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
         // Use app logging https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-log4j-for-logging
         exclude module: 'spring-boot-starter-logging'
     }
-    implementation 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
-    implementation 'io.vertx:vertx-web:3.6.2' // rest framework
+    compile 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
+    compile 'io.vertx:vertx-web:3.6.2' // rest framework
     // Using the default version from https://gradle.github.io/playframework/#play_framework
-    implementation 'com.typesafe.play:play-server_2.12:2.6.15' // rest framework
-    implementation 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
-    implementation 'com.typesafe.play:play_2.12:2.6.15' // rest framework
+    compile 'com.typesafe.play:play-server_2.12:2.6.15' // rest framework
+    compile 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
+    compile 'com.typesafe.play:play_2.12:2.6.15' // rest framework
 
     testImplementation 'junit:junit:4.12'
 }
 
-// Maven publishing
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+// Maven publishing (Working around scope issue : https://github.com/gradle/gradle/issues/1118)
 
 publishing {
     publications {

@@ -9,10 +9,10 @@ import org.junit.Test;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import m.core.common.Debug;
+import m.core.common.ServerTest;
 import m.core.common.TestServer;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.ServerTest;
 
 public class ParamsTest extends ServerTest {
 

@@ -1,4 +1,4 @@
-package m.core.common;
+package m.core;
 
 import static org.junit.Assert.*;
 
@@ -15,9 +15,11 @@ import m.core.client.Client;
 import m.core.client.unirest.CachingUnirestClient;
 import m.core.client.unirest.CookieUnirestClient;
 import m.core.client.unirest.UnirestClient;
+import m.core.common.Debug;
+import m.core.common.ServerTest;
+import m.core.common.TestServer;
 import m.core.http.Request;
 import m.core.http.Response;
-import m.core.server.ServerTest;
 import m.core.service.Service;
 
 public class ClientTest extends ServerTest {
