@@ -16,6 +16,9 @@ before_script:
   - export REDIS_TEST=ENABLED
   - chmod +x gradlew
 
+script: travis_wait 15 ./gradlew check
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
 
