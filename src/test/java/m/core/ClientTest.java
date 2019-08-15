@@ -3,6 +3,7 @@ package m.core;
 import static org.junit.Assert.*;
 
 import java.net.HttpURLConnection;
+import java.util.Properties;
 
 import javax.servlet.http.Cookie;
 
@@ -18,6 +19,7 @@ import m.core.client.unirest.UnirestClient;
 import m.core.common.Debug;
 import m.core.common.ServerTest;
 import m.core.common.TestServer;
+import m.core.config.Configuration;
 import m.core.http.Request;
 import m.core.http.Response;
 import m.core.service.Service;
@@ -69,6 +71,22 @@ public class ClientTest extends ServerTest {
     }
 
     @Test
+    public void client_verifyConfigurationProperties() throws UnirestException {
+        int originalCacheEntriesCount = Configuration.clientCacheEntriesCount();
+        Properties originalProperties = Configuration.getProperties();
+        Properties cacheProperties = new Properties();
+        Configuration.setProperties(cacheProperties);
+        cacheProperties.put("m.core.client.cache.entries.count", "42");
+        assertEquals("Check updated property value", 42, Configuration.clientCacheEntriesCount());
+        assertEquals("Check updated property value",
+                Integer.parseInt(Configuration.getProperties().get("m.core.client.cache.entries.count").toString()),
+                Configuration.clientCacheEntriesCount());
+        Configuration.setProperties(originalProperties);
+        assertEquals("Check properties restored to original defaults for other tests", originalCacheEntriesCount,
+                Configuration.clientCacheEntriesCount());
+    }
+
+    @Test
     public void cookieClient_verifyCookieProcessing() throws UnirestException {
         CookieUnirestClient cookieClient = new CookieUnirestClient();
         cookieClient.clearCookies();
@@ -76,8 +94,8 @@ public class ClientTest extends ServerTest {
                 .header("Cookie", "CLIENT=VANILLA").asString().getBody());
         assertEquals("SERVER", cookieClient.getCookie("SERVER").getName());
         assertEquals("CHOCO", cookieClient.getCookie("SERVER").getValue());
-        cookieClient.debugPrintCookies();
-        cookieClient.debugLogCookies();
+        Debug.log(cookieClient.getCookieStore());
+        Debug.print(cookieClient.getCookieStore());
     }
 
     @Override

@@ -136,7 +136,13 @@ public class Request {
     }
 
     public Request setCookie(String name, Cookie cookie) {
-        cookies.getOrDefault(name, new ArrayList<>()).add(cookie);
+        if (cookies.containsKey(name)) {
+            getCookies(name).add(cookie);
+        } else {
+            List<Cookie> values = new ArrayList<>();
+            values.add(cookie);
+            setCookies(name, (values));
+        }
         return this;
     }
 
@@ -151,6 +157,13 @@ public class Request {
     }
 
     public Request setHeader(String name, String value) {
+        if (headers.containsKey(name)) {
+            getHeaders(name).add(value);
+        } else {
+            List<String> values = new ArrayList<>();
+            values.add(value);
+            setHeaders(name, (values));
+        }
         headers.getOrDefault(name, new ArrayList<>()).add(value);
         return this;
     }

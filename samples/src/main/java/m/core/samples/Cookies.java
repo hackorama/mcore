@@ -45,11 +45,11 @@ public class Cookies {
         System.out.println("Testing cookies ...");
 
         CookieUnirestClient client = new CookieUnirestClient();
-        client.debugPrintCookies();
+        Debug.print(client.getCookieStore());
         client.get("http://localhost:8080/test");
-        client.debugPrintCookies();
+        Debug.print(client.getCookieStore());
         client.get("http://localhost:8080/test/cookie");
-        client.debugPrintCookies();
+        Debug.print(client.getCookieStore());
 
         service.stop();
     }

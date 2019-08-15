@@ -1,56 +1,43 @@
 package m.core.config;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
-
-import org.aeonbits.owner.ConfigFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class Configuration {
 
-    private static ClientConfig clientConfig;
-    private static Configuration instance = new Configuration();
-    private static Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static  Properties properties = new Properties();
 
-    public static ClientConfig clientConfig() {
-        if (clientConfig == null) {
-            Configuration.init();
-        }
-        return clientConfig;
+    static {
+        properties.put("m.core.client.cache.entries.count", "1000");
+        properties.put("m.core.client.cache.object.size.bytes", "8192");
+        properties.put("m.core.client.connect.timeout.millis", "50000");
+        properties.put("m.core.client.socket.timeout.millis", "50000");
     }
 
-    public static Configuration defaultConfig() {
-        if (clientConfig == null) {
-            Configuration.init();
-        }
-        return instance;
+    public static int clientCacheEntriesCount() {
+        return Integer.parseInt(properties.getProperty("m.core.client.cache.entries.count"));
     }
 
-    public static void init() {
-        init(new String[0]);
+    public static long clientCacheMaxObjectSizeBytes() {
+        return Long.parseLong(properties.getProperty("m.core.client.cache.object.size.bytes"));
     }
 
-    public static void init(String[] args) {
-        if (args.length > 0) {
-            Properties fileProperties = new Properties();
-            try (final FileInputStream fileInputStream = new FileInputStream(args[0])) {
-                fileProperties.load(fileInputStream);
-            } catch (IOException e) {
-                logger.error("Error configuring service", e);
-                throw new RuntimeException("Error confuguring service", e);
-            }
-            clientConfig = ConfigFactory.create(ClientConfig.class, fileProperties, System.getProperties(),
-                    System.getenv());
-        } else {
-            clientConfig = ConfigFactory.create(ClientConfig.class, System.getProperties(), System.getenv());
-        }
+    public static int clientConnectTimeoutMillis() {
+        return Integer.parseInt(properties.getProperty("m.core.client.connect.timeout.millis"));
+    }
+
+    public static int clientSocketTimeoutMillis() {
+        return Integer.parseInt(properties.getProperty("m.core.client.socket.timeout.millis"));
+    }
+
+    public static Properties getProperties() {
+        return Configuration.properties;
+    }
+
+    public static void setProperties(Properties properties) {
+        Configuration.properties = properties;
     }
 
     // Don't let anyone else instantiate this class
     private Configuration() {
     }
-
 }

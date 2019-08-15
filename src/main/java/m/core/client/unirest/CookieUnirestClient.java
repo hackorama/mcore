@@ -10,8 +10,6 @@ import org.apache.http.impl.client.HttpClients;
 
 import com.mashape.unirest.http.Unirest;
 
-import m.core.common.Debug;
-
 public class CookieUnirestClient extends UnirestClient {
 
     private BasicCookieStore cookieStore;
@@ -27,20 +25,16 @@ public class CookieUnirestClient extends UnirestClient {
         cookieStore.clear();
     }
 
-    public void debugLogCookies() {
-        Debug.log(cookieStore);
-    }
-
-    public void debugPrintCookies() {
-        Debug.print(cookieStore);
-    }
-
     public Cookie getCookie(String name) {
         return getCookies().stream().filter(e -> name.equals(e.getName())).findAny().get();
     }
 
     public List<Cookie> getCookies() {
         return cookieStore.getCookies();
+    }
+
+    public BasicCookieStore getCookieStore() {
+        return cookieStore;
     }
 
 }

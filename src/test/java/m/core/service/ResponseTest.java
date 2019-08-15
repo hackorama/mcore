@@ -56,6 +56,23 @@ public class ResponseTest {
         assertEquals("Verify cookies using value and list getters", response.getCookie("three"),
                 response.getCookies().get("three").get(0));
 
+        Cookie cookieOne = new Cookie("CookieOne", "COOKIE ONE VALUE");
+        Cookie cookieTwo = new Cookie("CookieTwo", "COOKIE TWO VALUE");
+        response = new Response().setCookie("CookieOne", cookieOne);
+        assertEquals("Verify single cookie set", cookieOne, response.getCookie("CookieOne"));
+        response = new Response().setCookie("CookieOne", cookieTwo);
+        assertTrue("Verify individual multiple cookies set one by one for same name",
+                response.getCookie("CookieOne").getValue().equals(cookieOne.getValue())
+                        || response.getCookie("CookieOne").getValue().equals(cookieTwo.getValue()));
+
+        values = new ArrayList<>();
+        values.add(cookieOne);
+        values.add(cookieTwo);
+        response = new Response().setCookies("CookieOne", values);
+        assertTrue("Verify multiple cookies set as list for same name",
+                response.getCookie("CookieOne").getValue().equals(cookieOne.getValue())
+                        || response.getCookie("CookieOne").getValue().equals(cookieTwo.getValue()));
+
         cookies = new HashMap<>();
         values = new ArrayList<>();
         values.add(new Cookie("empty", ""));
@@ -165,6 +182,18 @@ public class ResponseTest {
         assertEquals("Verify invaid headers", null, new Response().setHeaders(headers).getHeaders().get("invalid"));
         assertEquals("Verify invaid headers", null, new Response().setHeaders(headers).getHeaders().get(null));
 
+        response = new Response().setHeader("HeaderOne", "One");
+        assertEquals("Verify single header set", "One", response.getHeader("HeaderOne"));
+        response = new Response().setHeader("HeaderOne", "Two");
+        assertTrue("Verify individual multiple headers set one by one for same name",
+                response.getHeader("HeaderOne").equals("One") || response.getHeader("HeaderOne").equals("Two"));
+
+        values = new ArrayList<>();
+        values.add("One");
+        values.add("Two");
+        response = new Response().setHeaders("HeaderOne", values);
+        assertTrue("Verify multiple headers set as list for same name",
+                response.getHeader("HeaderOne").equals("One") || response.getHeader("HeaderOne").equals("Two"));
     }
 
     @Test

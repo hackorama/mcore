@@ -48,6 +48,7 @@ public class RequestTest {
                 new Request().setCookies(cookies).getCookies().get("three"));
         assertNotEquals("Verify cookies", cookies.get("One"),
                 new Request().setCookies(cookies).getCookies().get("three"));
+
         Request request = new Request().setCookies(cookies);
         assertEquals("Verify cookies using value and list getters", request.getCookie("One"),
                 request.getCookies().get("One").get(0));
@@ -55,6 +56,23 @@ public class RequestTest {
                 request.getCookies().get("TWO").get(0));
         assertEquals("Verify cookies using value and list getters", request.getCookie("three"),
                 request.getCookies().get("three").get(0));
+
+        Cookie cookieOne = new Cookie("CookieOne", "COOKIE ONE VALUE");
+        Cookie cookieTwo = new Cookie("CookieTwo", "COOKIE TWO VALUE");
+        request = new Request().setCookie("CookieOne", cookieOne);
+        assertEquals("Verify single cookie set", cookieOne, request.getCookie("CookieOne"));
+        request = new Request().setCookie("CookieOne", cookieTwo);
+        assertTrue("Verify individual multiple cookies set one by one for same name",
+                request.getCookie("CookieOne").getValue().equals(cookieOne.getValue())
+                        || request.getCookie("CookieOne").getValue().equals(cookieTwo.getValue()));
+
+        values = new ArrayList<>();
+        values.add(cookieOne);
+        values.add(cookieTwo);
+        request = new Request().setCookies("CookieOne", values);
+        assertTrue("Verify multiple cookies set as list for same name",
+                request.getCookie("CookieOne").getValue().equals(cookieOne.getValue())
+                        || request.getCookie("CookieOne").getValue().equals(cookieTwo.getValue()));
 
         cookies = new HashMap<>();
         values = new ArrayList<>();
@@ -165,6 +183,18 @@ public class RequestTest {
         assertEquals("Verify invaid headers", null, new Request().setHeaders(headers).getHeaders().get("invalid"));
         assertEquals("Verify invaid headers", null, new Request().setHeaders(headers).getHeaders().get(null));
 
+        request = new Request().setHeader("HeaderOne", "One");
+        assertEquals("Verify single header set", "One", request.getHeader("HeaderOne"));
+        request = new Request().setHeader("HeaderOne", "Two");
+        assertTrue("Verify individual multiple headers set one by one for same name",
+                request.getHeader("HeaderOne").equals("One") || request.getHeader("HeaderOne").equals("Two"));
+
+        values = new ArrayList<>();
+        values.add("One");
+        values.add("Two");
+        request = new Request().setHeaders("HeaderOne", values);
+        assertTrue("Verify multiple headers set as list for same name",
+                request.getHeader("HeaderOne").equals("One") || request.getHeader("HeaderOne").equals("Two"));
     }
 
     @Test
@@ -290,6 +320,10 @@ public class RequestTest {
                 request.getPathParam("TWO"));
         assertEquals("Verify path params using common param getter", request.getParam("three"),
                 request.getPathParam("three"));
+        assertEquals("Verify default value is not used for already set param", request.getParam("three"),
+                request.getPathParam("three", "thiswillnotbeused"));
+        assertEquals("Verify default value will be used for not set param", "default",
+                request.getPathParam("unknown", "default"));
 
         params = new HashMap<>();
         params.put("empty", "");
@@ -338,12 +372,20 @@ public class RequestTest {
                 new Request().setQueryParams(params).getQueryParams().size());
         assertEquals("Verify query params", params.get("One"),
                 new Request().setQueryParams(params).getQueryParams().get("One"));
+        assertEquals("Verify query params", params.get("One"),
+                new Request().setQueryParams(params).getQueryParams("One"));
         assertEquals("Verify query params", params.get("TWO"),
                 new Request().setQueryParams(params).getQueryParams().get("TWO"));
+        assertEquals("Verify query params", params.get("TWO"),
+                new Request().setQueryParams(params).getQueryParams("TWO"));
         assertEquals("Verify query params", params.get("three"),
                 new Request().setQueryParams(params).getQueryParams().get("three"));
+        assertEquals("Verify query params", params.get("three"),
+                new Request().setQueryParams(params).getQueryParams("three"));
         assertNotEquals("Verify query params", params.get("One"),
                 new Request().setQueryParams(params).getQueryParams().get("three"));
+        assertNotEquals("Verify query params", params.get("One"),
+                new Request().setQueryParams(params).getQueryParams("three"));
         Request request = new Request().setQueryParams(params);
         assertEquals("Verify query params using value and list getters", request.getQueryParam("One"),
                 request.getQueryParams().get("One").get(0));

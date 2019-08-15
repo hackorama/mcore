@@ -14,13 +14,13 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.Cookie;
 
+import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import m.core.client.unirest.CookieUnirestClient;
-import m.core.common.Util;
 import m.core.http.Request;
 import m.core.http.Response;
 import m.core.server.Server;
@@ -131,7 +131,7 @@ public class Servers {
             }
 
             private Response header(Request request) {
-                Response response = new Response(Util.getGson().toJson(request.getHeaders()));
+                Response response = new Response(new Gson().toJson(request.getHeaders()));
                 Map<String, List<String>> headers = new HashMap<>();
                 headers.put("RESPONSE_HEADER_ONE", Stream.of("ONE").collect(Collectors.toList()));
                 headers.put("RESPONSE_HEADER_MANY", Stream.of("FIRST", "SECOND", "LAST").collect(Collectors.toList()));

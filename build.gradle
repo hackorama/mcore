@@ -29,44 +29,44 @@ repositories {
 }
 
 dependencies {
-    // Using `compile` instead of `implementation` to work around
+    // Using `api` instead of `implementation` to work around
     // pom generation scope issue : https://github.com/gradle/gradle/issues/1118
-    compile 'org.slf4j:slf4j-simple:1.7.25' // logging
-    compile 'org.apache.commons:commons-lang3:3.8.1' // number and string utils
-    compile 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
-    compile 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
-    compile 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
-    compile 'com.google.guava:guava:27.0.1-jre' // multimap compile for many to many
-    compile 'com.google.code.gson:gson:2.8.5' // json library
-    compile 'javax.servlet:javax.servlet-api:4.0.1' // for cookie and session
+    api 'org.slf4j:slf4j-simple:1.7.25' // logging
+    api 'org.apache.commons:commons-lang3:3.9' // number and string utils
+    api 'org.glassfish.jersey.core:jersey-common:2.27' // uri template
+    api 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
+    api 'org.aeonbits.owner:owner:1.0.10' // configuration file handling
+    api 'com.google.guava:guava:27.0.1-jre' // multimap api for many to many
+    api 'com.google.code.gson:gson:2.8.5' // json library
+    api 'javax.servlet:javax.servlet-api:4.0.1' // for cookie and session
 
-    compile 'com.mashape.unirest:unirest-java:1.4.9' // rest client
-    compile 'org.apache.httpcomponents:httpclient:4.5.6' // rest http cookie
-    compile 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
+    api 'com.mashape.unirest:unirest-java:1.4.9' // rest client
+    api 'org.apache.httpcomponents:httpclient:4.5.6' // rest http cookie
+    api 'org.apache.httpcomponents:httpclient-cache:4.5.6' // rest client caching
 
-    compile 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
-    compile 'mysql:mysql-connector-java:8.0.14' // jdbc drivers
-    compile 'org.postgresql:postgresql:42.2.5' // jdbc drivers
-    compile 'org.xerial:sqlite-jdbc:3.25.2' // jdbc drivers
-    compile 'org.apache.derby:derby:10.14.2.0' // jdbc drivers
-    compile 'org.hsqldb:hsqldb:2.4.1' // jdbc drivers
-    compile 'org.mapdb:mapdb:3.0.7' // embedded key value database
-    compile 'com.h2database:h2:1.4.197' // embedded JDBC database
-    compile 'redis.clients:jedis:3.0.1' // client for key value store
-    compile 'org.redisson:redisson:3.3.0' // client for key value store
-    compile 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
+    api 'commons-dbutils:commons-dbutils:1.7' // jdbc utils
+    api 'mysql:mysql-connector-java:8.0.14' // jdbc drivers
+    api 'org.postgresql:postgresql:42.2.5' // jdbc drivers
+    api 'org.xerial:sqlite-jdbc:3.25.2' // jdbc drivers
+    api 'org.apache.derby:derby:10.14.2.0' // jdbc drivers
+    api 'org.hsqldb:hsqldb:2.4.1' // jdbc drivers
+    api 'org.mapdb:mapdb:3.0.7' // embedded key value database
+    api 'com.h2database:h2:1.4.197' // embedded JDBC database
+    api 'redis.clients:jedis:3.0.1' // client for key value store
+    api 'org.redisson:redisson:3.3.0' // client for key value store
+    api 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
 
-    compile 'com.sparkjava:spark-core:2.8.0' // rest framework
-    compile ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
+    api 'com.sparkjava:spark-core:2.8.0' // rest framework
+    api ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
         // Use app logging https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-log4j-for-logging
         exclude module: 'spring-boot-starter-logging'
     }
-    compile 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
-    compile 'io.vertx:vertx-web:3.6.2' // rest framework
+    api 'org.springframework.session:spring-session-core:2.1.2.RELEASE' // rest framework session
+    api 'io.vertx:vertx-web:3.6.2' // rest framework
     // Using the default version from https://gradle.github.io/playframework/#play_framework
-    compile 'com.typesafe.play:play-server_2.12:2.6.15' // rest framework
-    compile 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
-    compile 'com.typesafe.play:play_2.12:2.6.15' // rest framework
+    api 'com.typesafe.play:play-server_2.12:2.6.15' // rest framework
+    api 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
+    api 'com.typesafe.play:play_2.12:2.6.15' // rest framework
 
     testImplementation 'junit:junit:4.12'
 }

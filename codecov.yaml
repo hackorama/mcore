@@ -1,2 +1,2 @@
 ignore:
-  - "src/main/java/com/hackorama/mcore/demo/"  # ignore demo code
+  - "src/main/java/m/core/common/Debug.java"  # ignore ddebug code

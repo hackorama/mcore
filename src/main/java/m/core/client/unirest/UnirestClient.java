@@ -1,6 +1,7 @@
 package m.core.client.unirest;
 
 
+import org.apache.http.client.config.RequestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +18,10 @@ import m.core.http.Response;
 public class UnirestClient implements Client {
 
     private static Logger logger = LoggerFactory.getLogger(UnirestClient.class);
-    int connectTimeoutMillis = Configuration.clientConfig().clientConnectTimeoutMillis();
-    int socketTimeoutMillis = Configuration.clientConfig().clientSocketTimeoutMillis();
+    protected RequestConfig requestConfig;
 
     public UnirestClient() {
-        setTimeOuts(connectTimeoutMillis, socketTimeoutMillis);
+        setTimeOuts(Configuration.clientConnectTimeoutMillis(), Configuration.clientSocketTimeoutMillis());
     }
 
     @Override
@@ -71,9 +71,9 @@ public class UnirestClient implements Client {
 
     @Override
     public void setTimeOuts(int connectTimeoutMillis, int socketTimeoutMillis) {
-        this.connectTimeoutMillis = connectTimeoutMillis;
-        this.socketTimeoutMillis = socketTimeoutMillis;
-        // TODO Check Unirest.setTimeouts(connectTimeoutMillis, socketTimeoutMillis);
+        // TODO Validate Unirest.setTimeouts(connectTimeoutMillis, socketTimeoutMillis);
+        requestConfig = RequestConfig.custom().setConnectTimeout(connectTimeoutMillis)
+                .setSocketTimeout(socketTimeoutMillis).build();
     }
 
 }

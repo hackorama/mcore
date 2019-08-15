@@ -67,18 +67,17 @@ public class Response {
     }
 
     public Response setCookie(Cookie cookie) {
-        if (cookies.containsKey(cookie.getName())) {
-            cookies.get(cookie.getName()).add(cookie);
-        } else {
-            List<Cookie> values = new ArrayList<>();
-            values.add(cookie);
-            cookies.put(cookie.getName(), values);
-        }
-        return this;
+        return setCookie(cookie.getName(), cookie);
     }
 
     public Response setCookie(String name, Cookie cookie) {
-        cookies.getOrDefault(name, new ArrayList<>()).add(cookie);
+        if (cookies.containsKey(name)) {
+            getCookies(name).add(cookie);
+        } else {
+            List<Cookie> values = new ArrayList<>();
+            values.add(cookie);
+            setCookies(name, (values));
+        }
         return this;
     }
 
@@ -93,6 +92,13 @@ public class Response {
     }
 
     public Response setHeader(String name, String value) {
+        if (headers.containsKey(name)) {
+            getHeaders(name).add(value);
+        } else {
+            List<String> values = new ArrayList<>();
+            values.add(value);
+            setHeaders(name, (values));
+        }
         headers.getOrDefault(name, new ArrayList<>()).add(value);
         return this;
     }
