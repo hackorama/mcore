@@ -11,7 +11,7 @@ import m.core.service.Service;
 
 public class EnvironmentService extends Service {
 
-    private final String STORE_NAME = "ENVIRONMENT";
+    private static final String STORE_NAME = "ENVIRONMENT";
     private final Gson GSON = new Gson();
 
     public Response createEnvironment(Request request) {

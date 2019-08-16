@@ -13,7 +13,7 @@ import m.core.service.Service;
 
 public class GroupService extends Service {
 
-    private final String STORE_NAME = "group";
+    private static final String STORE_NAME = "GROUP";
     private final Gson GSON = new Gson();
 
     public Response createGroup(Request request) {
