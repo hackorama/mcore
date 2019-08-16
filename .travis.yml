@@ -20,7 +20,7 @@ before_script:
 # Required for sub projects depending on local maven published artifact from root project
 install: true
 
-script: travis_wait ./gradlew --console=verbose check
+script: travis_wait ./gradlew --console=plain check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
