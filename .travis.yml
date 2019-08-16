@@ -16,6 +16,10 @@ before_script:
   - export REDIS_TEST=ENABLED
   - chmod +x gradlew
 
+# Removing assemble step https://github.com/travis-ci/travis-ci/issues/8667
+# Required for sub projects depending on local maven published artifact from root project
+install: true
+
 script: travis_wait ./gradlew --console=verbose check
 
 after_success:
