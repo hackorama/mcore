@@ -4,18 +4,55 @@ plugins {
     id 'maven'
     id 'maven-publish'
     id 'pmd'
-    id 'com.diffplug.gradle.spotless' version '3.24.1'
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'com.github.spotbugs' version '2.0.0'
+    id 'com.diffplug.gradle.spotless' version '3.24.1' apply false
+    id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
+    id 'com.github.spotbugs' version '2.0.0' apply false
     id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
+}
+
+allprojects {
+    apply plugin: 'application'
+    apply plugin: 'java'
+    apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'com.github.spotbugs'
+
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    spotless {
+        java {
+            trimTrailingWhitespace()
+            indentWithSpaces(4)
+            endWithNewline()
+            importOrder 'java', 'javax', 'org', 'com', 'm.core'
+            removeUnusedImports()
+        }
+    }
+
+    spotbugs {
+        ignoreFailures = true // Disabling for TravisCI
+        toolVersion = '3.1.10'
+    }
+
+    tasks.withType(com.github.spotbugs.SpotBugsTask) {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
+
 }
 
 sourceCompatibility = 8
 targetCompatibility = 8
 
+// Force maven local publish and code coverage after tests
+check.dependsOn jacocoTestReport, publishToMavenLocal
+
 repositories {
-    mavenLocal()
-    jcenter()
     // Play Framework https://gradle.github.io/playframework/#applying_the_plugin
     maven {
         name "lightbend-maven-release"
@@ -82,7 +119,6 @@ task javadocJar(type: Jar) {
 }
 
 // Maven publishing (Working around scope issue : https://github.com/gradle/gradle/issues/1118)
-
 publishing {
     publications {
         maven(MavenPublication) {
@@ -116,7 +152,6 @@ publishing {
 }
 
 // Play Framework (https://gradle.github.io/playframework/#targeting-play-version)
-
 play {
     platform {
         playVersion = '2.6.15'
@@ -125,19 +160,21 @@ play {
     }
 }
 
-// code formatting
-
-spotless {
-    java {
-        trimTrailingWhitespace()
-        indentWithSpaces(4)
-        endWithNewline()
-        importOrder 'java', 'javax', 'org', 'com', 'm.core'
-        removeUnusedImports()
-    }
+task testSpring(type: Test) {
+    environment 'SERVER_TYPE', 'SPRING' // Repeat all the tests with Spring server
+    dependsOn cleanTest
 }
 
-// code coverage
+task testVertx(type: Test) {
+    environment 'SERVER_TYPE', 'VERTX' // Repeat all the tests with Vertx server
+    dependsOn cleanTest
+}
+
+task testPlay(type: Test) {
+    environment 'SERVER_TYPE', 'PLAY' // Repeat all the tests with Play server
+    dependsOn cleanTest
+}
+
 
 jacoco {
     toolVersion = "0.8.2"
@@ -162,38 +199,8 @@ test {
     }
 }
 
-task testSpring(type: Test) {
-    environment 'SERVER_TYPE', 'SPRING' // Repeat all the tests with Spring server
-    dependsOn cleanTest
-}
-
-task testVertx(type: Test) {
-    environment 'SERVER_TYPE', 'VERTX' // Repeat all the tests with Vertx server
-    dependsOn cleanTest
-}
-
-task testPlay(type: Test) {
-    environment 'SERVER_TYPE', 'PLAY' // Repeat all the tests with Play server
-    dependsOn cleanTest
-}
-
-check.dependsOn jacocoTestReport
-
-// code quality
-
-spotbugs {
-    ignoreFailures = true // Disabling for TravisCI
-    toolVersion = '3.1.10'
-}
-
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-
 pmd {
+    incrementalAnalysis = true
     ignoreFailures = true
     ruleSetFiles = files(file("config/pmd/ruleset.xml"))
     ruleSets = []
