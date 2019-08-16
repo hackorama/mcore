@@ -7,11 +7,8 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
-public class Request {
+public class Request extends RequestResponse {
 
-    private String body;
-    private Map<String, List<Cookie>> cookies = new HashMap<>();
-    private Map<String, List<String>> headers = new HashMap<>();
     private Map<String, String> pathParams = new HashMap<>();
     private Map<String, List<String>> queryParams = new HashMap<>();
     Session session;
@@ -20,37 +17,7 @@ public class Request {
     }
 
     public Request(String body) {
-        this.body = body;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public Cookie getCookie(String name) {
-        List<Cookie> cookies = getCookies(name);
-        return cookies.isEmpty() ? null : cookies.get(0);
-    }
-
-    public Map<String, List<Cookie>> getCookies() {
-        return cookies;
-    }
-
-    public List<Cookie> getCookies(String name) {
-        return cookies.containsKey(name) ? cookies.get(name) : new ArrayList<>();
-    }
-
-    public String getHeader(String name) {
-        List<String> headers = getHeaders(name);
-        return headers.isEmpty() ? null : headers.get(0);
-    }
-
-    public Map<String, List<String>> getHeaders() {
-        return headers;
-    }
-
-    public List<String> getHeaders(String name) {
-        return headers.containsKey(name) ? headers.get(name) : new ArrayList<>();
+        super(body);
     }
 
     public String getParam(String name) {
@@ -131,50 +98,41 @@ public class Request {
     }
 
     public Request setBody(String body) {
-        this.body = body;
+        super.setBody(body);
         return this;
     }
 
+    public Request setCookie(Cookie cookie) {
+        return setCookie(cookie.getName(), cookie);
+    }
+
     public Request setCookie(String name, Cookie cookie) {
-        if (cookies.containsKey(name)) {
-            getCookies(name).add(cookie);
-        } else {
-            List<Cookie> values = new ArrayList<>();
-            values.add(cookie);
-            setCookies(name, (values));
-        }
+        super.setCookie(name, cookie);
         return this;
     }
 
     public Request setCookies(Map<String, List<Cookie>> cookies) {
-        this.cookies = cookies;
+        super.setCookies(cookies);
         return this;
     }
 
     public Request setCookies(String name, List<Cookie> cookies) {
-        this.cookies.put(name, cookies);
+        super.setCookies(name, cookies);
         return this;
     }
 
     public Request setHeader(String name, String value) {
-        if (headers.containsKey(name)) {
-            getHeaders(name).add(value);
-        } else {
-            List<String> values = new ArrayList<>();
-            values.add(value);
-            setHeaders(name, (values));
-        }
-        headers.getOrDefault(name, new ArrayList<>()).add(value);
+        super.setHeader(name, value);
         return this;
     }
 
     public Request setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
+        super.setHeaders(headers);
         return this;
     }
 
-    public Request setHeaders(String name, List<String> values) {
-        headers.put(name, values);
+    public Request setHeaders(String name, List<String> headers) {
+        super.setHeaders(name, headers);
         return this;
     }
 
