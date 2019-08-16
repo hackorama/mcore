@@ -88,7 +88,7 @@ public class UserService extends Service {
 
     }
 
-    public static Response optionsUser(Request request) {
+    private static Response optionsUser(Request request) {
         Response response = new Response();
         Map<String, List<String>> headers = new HashMap<>();
         List<String> values = new ArrayList<>();
@@ -98,7 +98,7 @@ public class UserService extends Service {
         return response;
     }
 
-    public static Response traceUser(Request request) {
+    private static Response traceUser(Request request) {
         Response response = new Response();
         response.setBody(request.getBody());
         return response;
@@ -117,16 +117,16 @@ public class UserService extends Service {
         TRACE("/user", UserService::traceUser);
     }
 
-    public Response createUser(Request request) {
+    private Response createUser(Request request) {
         return editUser(request);
     }
 
-    public Response deleteUser(Request request) {
+    private Response deleteUser(Request request) {
         dataStore.remove(STORE_NAME, request.getPathParams().get("id"));
         return new Response("");
     }
 
-    public Response editUser(Request request) {
+    private Response editUser(Request request) {
         User user = GSON.fromJson(request.getBody(), User.class);
         String id = request.getPathParams().get("id");
         if (id != null) { // updating existing
@@ -138,7 +138,7 @@ public class UserService extends Service {
         return new Response(GSON.toJson(user));
     }
 
-    public Response editUserProperties(Request request) {
+    private Response editUserProperties(Request request) {
         User updatedUser = GSON.fromJson(request.getBody(), User.class);
         String id = request.getPathParams().get("id");
         if (dataStore.contains(STORE_NAME, id)) {
@@ -156,7 +156,7 @@ public class UserService extends Service {
         }
     }
 
-    public Response getUser(Request request) {
+    private Response getUser(Request request) {
         String id = request.getPathParams().get("id");
         if (id == null) {
             List<User> users = new ArrayList<>();

@@ -22,7 +22,7 @@ public class Debug {
                 POST("/test/{test}/", this::test);
             }
 
-            public Response test(Request request) {
+            private Response test(Request request) {
                 m.core.common.Debug.print(request);
                 Response response = new Response("DEBUG");
                 m.core.common.Debug.print(response);

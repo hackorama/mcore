@@ -9,7 +9,7 @@ public class Demo {
     public static void main(String[] args) {
         new Service() {
 
-            public Response hello(Request request) {
+           private Response hello(Request request) {
                 if (request.getPathParams().containsKey("name")) {
                     return new Response("Hello " + request.getPathParams().get("name"));
                 }

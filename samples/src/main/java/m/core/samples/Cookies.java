@@ -28,7 +28,7 @@ public class Cookies {
                 POST("/test/{test}/", this::test);
             }
 
-            public Response test(Request request) {
+            private Response test(Request request) {
                 Debug.print(request);
                 Response response = new Response("COOKIE TEST");
                 Cookie cookie = new Cookie("FUN", "SUMMER");

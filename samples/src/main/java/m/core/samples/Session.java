@@ -21,7 +21,7 @@ public class Session {
                 GET("/end", this::end);
             }
 
-            public Response end(Request request) {
+            private Response end(Request request) {
                 Debug.print(request);
                 Response response = new Response("Ended session for: " + request.getSession().getAttribute("NAME"));
                 request.getSession().removeAttribute("NAME"); // Not required if invalidating, like in this case
@@ -30,7 +30,7 @@ public class Session {
                 return response;
             }
 
-            public Response start(Request request) {
+            private Response start(Request request) {
                 Debug.print(request);
                 request.getSession().setAttribute("NAME", request.getPathParams().get("name"));
                 Response response = new Response("Started session for: " + request.getSession().getAttribute("NAME"));
@@ -38,7 +38,7 @@ public class Session {
                 return response;
             }
 
-            public Response test(Request request) {
+            private Response test(Request request) {
                 Debug.print(request);
                 Response response = null;
                 if (request.getSession().getAttribute("NAME") == null

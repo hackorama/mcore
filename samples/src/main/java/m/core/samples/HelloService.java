@@ -6,7 +6,7 @@ import m.core.service.Service;
 
 public class HelloService extends Service {
 
-    public static Response getHello(Request request) {
+    private static Response getHello(Request request) {
         String name = request.getPathParams().get("name");
         if (name != null) {
             return new Response("hello " + name);
