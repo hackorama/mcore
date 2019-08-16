@@ -30,11 +30,12 @@ public class ClientTest extends ServerTest {
 
         @Override
         public void configure() {
-            GET("/test", this::test);
+            GET("/test", this::testGet);
+            POST("/test", this::testPost);
             GET("/test/cookie", this::cookie);
         }
 
-        public Response cookie(Request request) {
+        private Response cookie(Request request) {
             Debug.print(request);
             Cookie cookie = new Cookie("SERVER", "CHOCO");
             Response response = new Response("COOKIE_OK", HttpURLConnection.HTTP_OK);
@@ -43,9 +44,16 @@ public class ClientTest extends ServerTest {
             return response;
         }
 
-        public Response test(Request request) {
+        private Response testGet(Request request) {
             Debug.log(request);
-            Response response = new Response("CLIENT_OK", HttpURLConnection.HTTP_OK);
+            Response response = new Response("{\"CLIENT\":\"OK\"}", HttpURLConnection.HTTP_OK);
+            Debug.log(response);
+            return response;
+        }
+
+        private Response testPost(Request request) {
+            Debug.log(request);
+            Response response = new Response("{\"GOT\":\"" + request.getBody() + "\"}", HttpURLConnection.HTTP_OK);
             Debug.log(response);
             return response;
         }
@@ -84,6 +92,33 @@ public class ClientTest extends ServerTest {
         Configuration.setProperties(originalProperties);
         assertEquals("Check properties restored to original defaults for other tests", originalCacheEntriesCount,
                 Configuration.clientCacheEntriesCount());
+    }
+
+    @Test
+    public void client_verifyGetAndPost() throws UnirestException {
+        Client client = new UnirestClient();
+        Response clientResponse = client.get(TestServer.getEndPoint() + "/test");
+        assertEquals("Check expected response body", "{\"CLIENT\":\"OK\"}", clientResponse.getBody());
+        Response clientStringResponse = client.getAsString(TestServer.getEndPoint() + "/test");
+        assertEquals("Check expected response body as string", "{\"CLIENT\":\"OK\"}", clientStringResponse.getBody());
+        Response clientPostResponse = client.post(TestServer.getEndPoint() + "/test", "CLIENT_POST_BODY");
+        assertEquals("Check expected post response body", "{\"GOT\":\"CLIENT_POST_BODY\"}",
+                clientPostResponse.getBody());
+        Response unroutedPathResponse = client.getAsString(TestServer.getEndPoint() + "/test/unknown");
+        // TODO Refine the check for server types
+        assertTrue("Check not found error message in response body",
+                unroutedPathResponse.getBody().toLowerCase().contains("not found"));
+    }
+
+    @Test
+    public void client_verifySettingTimeOuts() throws UnirestException {
+        Client client = new UnirestClient();
+        Response clientResponse = client.get(TestServer.getEndPoint() + "/test");
+        assertEquals("Check expected response body", "{\"CLIENT\":\"OK\"}", clientResponse.getBody());
+        client.setTimeOuts(42, 42);
+        clientResponse = client.get(TestServer.getEndPoint() + "/test");
+        assertEquals("Check expected response body after setting time outs", "{\"CLIENT\":\"OK\"}",
+                clientResponse.getBody());
     }
 
     @Test
