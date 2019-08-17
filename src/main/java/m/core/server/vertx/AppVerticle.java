@@ -5,13 +5,13 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 
-public class AppVerticle extends AbstractVerticle {
+class AppVerticle extends AbstractVerticle {
 
     private Vertx vertx;
     private Router router;
     private int port;
 
-    public AppVerticle(Vertx vertx, Router router, int port) {
+    AppVerticle(Vertx vertx, Router router, int port) {
         this.vertx = vertx;
         this.router = router;
         this.port = port;

@@ -10,11 +10,11 @@ import org.springframework.session.config.annotation.web.server.EnableSpringWebS
 
 @Configuration
 @EnableSpringWebSession
-public class SessionConfig {
+class SessionConfig {
 
     @SuppressWarnings("rawtypes")
     @Bean
-    public ReactiveSessionRepository reactiveSessionRepository() {
+    ReactiveSessionRepository reactiveSessionRepository() {
         return new ReactiveMapSessionRepository(new ConcurrentHashMap<>());
     }
 

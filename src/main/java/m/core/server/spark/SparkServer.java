@@ -30,14 +30,30 @@ import m.core.http.Method;
 import m.core.http.Session;
 import m.core.server.BaseServer;
 
+/**
+ * An HTTP server for REST API routes using Spark.
+ *
+ * @see <a href="http://sparkjava.com">sparkjava.com</a>
+ */
 public class SparkServer extends BaseServer {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkServer.class);
 
+    /**
+     * Constructs a server with specified name.
+     *
+     * @param name the server name
+     */
     public SparkServer(String name) {
         super(name);
     }
 
+    /**
+     * Constructs a server with specified name and port.
+     *
+     * @param name the server name
+     * @param port the port server listens on
+     */
     public SparkServer(String name, int port) {
         super(name, port);
     }
@@ -172,7 +188,7 @@ public class SparkServer extends BaseServer {
         return session;
     }
 
-    public String router(Request sparkRequest, Response sparkResponse)
+    private String router(Request sparkRequest, Response sparkResponse)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         m.core.http.Request request = formatRequest(sparkRequest);
         String matchingPath = getMatchingPath(routeHandlerMap.get(Method.valueOf(sparkRequest.requestMethod())),
@@ -191,8 +207,7 @@ public class SparkServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(Method method, String path,
-            Function<m.core.http.Request, m.core.http.Response> handler) {
+    public void setRoutes(Method method, String path, Function<m.core.http.Request, m.core.http.Response> handler) {
         String sparkPath = formatPathVariable(path);
         routeHandlerMap.get(method).put(sparkPath, handler);
         trackParamList(sparkPath);
@@ -216,7 +231,7 @@ public class SparkServer extends BaseServer {
         if (session == null) {
             return;
         }
-        assert(StringUtils.equals(sparkSession.id(), session.getId()));
+        assert (StringUtils.equals(sparkSession.id(), session.getId()));
         // TODO PERF Improve the loops
         session.getAttributes().forEach((k, v) -> { // Updated/Old/New attributes
             sparkSession.attribute(k, v);

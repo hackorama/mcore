@@ -21,8 +21,6 @@ import m.core.data.DataStore;
  *
  * TODO: Implement a data store using MapDB http://www.mapdb.org/
  *
- * @author Kishan Thomas <kishan.thomas@gmail.com>
- *
  */
 public class MapdbDataStore implements DataStore {
 

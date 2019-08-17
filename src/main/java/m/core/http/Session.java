@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+/**
+ * An HTTP session.
+ */
 public class Session {
 
     private Map<String, Object> attributes = new HashMap<>();

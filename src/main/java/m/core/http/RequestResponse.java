@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
-public class RequestResponse {
+class RequestResponse {
 
     protected String body;
     protected Map<String, List<Cookie>> cookies = new HashMap<>();

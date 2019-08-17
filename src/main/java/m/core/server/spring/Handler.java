@@ -39,7 +39,7 @@ import m.core.http.Response;
 import m.core.http.Session;
 
 @Component
-public class Handler {
+class Handler {
 
     private static final Logger logger = LoggerFactory.getLogger(Handler.class);
 
@@ -162,7 +162,7 @@ public class Handler {
         return null;
     }
 
-    public Mono<ServerResponse> router(ServerRequest springRequest) throws InterruptedException, ExecutionException,
+    Mono<ServerResponse> router(ServerRequest springRequest) throws InterruptedException, ExecutionException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Request request = formatRequest(springRequest);
         String matchingPath = getMatchingPath(

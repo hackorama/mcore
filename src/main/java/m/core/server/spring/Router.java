@@ -14,12 +14,12 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import m.core.http.Method;
 
 @Configuration
-public class Router {
+class Router {
 
     private RouterFunction<ServerResponse> routerFunction;
 
     @Bean
-    public RouterFunction<ServerResponse> route(Handler handler) {
+    RouterFunction<ServerResponse> route(Handler handler) {
         // TODO IMPROVEMENT Externalize the fixed JSON MediaType
         // TODO IMPROVEMENT Use HttpMethod -> RequestPredicates mapping method
         // TODO FIXME Add missing TRACE method routing

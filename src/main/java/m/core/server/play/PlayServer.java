@@ -34,18 +34,15 @@ import m.core.http.Session;
 import m.core.server.BaseServer;
 
 /**
+ * An HTTP server for REST API routes using Play.
  *
- * Play Framework Server Implementation
- * <p>
- * NOTES: Alternatively could leverage OnRouteRequest override
- * <p>
- * <ul>
- * <li>https://www.playframework.com/documentation/2.1.0/JavaGlobal
- * <li>https://www.playframework.com/documentation/2.1.0/JavaInterceptors
- * </ul>
+ * @see <a href="https://www.playframework.com">playframework.com</a>
+ */
+/*
+ * DEVELOPER NOTES: Alternate implementation using OnRouteRequest override.
  *
- * @author Kishan Thomas (kishan.thomas@gmail.com)
- *
+ * https://www.playframework.com/documentation/2.1.0/JavaGlobal
+ * https://www.playframework.com/documentation/2.1.0/JavaInterceptors
  */
 public class PlayServer extends BaseServer {
 
@@ -56,10 +53,21 @@ public class PlayServer extends BaseServer {
 
     private Server server;
 
+    /**
+     * Constructs a server with specified name.
+     *
+     * @param name the server name
+     */
     public PlayServer(String name) {
         super(name);
     }
 
+    /**
+     * Constructs a server with specified name and port.
+     *
+     * @param name the server name
+     * @param port the port server listens on
+     */
     public PlayServer(String name, int port) {
         super(name, port);
     }
@@ -149,8 +157,7 @@ public class PlayServer extends BaseServer {
         return session;
     }
 
-    private MatchingPath getMatchingPath(Map<String, Function<m.core.http.Request, Response>> paths,
-            String path) {
+    private MatchingPath getMatchingPath(Map<String, Function<m.core.http.Request, Response>> paths, String path) {
         MatchingPath matchingPath = new MatchingPath();
         if (paths.containsKey(path)) {
             matchingPath.path = path;
@@ -199,8 +206,7 @@ public class PlayServer extends BaseServer {
     }
 
     @Override
-    public void setRoutes(Method method, String path,
-            Function<m.core.http.Request, Response> handler) {
+    public void setRoutes(Method method, String path, Function<m.core.http.Request, Response> handler) {
         routeHandlerMap.get(method).put(path, handler); // Move to super
         trackParamList(path);
     }
@@ -211,7 +217,7 @@ public class PlayServer extends BaseServer {
         return true;
     }
 
-    public void start(int port) {
+    private void start(int port) {
         server = Server.forRouter(port,
                 (components) -> RoutingDsl.fromComponents(components).GET("/*path").routeTo(path -> {
                     return route(request());
@@ -264,7 +270,7 @@ public class PlayServer extends BaseServer {
             }
         });
         keysToRemove.forEach(e -> {
-                playSession.remove(e);
+            playSession.remove(e);
         });
         if (session.invalid()) { // TODO If invalid then don't set attributes ?
             playSession.clear();

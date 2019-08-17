@@ -33,10 +33,9 @@ import m.core.http.Response;
 import m.core.server.BaseServer;
 
 /**
- * Vertx server implementation
+ * An HTTP server for REST API routes using Vertx.
  *
- * @author Kishan Thomas (kishan.thomas@gmail.com)
- *
+ * @see <a href="https://vertx.io">vertx.io</a>
  */
 public class VertxServer extends BaseServer {
 
@@ -45,14 +44,28 @@ public class VertxServer extends BaseServer {
     private Router router;
     private transient Vertx vertx;
 
+    /**
+     * Constructs a server with default properties.
+     */
     public VertxServer() {
         super();
     }
 
+    /**
+     * Constructs a server with specified name.
+     *
+     * @param name the server name
+     */
     public VertxServer(String name) {
         super(name);
     }
 
+    /**
+     * Constructs a server with specified name and port.
+     *
+     * @param name the server name
+     * @param port the port server listens on
+     */
     public VertxServer(String name, int port) {
         super(name, port);
     }
@@ -169,8 +182,7 @@ public class VertxServer extends BaseServer {
     }
 
     private Request formatRequest(RoutingContext routingContext) {
-        return new m.core.http.Request(routingContext.getBodyAsString())
-                .setPathParams(routingContext.pathParams())
+        return new m.core.http.Request(routingContext.getBodyAsString()).setPathParams(routingContext.pathParams())
                 .setQueryParams(fomatQueryParams(routingContext.queryParams()))
                 .setHeaders(formatHeaders(routingContext.request())).setCookies(formatCookies(routingContext))
                 .setSession(formatSession(routingContext.session()));
@@ -219,8 +231,7 @@ public class VertxServer extends BaseServer {
     private void route(RoutingContext routingContext) {
         debug(routingContext);
         m.core.http.Request request = formatRequest(routingContext);
-        String matchingPath = getMatchingPath(
-                routeHandlerMap.get(Method.valueOf(routingContext.request().rawMethod())),
+        String matchingPath = getMatchingPath(routeHandlerMap.get(Method.valueOf(routingContext.request().rawMethod())),
                 routingContext.normalisedPath(), formatParams(routingContext.pathParams()));
         if (matchingPath != null) {
             m.core.http.Response response = (m.core.http.Response) routeHandlerMap

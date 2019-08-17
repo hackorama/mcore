@@ -19,6 +19,14 @@ import m.core.http.Method;
 import m.core.http.Request;
 import m.core.http.Response;
 
+/**
+ * An HTTP server for REST API routes.
+ * <p>
+ * Implements {@link Server} common functionalities for all subclasses.
+ *
+ * The implementing subclasses should provide the server initialization and API
+ * route handling.
+ */
 public abstract class BaseServer implements Server {
 
     protected String host = "0.0.0.0";
@@ -27,20 +35,41 @@ public abstract class BaseServer implements Server {
     protected int port = 8080;
     protected Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap = new HashMap<>();
 
+    /**
+     * Constructs a server with default properties.
+     */
     public BaseServer() {
         init();
     }
 
+    /**
+     * Constructs a server with specified name.
+     *
+     * @param name the server name
+     */
     public BaseServer(String name) {
         this();
         this.name = name;
     }
 
+    /**
+     * Constructs a server with specified name and port.
+     *
+     * @param name the server name
+     * @param port the port server listens on
+     */
     public BaseServer(String name, int port) {
         this(name);
         this.port = port;
     }
 
+    /**
+     * Constructs a server with specified name, host and port.
+     *
+     * @param name the server name
+     * @param host the host server listens on
+     * @param port the port server listens on
+     */
     public BaseServer(String name, String host, int port) {
         this(name, port);
         this.host = host;

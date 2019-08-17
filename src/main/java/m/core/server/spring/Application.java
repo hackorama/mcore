@@ -11,11 +11,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 // Disable auto configuration attempt (and failure exception logs) when Mongo driver is in path
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
-public class Application {
+class Application {
 
     private static ConfigurableApplicationContext context;
 
-    public static void start(int port) {
+    static void start(int port) {
         String[] args = {};
         SpringApplication app = new SpringApplication(Application.class);
         app.setBannerMode(Banner.Mode.OFF);
@@ -23,7 +23,7 @@ public class Application {
         context = app.run(args);
     }
 
-    public static void stop() {
+    static void stop() {
         if (context != null) {
             context.close();
         }
