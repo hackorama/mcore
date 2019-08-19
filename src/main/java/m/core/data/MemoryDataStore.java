@@ -1,6 +1,5 @@
 package m.core.data;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,14 +15,25 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class MemoryDataStore  implements DataStore {
+/**
+ * An in memory data-store.
+ *
+ * @see DataStore
+ *
+ * implNote Data is stored in memory and will not persist across application
+ *           restarts, useful for testing.
+ */
+public class MemoryDataStore implements DataStore {
 
     private static Logger logger = LoggerFactory.getLogger(MemoryDataStore.class);
 
-    Map<String, Map<String,String>> singleKeyStores = new HashMap<>();
-    Map<String, Multimap<String,String>> multiKeyStores = new HashMap<>();
+    Map<String, Map<String, String>> singleKeyStores = new HashMap<>();
+    Map<String, Multimap<String, String>> multiKeyStores = new HashMap<>();
     Set<String> stores = new HashSet<>();
 
+    /**
+     * Constructs an in memory data-store.
+     */
     public MemoryDataStore() {
     }
 
@@ -49,7 +59,7 @@ public class MemoryDataStore  implements DataStore {
     @Override
     public List<String> get(String store) {
         if (singleKeyStores.containsKey(store)) {
-            return  new ArrayList<String>(singleKeyStores.get(store).values());
+            return new ArrayList<String>(singleKeyStores.get(store).values());
         } else if (multiKeyStores.containsKey(store)) {
             return new ArrayList<String>(multiKeyStores.get(store).values());
         }
@@ -68,9 +78,11 @@ public class MemoryDataStore  implements DataStore {
     @Override
     public List<String> getByValue(String store, String value) {
         if (singleKeyStores.containsKey(store)) {
-            return singleKeyStores.get(store).entrySet().stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).collect(Collectors.toList());
+            return singleKeyStores.get(store).entrySet().stream().filter(e -> e.getValue().equals(value))
+                    .map(Entry::getKey).collect(Collectors.toList());
         } else if (multiKeyStores.containsKey(store)) {
-            return multiKeyStores.get(store).entries().stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).collect(Collectors.toList());
+            return multiKeyStores.get(store).entries().stream().filter(e -> e.getValue().equals(value))
+                    .map(Entry::getKey).collect(Collectors.toList());
         }
         logger.warn("Not a valid data store {}", store);
         return new ArrayList<>();
@@ -87,8 +99,8 @@ public class MemoryDataStore  implements DataStore {
 
     @Override
     public void put(String store, String key, String value) {
-        if(!singleKeyStores.containsKey(store)) {
-            if(multiKeyStores.containsKey(store)) {
+        if (!singleKeyStores.containsKey(store)) {
+            if (multiKeyStores.containsKey(store)) {
                 throw new RuntimeException("Another multi key store already exists with the same name " + store);
             }
             logger.info("Created data store {}", store);

@@ -19,10 +19,13 @@ import org.slf4j.LoggerFactory;
 import m.core.data.DataStore;
 
 /**
- * DataStore implementation using JDBC
+ * A JDBC based data-store.
  *
- * @author Kishan Thomas (kishan.thomas@gmail.com)
+ * @see DataStore
  *
+ * implNote This implementation tries to use standard SQL where possible
+ *           minimizing Database specific variations. Validated with PostgreSQL,
+ *           MySQL, SQLite, H2 and HSQL.
  */
 public class JDBCDataStore implements DataStore {
 
@@ -38,18 +41,46 @@ public class JDBCDataStore implements DataStore {
     private Connection conn;
     private boolean usingPostgresql;
 
+    /**
+     * Constructs a JDBC data-store with default properties.
+     *
+     * @throws SQLException if a database access error occurs
+     */
     public JDBCDataStore() throws SQLException {
         this(DEFAULT_URL);
     }
 
+    /**
+     * Constructs a JDBC data-store with specified JDBC connection URL.
+     *
+     * @param url the JDBC connection URL
+     * @throws SQLException if a database access error occurs
+     */
     public JDBCDataStore(String url) throws SQLException {
         this(url, DEFAULT_DRIVER);
     }
 
+    /**
+     * Constructs a JDBC data-store with specified JDBC connection URL and driver.
+     *
+     * @param url    the JDBC connection URL
+     * @param driver the JDBC database driver
+     * @throws SQLException if a database access error occurs
+     */
     public JDBCDataStore(String url, String driver) throws SQLException {
         connect(url, driver);
     }
 
+    /**
+     * Constructs a JDBC data-store with specified JDBC connection URL, driver and
+     * credentials.
+     *
+     * @param url      the JDBC connection URL
+     * @param driver   the JDBC database driver
+     * @param user     the JDBC connection username
+     * @param password the JDBC connection password
+     * @throws SQLException if a database access error occurs
+     */
     public JDBCDataStore(String url, String driver, String user, String password) throws SQLException {
         connect(url, driver, user, password);
     }
@@ -67,7 +98,8 @@ public class JDBCDataStore implements DataStore {
         DbUtils.loadDriver(driver);
         conn = (user == null || password == null) ? DriverManager.getConnection(url)
                 : DriverManager.getConnection(url, user, password);
-        logger.info("Using Database {} {}", conn.getMetaData().getDatabaseProductName(), conn.getMetaData().getDatabaseProductVersion());
+        logger.info("Using Database {} {}", conn.getMetaData().getDatabaseProductName(),
+                conn.getMetaData().getDatabaseProductVersion());
         usingPostgresql = conn.getMetaData().getURL().toLowerCase().contains("postgresql"); // TODO improve
     }
 

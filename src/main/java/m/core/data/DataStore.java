@@ -12,7 +12,7 @@ import m.core.data.queue.DataQueue;
  * A key value data-store.
  * <p>
  *
- * Both key and value are of {@code String} type.
+ * The keys and values of this data-store are of {@code String} type.
  *
  * Each store (table) in this data-store (database) is identified by a unique
  * name.
@@ -23,7 +23,6 @@ import m.core.data.queue.DataQueue;
  * {@link DataStore#get(String, String)} and
  * {@link DataStore#put(String, String, String)} operates like a regular single
  * value per key {@code Map}.
- * <p>
  * <ul>
  * <li>{@code get} returns a single matching value
  * <li>{@code put} adds a new value for the key, replaces any existing value for
@@ -32,7 +31,6 @@ import m.core.data.queue.DataQueue;
  * {@link DataStore#getMulti(String, String)} and
  * {@link DataStore#putMulti(String, String, String)} operates like a multiple
  * values per key {@code Multimap}.
- * <p>
  * <ul>
  * <li>{@code getMultiKey} returns a {@code List} of matching values
  * <li>{@code putMutiKey} adds a new value for the key, without replacing any
@@ -52,9 +50,7 @@ import m.core.data.queue.DataQueue;
  * {@code putMulti} any attempt to do a regular {@code put} on that store will
  * cause a {@code RunTimeException}.
  *
- * @see https://en.wikipedia.org/wiki/Multimap
- *
- * @implSpec Implementations of this data-store should provide the necessary
+ * implSpec Implementations of this data-store should provide the necessary
  *           access methods when leveraging an existing database system, and
  *           should clean up any resources in {@link DataStore#close()}.
  */
@@ -86,8 +82,8 @@ public interface DataStore {
     /**
      * Closes this data-store.
      * <p>
-     * Closes all open resources (file handles or network connections) of this data
-     * store.
+     * Closes all open resources (file handles or network connections) of this
+     * data-store.
      */
     public void close();
 
@@ -140,8 +136,8 @@ public interface DataStore {
     public Set<String> getKeys(String store);
 
     /**
-     * Returns all the values for the specified key of the specified
-     * {@code Mutimap} store in this data-store.
+     * Returns all the values for the specified key of the specified {@code Mutimap}
+     * store in this data-store.
      *
      * @param store the store name
      * @param key   the key name

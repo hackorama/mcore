@@ -19,6 +19,13 @@ import m.core.data.DataStore;
 import m.core.data.cache.DataCache;
 import m.core.data.queue.DataQueue;
 
+/**
+ * A Redis based data-store, data-cache and data-queue.
+ *
+ * @see DataStore
+ * @see DataCache
+ * @see DataQueue
+ */
 public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisDataStoreCacheQueue.class);
@@ -26,14 +33,31 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     private Config config;
     private RedissonClient client;
 
+    /**
+     * Constructs a Redis data-store with default properties that is also a
+     * data-cache and data-queue.
+     */
     public RedisDataStoreCacheQueue() {
         client = Redisson.create();
     }
 
+    /**
+     * Constructs a Redis data-store with specified host name that is also a
+     * data-cache and data-queue.
+     *
+     * @param host the host name
+     */
     public RedisDataStoreCacheQueue(String host) {
         this(host, REDIS_DEFAULT_PORT);
     }
 
+    /**
+     * Constructs a Redis data-store with specified host name and port, that is also
+     * a data-cache and data-queue.
+     *
+     * @param host the host name
+     * @param port the port
+     */
     public RedisDataStoreCacheQueue(String host, int port) {
         config = new Config();
         config.useSingleServer().setAddress(host + ":" + port);

@@ -18,19 +18,27 @@ import org.mapdb.serializer.SerializerArrayTuple;
 import m.core.data.DataStore;
 
 /**
+ * A MapDB based data-store.
  *
- * TODO: Implement a data store using MapDB http://www.mapdb.org/
- *
+ * @see DataStore
  */
 public class MapdbDataStore implements DataStore {
 
     private DB db;
     private Set<String> multiKeyStoreNames = new HashSet<>();
 
+    /**
+     * Constructs a MapDB data-store with default properties.
+     */
     public MapdbDataStore() {
         db = DBMaker.memoryDB().make();
     }
 
+    /**
+     * Constructs a MapDB data-store with specified db file.
+     *
+     * @param dbFile the db file
+     */
     public MapdbDataStore(String dbFile) {
         db = DBMaker.fileDB(dbFile).make();
     }
@@ -170,7 +178,7 @@ public class MapdbDataStore implements DataStore {
 
     @Override
     public void close() {
-        if(db != null) {
+        if (db != null) {
             db.close();
         }
     }
