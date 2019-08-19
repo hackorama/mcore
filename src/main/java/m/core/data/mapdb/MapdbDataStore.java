@@ -113,7 +113,7 @@ public class MapdbDataStore implements DataStore {
     }
 
     @Override
-    public List<String> getMultiKey(String store, String key) {
+    public List<String> getMulti(String store, String key) {
         try {
             SortedSet<Object[]> keyValueSet = ((NavigableSet<Object[]>) db.treeSet(store)
                     .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).open())
@@ -134,7 +134,7 @@ public class MapdbDataStore implements DataStore {
     }
 
     @Override
-    public void putMultiKey(String store, String key, String value) {
+    public void putMulti(String store, String key, String value) {
         ((NavigableSet<Object[]>) db.treeSet(store)
                 .serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).createOrOpen())
                         .add(new Object[] { key, value });
@@ -146,7 +146,7 @@ public class MapdbDataStore implements DataStore {
         try {
             if (multiKeyStoreNames.contains(store)) {
                 // TODO Check MapDB code/doc for more efficient method
-                getMultiKey(store, key).forEach(value -> {
+                getMulti(store, key).forEach(value -> {
                     remove(store, key, value);
                 });
             } else {

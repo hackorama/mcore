@@ -77,7 +77,7 @@ public class MemoryDataStore  implements DataStore {
     }
 
     @Override
-    public List<String> getMultiKey(String store, String key) {
+    public List<String> getMulti(String store, String key) {
         if (multiKeyStores.containsKey(store)) {
             return (List<String>) multiKeyStores.get(store).get(key);
         }
@@ -98,7 +98,7 @@ public class MemoryDataStore  implements DataStore {
     }
 
     @Override
-    public void putMultiKey(String store, String key, String value) {
+    public void putMulti(String store, String key, String value) {
         if (!multiKeyStores.containsKey(store)) {
             if (singleKeyStores.containsKey(store)) {
                 throw new RuntimeException("Another store already exists with the same name " + store);

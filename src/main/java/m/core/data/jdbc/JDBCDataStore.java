@@ -179,7 +179,7 @@ public class JDBCDataStore implements DataStore {
     }
 
     @Override
-    public List<String> getMultiKey(String store, String key) {
+    public List<String> getMulti(String store, String key) {
         List<String> resultList = new ArrayList<>();
         if (!ifTableExists(store)) {
             return resultList; // TODO info log
@@ -233,7 +233,7 @@ public class JDBCDataStore implements DataStore {
     }
 
     @Override
-    public void putMultiKey(String store, String key, String value) {
+    public void putMulti(String store, String key, String value) {
         createMultiTable(store);
         insert(store, key, value);
     }

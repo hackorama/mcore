@@ -142,7 +142,7 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     }
 
     @Override
-    public List<String> getMultiKey(String store, String key) {
+    public List<String> getMulti(String store, String key) {
         RSetMultimap<String, String> multimap = client.getSetMultimap(store);
         logger.debug("MULTI GET {} : {}", formatKey(store, key), multimap.get(key));
         return new ArrayList<String>(multimap.get(key));
@@ -162,7 +162,7 @@ public class RedisDataStoreCacheQueue implements DataStore, DataCache, DataQueue
     }
 
     @Override
-    public void putMultiKey(String store, String key, String value) {
+    public void putMulti(String store, String key, String value) {
         logger.debug("MULTI PUT {} : {}", formatKey(store, key), value);
         RSetMultimap<String, String> multimap = client.getSetMultimap(store);
         multimap.put(key, value);

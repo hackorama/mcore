@@ -40,7 +40,7 @@ public class WorkspaceService extends Service {
         String groupId = request.getParam("groupid");
         if (workspaceId != null && groupId != null && dataStore.contains(WORKSPACE_STORE, workspaceId)
                 && !serviceAvailableAndIsAnInvalidGroup(groupId)) {
-            dataStore.putMultiKey(WORKSPACES_GROUPS_STORE, workspaceId, groupId); // Many to Many
+            dataStore.putMulti(WORKSPACES_GROUPS_STORE, workspaceId, groupId); // Many to Many
             return new Response(
                     Util.toJsonString("message", "Added Group " + groupId + " to Workspace " + workspaceId));
         }
@@ -128,7 +128,7 @@ public class WorkspaceService extends Service {
 
     private Workspace insertOwnerGroups(Workspace workspace) {
         List<String> notFoundGroups = new ArrayList<>();
-        dataStore.getMultiKey(WORKSPACES_GROUPS_STORE, workspace.getId()).forEach(groupId -> {
+        dataStore.getMulti(WORKSPACES_GROUPS_STORE, workspace.getId()).forEach(groupId -> {
             Group group = getGroup(groupId);
             if (group != null) { // If group service available and found a valid group insert it
                 workspace.getOwners().add(group);

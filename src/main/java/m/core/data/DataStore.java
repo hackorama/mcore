@@ -17,26 +17,46 @@ import m.core.data.queue.DataQueue;
  * Each store (table) in this data-store (database) is identified by a unique
  * name.
  *
- * Stores of this data-store allow duplicate keys so stores operate like
- * multimaps - maps with more then one value for a key.
+ * Stores of this data-store also allows duplicate keys so stores operate like
+ * {@code Multimaps} (maps with more then one value for a key).
  * <p>
  * {@link DataStore#get(String, String)} and
- * {@link DataStore#put(String, String, String)} operates like regular
- * {@code Map}.
+ * {@link DataStore#put(String, String, String)} operates like a regular single
+ * value per key {@code Map}.
  * <p>
  * <ul>
  * <li>{@code get} returns a single matching value
- * <li>{@code put} adds a new value, replaces any existing value
+ * <li>{@code put} adds a new value for the key, replaces any existing value for
+ * the key
  * </ul>
- * {@link DataStore#getMultiKey(String, String)} and
- * {@link DataStore#putMultiKey(String, String, String)} operates like a
- * {@code MultiMap}.
+ * {@link DataStore#getMulti(String, String)} and
+ * {@link DataStore#putMulti(String, String, String)} operates like a multiple
+ * values per key {@code Multimap}.
  * <p>
  * <ul>
- * <li>{@code getMultiKey} returns list of matching values
- * <li>{@code putMutiKey} adds a new value, without replacing any existing values
+ * <li>{@code getMultiKey} returns a {@code List} of matching values
+ * <li>{@code putMutiKey} adds a new value for the key, without replacing any
+ * existing values for the key
  * </ul>
  * <p>
+ * The stores get created on the first insertion of a key value.
+ *
+ * So {@code put} will initialize a regular single value per key store and
+ * {@code putMuti} will initialize a multiple values per key {@code Multimap}
+ * store.
+ * <p>
+ * After a store is initialized as a regular store using {@code put} any attempt
+ * to do a {@code putMuti} on that store will cause a {@code RunTimeException}.
+ *
+ * After a store once initialized as a {@code Multimap} store using
+ * {@code putMulti} any attempt to do a regular {@code put} on that store will
+ * cause a {@code RunTimeException}.
+ *
+ * @see https://en.wikipedia.org/wiki/Multimap
+ *
+ * @implSpec Implementations of this data-store should provide the necessary
+ *           access methods when leveraging an existing database system, and
+ *           should clean up any resources in {@link DataStore#close()}.
  */
 public interface DataStore {
 
@@ -65,6 +85,9 @@ public interface DataStore {
 
     /**
      * Closes this data-store.
+     * <p>
+     * Closes all open resources (file handles or network connections) of this data
+     * store.
      */
     public void close();
 
@@ -117,21 +140,21 @@ public interface DataStore {
     public Set<String> getKeys(String store);
 
     /**
-     * Returns all the values for the specified key of the specified store in this
-     * data-store.
-     * <p>
-     * This is the same as a multimap get operation.
+     * Returns all the values for the specified key of the specified
+     * {@code Mutimap} store in this data-store.
      *
      * @param store the store name
      * @param key   the key name
      * @return the values as {@code List} if the store and key exists, could be
      *         empty
      */
-    public List<String> getMultiKey(String store, String key);
+    public List<String> getMulti(String store, String key);
 
     /**
      * Stores the specified key and value (replacing any existing value) to the
      * specified store in this data-store.
+     * <p>
+     * The specified store will be created if it does not exist.
      *
      * @param store the store name
      * @param key   the key name
@@ -140,16 +163,20 @@ public interface DataStore {
     public void put(String store, String key, String value);
 
     /**
-     * Stores the specified key and value (without replacing any existing values) to
-     * the specified store in this data-store.
+     * Stores the specified key and value to the specified store as a
+     * {@code Multimap} in this data-store.
      * <p>
-     * This is the same as a multimap put operation.
+     * The value will be stored without replacing any existing values, allowing
+     * multiple values for a key.
+     * <p>
+     * The specified store will be created as a new {@code Multimap} store if it
+     * does not already exist.
      *
      * @param store the store name
      * @param key   the key name
      * @param value the value
      */
-    public void putMultiKey(String store, String key, String value);
+    public void putMulti(String store, String key, String value);
 
     /**
      * Removes the specified key and all matching values from the specified store in
