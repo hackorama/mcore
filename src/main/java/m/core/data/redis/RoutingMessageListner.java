@@ -6,7 +6,7 @@ import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingMessageListner implements MessageListener<String> {
+class RoutingMessageListner implements MessageListener<String> {
 
     private static final Logger logger = LoggerFactory.getLogger(RoutingMessageListner.class);
 
