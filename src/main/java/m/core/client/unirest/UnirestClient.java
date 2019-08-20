@@ -15,11 +15,18 @@ import m.core.common.Util;
 import m.core.config.Configuration;
 import m.core.http.Response;
 
+/**
+ * An HTTP client based on Unirest.
+ *
+ */
 public class UnirestClient implements Client {
 
     private static Logger logger = LoggerFactory.getLogger(UnirestClient.class);
     protected RequestConfig requestConfig;
 
+    /**
+     * Constructs a Unirest based HTTP client.
+     */
     public UnirestClient() {
         setTimeOuts(Configuration.clientConnectTimeoutMillis(), Configuration.clientSocketTimeoutMillis());
     }

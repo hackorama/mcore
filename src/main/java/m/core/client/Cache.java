@@ -1,19 +1,15 @@
 package m.core.client;
 
 /**
- * Client cache interface
- *
- * @author Kishan Thomas (kishan.thomas@gmail.com)
- *
+ *  An HTTP client cache.
  */
 public interface Cache {
+
     /**
-     * Set the cache count and object size
+     * Sets the specified count and size of this client cache.
      *
-     * @param count
-     *            Number of entries in the cache
-     * @param size
-     *            Maximum object size that can be cached
+     * @param maxEntryCount the maximum entries this cache can hold
+     * @param maxObjectSize  the maximum sized object in bytes this cache will accept
      */
-    public void setCountAndSize(int count, long size);
+    public void setCountAndSize(int maxEntryCount, long maxObjectSize);
 }

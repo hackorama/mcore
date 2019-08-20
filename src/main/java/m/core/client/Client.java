@@ -3,43 +3,46 @@ package m.core.client;
 import m.core.http.Response;
 
 /**
- * HTTP client interface
- *
- * @author Kishan Thomas (kishan.thomas@gmail.com)
- *
+ * An HTTP client.
+ * <p>
+ * A simple HTTP client to do basic {@code HTTP GET} and {@code HTTP POST}.
  */
 public interface Client {
 
     /**
-     * Get the response from the given URL as JSON, the default format
+     * Returns the {@code Response} from the specified URL using {@code HTTP GET}.
+     * <p>
+     * The {@link Response} body returned is expected to be JSON formatted by default.
      *
-     * @param url the URL to get the response from
+     * @param url the URL
      * @return the server response
      */
     public Response get(String url);
 
     /**
-     * Get the response from the given URL as String
+     * Returns the {@code Response} from the specified URL using {@code HTTP GET}.
+     * <p>
+     * The {@link Response} body will be in text format, does not have to be JSON formatted.
      *
-     * @param url the URL to get the response from
+     * @param url the URL
      * @return the server response
      */
     public Response getAsString(String url);
 
     /**
-     * Post a request to the given URL and get the response
+     * Returns the {@code Response} from the specified URL after sending a {@code Request} with the specified body using {@code HTTP POST}.
      *
-     * @param url  the URL to post the request get the response from
+     * @param url  the URL
      * @param body the request body
      * @return the server response
      */
     public Response post(String url, String body);
 
     /**
-     * Set the timeouts for the client
+     * Sets the specified connection timeouts for this client.
      *
-     * @param connectionTimeoutMilliSecs Connection timeout in milli seconds
-     * @param socketTimeoutMilliSecs     Socket timeout in milli seconds
+     * @param connectionTimeoutMilliSecs the connection timeout in milliseconds
+     * @param socketTimeoutMilliSecs     the socket timeout in milliseconds
      */
     public void setTimeOuts(int connectionTimeoutMilliSecs, int socketTimeoutMilliSecs);
 
