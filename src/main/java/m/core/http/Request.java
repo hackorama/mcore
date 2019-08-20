@@ -32,7 +32,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified parameter value of this request,
+     * Returns the specified parameter value of this request,
      *
      * @param name the parameter name
      * @return the parameter value, or null
@@ -42,7 +42,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified parameter value of this request.
+     * Returns the specified parameter value of this request.
      *
      * @param name         the parameter name.
      * @param defaultValue the default value
@@ -54,7 +54,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get all the parameters of this request.
+     * Returns all the parameters of this request.
      *
      * @return the parameters as a {@code Map} of named {@code Lists}
      */
@@ -73,7 +73,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get a single value for each parameters of this request.
+     * Returns a single value for each parameters of this request.
      * <p>
      * For parameters with multiple values for a name, the first value is returned.
      *
@@ -95,7 +95,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified path parameter value of this request.
+     * Returns the specified path parameter value of this request.
      *
      * @param name the path parameter name
      * @return the path parameter value, or null
@@ -105,7 +105,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified path parameter value of this request
+     * Returns the specified path parameter value of this request
      *
      * @param name         the path parameter name
      * @param defaultValue the default value
@@ -116,7 +116,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get all the path parameters of this request.
+     * Returns all the path parameters of this request.
      *
      * @return the path parameters as a {@code Map} of named {@code Lists}
      */
@@ -125,7 +125,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified query parameter value of this request.
+     * Returns the specified query parameter value of this request.
      *
      * @param name the query parameter name
      * @return the query parameter value, or null
@@ -135,7 +135,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the specified query parameter value of this request
+     * Returns the specified query parameter value of this request
      *
      * @param name         the query parameter name
      * @param defaultValue the default value
@@ -150,7 +150,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get all the query parameters of this request.
+     * Returns all the query parameters of this request.
      *
      * @return the query parameters as a {@code Map} of named {@code Lists}
      */
@@ -159,7 +159,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get all the specified query parameter values of this request
+     * Returns all the specified query parameter values of this request
      *
      * @param name the query parameter name
      * @return the query parameter values {@code List}, could be empty.
@@ -172,7 +172,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Get the session of the request.
+     * Returns the session of the request.
      *
      * @return the session
      */
@@ -181,7 +181,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set the body of this request.
+     * Sets the body of this request.
      *
      * @return this request
      */
@@ -192,7 +192,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set a cookie of this request.
+     * Sets a cookie of this request.
      *
      * @param cookie the cookie
      * @return this request
@@ -203,7 +203,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set a cookie of this request.
+     * Sets a cookie of this request.
      *
      * @param name   the cookie name
      * @param cookie the cookie
@@ -216,7 +216,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set cookies of this request.
+     * Sets cookies of this request.
      *
      * @param cookies the {@code Map} of named cookie {@code Lists}
      * @return this request
@@ -228,7 +228,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set cookies of this request.
+     * Sets cookies of this request.
      *
      * @param name    the cookie {@code List} name
      * @param cookies the cookie {@code List}
@@ -241,7 +241,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set a header of this request.
+     * Sets a header of this request.
      *
      * @param name  the header name
      * @param value the header value
@@ -254,7 +254,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set headers of this request.
+     * Sets headers of this request.
      *
      * @param headers the {@code Map} of named header {@code Lists}
      * @return this request
@@ -266,7 +266,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set headers of this request.
+     * Sets headers of this request.
      *
      * @param name    the header {@code List} name
      * @param headers the header {@code List}
@@ -279,7 +279,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set the path parameters of this request.
+     * Sets the path parameters of this request.
      *
      * @param params the path parameters {@code Map}
      * @return this request
@@ -290,7 +290,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set the query parameters of this request.
+     * Sets the query parameters of this request.
      *
      * @param queryParams the {@code Map} of named query parameter {@code Lists}
      * @return this request
@@ -301,7 +301,7 @@ public class Request extends RequestResponse {
     }
 
     /**
-     * Set the session of the request.
+     * Sets the session of the request.
      *
      * @param session the session
      * @return this request

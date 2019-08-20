@@ -1,0 +1,5 @@
+mCore micro services framework
+
+m.core.hackorama.com
+github.com/hackorama/mcore
+hackorama@hackorama.com

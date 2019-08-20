@@ -12,7 +12,7 @@ import java.util.function.Function;
  *
  * The channels get created on the first insertion of a message.
  *
- * implSpec The channel behavior for message retention, delete on consumption,
+ * @implSpec The channel behavior for message retention, delete on consumption,
  *           acknowledgments will depend on the underlying message queue
  *           implementation.
  */

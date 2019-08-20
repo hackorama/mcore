@@ -40,7 +40,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Get the status of the response.
+     * Returns the status of the response.
      *
      * @return the status of this response
      */
@@ -49,7 +49,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set the body of this response.
+     * Sets the body of this response.
      *
      * @return this response
      */
@@ -60,7 +60,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set a cookie of this response.
+     * Sets a cookie of this response.
      *
      * @param cookie the cookie
      * @return this response
@@ -71,7 +71,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set a cookie of this response.
+     * Sets a cookie of this response.
      *
      * @param name   the cookie name
      * @param cookie the cookie
@@ -84,7 +84,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set cookies of this response.
+     * Sets cookies of this response.
      *
      * @param cookies the {@code Map} of named cookie {@code Lists}
      * @return this response
@@ -96,7 +96,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set cookies of this response.
+     * Sets cookies of this response.
      *
      * @param name    the cookie {@code List} name
      * @param cookies the cookie {@code List}
@@ -109,7 +109,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set a header of this response.
+     * Sets a header of this response.
      *
      * @param name  the header name
      * @param value the header value
@@ -122,7 +122,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set headers of this response.
+     * Sets headers of this response.
      *
      * @param headers the {@code Map} of named header {@code Lists}
      * @return this response
@@ -134,7 +134,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set headers of this response.
+     * Sets headers of this response.
      *
      * @param name    the header {@code List} name
      * @param headers the header {@code List}
@@ -147,7 +147,7 @@ public class Response extends RequestResponse {
     }
 
     /**
-     * Set the status of the response.
+     * Sets the status of the response.
      *
      * @param status the status
      * @return this response

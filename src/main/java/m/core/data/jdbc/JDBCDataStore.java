@@ -23,7 +23,7 @@ import m.core.data.DataStore;
  *
  * @see DataStore
  *
- * implNote This implementation tries to use standard SQL where possible
+ * @implNote This implementation tries to use standard SQL where possible
  *           minimizing Database specific variations. Validated with PostgreSQL,
  *           MySQL, SQLite, H2 and HSQL.
  */

@@ -50,7 +50,7 @@ import m.core.data.queue.DataQueue;
  * {@code putMulti} any attempt to do a regular {@code put} on that store will
  * cause a {@code RunTimeException}.
  *
- * implSpec Implementations of this data-store should provide the necessary
+ * @implSpec Implementations of this data-store should provide the necessary
  *           access methods when leveraging an existing database system, and
  *           should clean up any resources in {@link DataStore#close()}.
  */

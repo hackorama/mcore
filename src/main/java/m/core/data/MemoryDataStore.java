@@ -20,7 +20,7 @@ import com.google.common.collect.Multimap;
  *
  * @see DataStore
  *
- * implNote Data is stored in memory and will not persist across application
+ * @implNote Data is stored in memory and will not persist across application
  *           restarts, useful for testing.
  */
 public class MemoryDataStore implements DataStore {

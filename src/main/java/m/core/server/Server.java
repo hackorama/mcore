@@ -24,28 +24,28 @@ import m.core.http.Response;
 public interface Server {
 
     /**
-     * Get the host this server is listening on.
+     * Returns the host this server is listening on.
      *
      * @return the host server listens on
      */
     public String getHost();
 
     /**
-     * Get the name of this server.
+     * Returns the name of this server.
      *
      * @return the server name
      */
     public String getName();
 
     /**
-     * Get the port this server is listening on.
+     * Returns the port this server is listening on.
      *
      * @return the port server listens on
      */
     public int getPort();
 
     /**
-     * Set an API route handled by this server.
+     * Sets an API route handled by this server.
      * <p>
      * The routes are set to a handler method of a {@link m.core.service.Service}.
      *
@@ -56,7 +56,7 @@ public interface Server {
     public void setRoutes(Method method, String path, Function<Request, Response> handler);
 
     /**
-     * Set a group of API routes handled by this server.
+     * Sets a group of API routes handled by this server.
      * <p>
      * The routes are set to handler methods of a {@link m.core.service.Service}.
      *
@@ -65,14 +65,14 @@ public interface Server {
     public void setRoutes(Map<Method, Map<String, Function<Request, Response>>> routeHandlerMap);
 
     /**
-     * Start the server.
+     * Starts the server.
      *
      * @return  true if started successfully, false otherwise
      */
     public boolean start();
 
     /**
-     * Stop the server.
+     * Stops the server.
      */
     public void stop();
 
