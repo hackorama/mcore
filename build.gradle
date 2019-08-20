@@ -7,7 +7,7 @@ plugins {
     id 'com.diffplug.gradle.spotless' version '3.24.1' apply false
     id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
     id 'com.github.spotbugs' version '2.0.0' apply false
-    id 'org.gradle.playframework' version '0.6' // TODO: Does not support Play 2.7.x
+    id 'org.gradle.playframework' version '0.8'
 }
 
 allprojects {
@@ -49,8 +49,8 @@ allprojects {
 sourceCompatibility = 8
 targetCompatibility = 8
 
-// Force maven local publish and code coverage after tests
-check.dependsOn jacocoTestReport, publishToMavenLocal
+// Force code coverage, java doc, maven local publish after tests
+check.dependsOn jacocoTestReport, javadoc, publishToMavenLocal
 
 repositories {
     // Play Framework https://gradle.github.io/playframework/#applying_the_plugin
@@ -126,6 +126,8 @@ publishing {
             artifactId = 'mcore-all'
             version = '0.1.1'
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name = 'mCore'
                 description = 'Microservices Framework'
@@ -151,15 +153,6 @@ publishing {
     }
 }
 
-// Play Framework (https://gradle.github.io/playframework/#targeting-play-version)
-play {
-    platform {
-        playVersion = '2.6.15'
-        scalaVersion = '2.12'
-        javaVersion = JavaVersion.VERSION_1_8
-    }
-}
-
 task testSpring(type: Test) {
     environment 'SERVER_TYPE', 'SPRING' // Repeat all the tests with Spring server
     dependsOn cleanTest
@@ -174,7 +167,6 @@ task testPlay(type: Test) {
     environment 'SERVER_TYPE', 'PLAY' // Repeat all the tests with Play server
     dependsOn cleanTest
 }
-
 
 jacoco {
     toolVersion = "0.8.2"
@@ -204,4 +196,8 @@ pmd {
     ignoreFailures = true
     ruleSetFiles = files(file("config/pmd/ruleset.xml"))
     ruleSets = []
+}
+
+javadoc {
+    options.tags 'implSpec:a:Implementation Specification:', 'implNote:a:Implementation Note:'
 }
