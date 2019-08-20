@@ -17,28 +17,56 @@ import m.core.http.Request;
 import m.core.http.Response;
 import m.core.http.Session;
 
+/**
+ * A helper utility for debugging common HTTP objects.
+ * <p>
+ * Can print to console or log using the configured {@link Logger}.
+ *
+ * Can be turned of/off using {@link Debug#enable()}/{@link Debug#disable()}.
+ */
 public class Debug {
 
     private static boolean enabled = true;
     private static Logger logger = LoggerFactory.getLogger(Debug.class);
 
+    /**
+     * Disables both logging and console output of this debug helper utility.
+     * <p>
+     * Both logging and console output are enabled by default.
+     */
     public static void disable() {
         Debug.enabled = false;
     }
 
+    /**
+     * Enables both logging and console output of this debug helper utility.
+     * <p>
+     * Both logging and console output are enabled by default. Use this if it was
+     * disabled using {@link Debug#disable()}
+     */
     public static void enable() {
         Debug.enabled = true;
     }
 
+    /**
+     * Checks if logging and console output of this debug helper utility is enabled.
+     *
+     * @return true if enables, false otherwise
+     */
     public static boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * Logs the content of the specified cookie store.
+     *
+     * @param cookieStore the cookie store
+     */
     public static void log(BasicCookieStore cookieStore) {
         printOrLog(cookieStore, false);
     }
 
-    public static void log(boolean console) {
+    private static void log(boolean console) {
         if (!enabled) {
             return;
         }
@@ -49,49 +77,99 @@ public class Debug {
         }
     }
 
+    /**
+     * Logs the specified cookie.
+     *
+     * @param cookie the cookie
+     */
     public static void log(Cookie cookie) {
         printOrLog(cookie, false);
     }
 
+    /**
+     * Logs the specified HTTP servlet request.
+     *
+     * @param request the HTTP servlet request
+     */
     public static void log(HttpServletRequest request) {
         printOrLog(request, false);
     }
 
+    /**
+     * Logs the specified list of Apache HTTP cookies.
+     *
+     * @param cookies the list of cookies
+     */
     public static void log(List<org.apache.http.cookie.Cookie> cookies) {
         printOrLog(cookies, false);
     }
 
+    /**
+     * Logs the specified cookie from Apache HTTP libraray.
+     *
+     * @param cookie the cookie
+     */
     public static void log(org.apache.http.cookie.Cookie cookie) {
         printOrLog(cookie, false);
     }
 
+    /**
+     * Logs the specified cookie from Play framework.
+     *
+     * @param cookie the cookie
+     */
     public static void log(play.mvc.Http.Cookie cookie) {
         printOrLog(cookie, false);
     }
 
+    /**
+     * Logs the specified HTTP request.
+     *
+     * @param request the request
+     */
     public static void log(Request request) {
         printOrLog(request, false);
     }
 
+    /**
+     * Logs the specified HTTP response.
+     *
+     * @param response the response
+     */
     public static void log(Response response) {
         printOrLog(response, false);
     }
 
+    /**
+     * Logs the specified action result from Play framework.
+     *
+     * @param result the action result.
+     */
     public static void log(Result result) {
         printOrLog(result, false);
 
     }
 
+    /**
+     * Logs the specified HTTP session.
+     *
+     * @param session the session
+     */
     public static void log(Session session) {
         printOrLog(session, false);
 
     }
 
+    /**
+     * Logs the specified HTTP request from Spark java framework.
+     *
+     * @param request the request
+     */
     public static void log(spark.Request request) {
         printOrLog(request, false);
     }
 
-    public static void log(String line, boolean console) {
+    private static void log(String line, boolean console) {
         if (!enabled) {
             return;
         }
@@ -102,46 +180,101 @@ public class Debug {
         }
     }
 
+    /**
+     * Prints the content of the specified cookie store.
+     *
+     * @param cookieStore the cookie store
+     */
     public static void print(BasicCookieStore cookieStore) {
         printOrLog(cookieStore, true);
     }
 
+    /**
+     * Prints the specified cookie.
+     *
+     * @param cookie the cookie
+     */
     public static void print(Cookie cookie) {
         printOrLog(cookie, true);
     }
 
+    /**
+     * Prints the specified HTTP servlet request.
+     *
+     * @param request the HTTP servlet request
+     */
     public static void print(HttpServletRequest request) {
         printOrLog(request, true);
     }
 
+    /**
+     * Prints the specified list of Apache HTTP cookies.
+     *
+     * @param cookies the list of cookies
+     */
     public static void print(List<org.apache.http.cookie.Cookie> cookies) {
         printOrLog(cookies, true);
     }
 
+    /**
+     * Prints the specified cookie from Apache HTTP library.
+     *
+     * @param cookie the cookie
+     */
     public static void print(org.apache.http.cookie.Cookie cookie) {
         printOrLog(cookie, true);
     }
 
+    /**
+     * Prints the specified cookie from Play framework.
+     *
+     * @param cookie the cookie
+     */
     public static void print(play.mvc.Http.Cookie cookie) {
         printOrLog(cookie, true);
     }
 
+    /**
+     * Prints the specified HTTP request.
+     *
+     * @param request the request
+     */
     public static void print(Request request) {
         printOrLog(request, true);
     }
 
+    /**
+     * Prints the specified HTTP response.
+     *
+     * @param response the response
+     */
     public static void print(Response response) {
         printOrLog(response, true);
     }
 
+    /**
+     * Prints the specified action result from Play framework.
+     *
+     * @param result the action result.
+     */
     public static void print(Result result) {
         printOrLog(result, true);
     }
 
+    /**
+     * Prints the specified HTTP session.
+     *
+     * @param session the session
+     */
     public static void print(Session session) {
         printOrLog(session, true);
     }
 
+    /**
+     * Prints the specified HTTP request from Spark java framework.
+     *
+     * @param request the request
+     */
     public static void print(spark.Request request) {
         printOrLog(request, true);
     }
