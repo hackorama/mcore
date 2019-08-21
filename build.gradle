@@ -1,9 +1,9 @@
 plugins {
     id 'java-library'
     id 'jacoco'
-    id 'maven'
     id 'maven-publish'
     id 'pmd'
+    id 'signing'
     id 'com.diffplug.gradle.spotless' version '3.24.1' apply false
     id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
     id 'com.github.spotbugs' version '2.0.0' apply false
@@ -48,6 +48,9 @@ allprojects {
 
 sourceCompatibility = 8
 targetCompatibility = 8
+
+// Set a default version if not set in gradle.properties or command line
+version = (findProperty('version') == 'unspecified') ? '0.1.0-DEV-SNAPSHOT' : version
 
 // Force code coverage, java doc, maven local publish after tests
 check.dependsOn jacocoTestReport, javadoc, publishToMavenLocal
@@ -121,10 +124,9 @@ task javadocJar(type: Jar) {
 // Maven publishing (Working around scope issue : https://github.com/gradle/gradle/issues/1118)
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             groupId = 'm.core'
             artifactId = 'mcore-all'
-            version = '0.1.1'
             from components.java
             artifact sourcesJar
             artifact javadocJar
@@ -146,10 +148,27 @@ publishing {
                     }
                 }
                 scm {
+                    connection = 'scm:git:git://github.com/hackorama/mcore.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:hackorama/mcore.git'
                     url = 'https://github.com/hackorama/mcore'
                 }
             }
         }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "$buildDir/repos/releases"
+            def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+            url = version.contains('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    // Allow Travis builds that do not have the signing key
+    // to use local maven publish for sub project tests
+    if(!project.version.contains('DEV')) {
+        sign publishing.publications.mavenJava
     }
 }
 

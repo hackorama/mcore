@@ -1,5 +1,5 @@
 dependencies {
-    implementation 'm.core:mcore-all:0.1.1'
+    implementation 'm.core:mcore-all:0.1.0-DEV-SNAPSHOT'
 }
 
 mainClassName = 'm.core.samples.Demo'
