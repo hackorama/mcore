@@ -1,6 +1,7 @@
 plugins {
-    id 'java-library'
     id 'jacoco'
+    id 'java-library'
+    id 'maven'
     id 'maven-publish'
     id 'pmd'
     id 'signing'
@@ -8,6 +9,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
     id 'com.github.spotbugs' version '2.0.0' apply false
     id 'org.gradle.playframework' version '0.8'
+    id 'com.jfrog.bintray' version '1.8.4'
 }
 
 allprojects {
@@ -131,7 +133,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             pom {
-                name = 'mCore'
+                name = 'mcore'
                 description = 'Microservices Framework'
                 url = 'm.core.hackorama.com'
                 licenses {
@@ -157,10 +159,24 @@ publishing {
     }
     repositories {
         maven {
+            // These local locations are used for dev build process and testing
+            // Actual publishing happens through bintray to jcenter/mavencentral
             def releasesRepoUrl = "$buildDir/repos/releases"
             def snapshotsRepoUrl = "$buildDir/repos/snapshots"
             url = version.contains('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['mavenJava']
+    pkg {
+        name = "mcore"
+        repo = "mcore"
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/hackorama/mcore'
     }
 }
 
