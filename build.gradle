@@ -176,13 +176,16 @@ publishing {
     }
 }
 
-// TODO: Signature upload is broken, so use 'publish' instead of 'bintrayUpload'
+// TODO: Upload is broken for .asc signature files for bintray plugin
+// So 'bintrayUpload' is used only for the first upload to create the package
+// then 'publish' is used for updates with signatures
+// https://github.com/bintray/gradle-bintray-plugin/issues/255
 bintray {
     user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
     key = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
     publications = ['mavenJava']
     publish = false // Manually publish at bintray.com
-    filesSpec { // https://github.com/bintray/gradle-bintray-plugin/issues/255
+    filesSpec { // TODO: fix signature upload workaround
         from("${buildDir}/libs") {
             include '*.jar.asc'
         }
