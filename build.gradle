@@ -133,7 +133,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             pom {
-                name = 'mcore'
+                name = 'mcore-all'
                 description = 'Microservices Framework'
                 url = 'm.core.hackorama.com'
                 licenses {
@@ -159,27 +159,52 @@ publishing {
     }
     repositories {
         maven {
-            // These local locations are used for dev build process and testing
-            // Actual publishing happens through bintray to jcenter/mavencentral
             def releasesRepoUrl = "$buildDir/repos/releases"
             def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+            if(!project.version.contains('DEV')) { // Dev builds are not uploaded
+                name = 'bintray'
+                credentials {
+                    username = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
+                    password = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
+                }
+                // For auto publishing add ;publish=1 to URL, or publish manually at bintray.com
+                releasesRepoUrl = 'https://api.bintray.com/maven/hackorama/mcore/mcore-all/'
+                // TODO snapshotsRepoUrl = https://www.jfrog.com/confluence/display/RTF/Deploying+Snapshots+to+oss.jfrog.org
+            }
             url = version.contains('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
 }
 
+// TODO: Signature upload is broken, so use 'publish' instead of 'bintrayUpload'
 bintray {
     user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
     key = project.hasProperty('bintray.apiKey') ? project.property('bintray.apiKey') : System.getenv('BINTRAY_API_KEY')
     publications = ['mavenJava']
+    publish = false // Manually publish at bintray.com
+    filesSpec { // https://github.com/bintray/gradle-bintray-plugin/issues/255
+        from("${buildDir}/libs") {
+            include '*.jar.asc'
+        }
+        from("${buildDir}/publications/mavenJava") {
+            include 'pom-default.xml.asc'
+            rename 'pom-default.xml.asc', "${project.name}-${project.version}.pom.asc"
+        }
+        into "${project.group.replaceAll(/\./, '/')}/${project.name}/${project.version}"
+    }
     pkg {
-        name = "mcore"
-        repo = "mcore"
+        repo = 'mcore'
+        name = 'mcore-all'
+        desc = 'mCore Microservices Framework'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/hackorama/mcore'
     }
 }
 
+// Set these in ~/.gradle/gradle.properties or as -P
+//     signing.secretKeyRingFile : full path to .gnupg/secring.gpg
+//     signing.keyId             : gpg --list-keys
+//     signing.password          : key passphrase
 signing {
     // Allow Travis builds that do not have the signing key
     // to use local maven publish for sub project tests
