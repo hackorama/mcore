@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'm.core:mcore-all:0.1.0-DEV-SNAPSHOT'
+    implementation 'com.hackorama.m.core:mcore:0.1.0-DEV-SNAPSHOT'
     testImplementation 'junit:junit:4.12'
 }
 
