@@ -13,7 +13,6 @@ plugins {
 }
 
 allprojects {
-    apply plugin: 'application'
     apply plugin: 'java'
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -51,8 +50,9 @@ allprojects {
 sourceCompatibility = 8
 targetCompatibility = 8
 
-// Set a default version if not set in gradle.properties or command line
-version = (findProperty('version') == 'unspecified') ? '0.1.0-DEV-SNAPSHOT' : version
+// Set a default dev snapshot version if mcore.version is not set
+// in ~/.gradle/gradle.properties or ./gradle.properties or in command line as -Pmcore.version=1.2.3
+version = project.hasProperty('mcore.version') ? project['mcore.version'] : '0.1.1-DEV-SNAPSHOT'
 
 // Force code coverage, java doc, maven local publish after tests
 check.dependsOn jacocoTestReport, javadoc, publishToMavenLocal
