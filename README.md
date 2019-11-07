@@ -36,7 +36,7 @@ Signed with PGP key: D791 8556 0576 7757 6235 6402 6C13 01F5 1B93 B750 mcore@hac
 
 ### Simple service
 
-See [HelloService.java](mcore/blob/master/samples/src/main/java/m/core/samples/HelloService.java), more [samples](mcore/blob/master/samples/src/main/java/m/core/samples).
+See [HelloService.java](samples/src/main/java/m/core/samples/HelloService.java), more [samples](samples/src/main/java/m/core/samples).
 
 ```
 dependencies {
@@ -63,7 +63,7 @@ new Service() {
 
 ### Launching service using different frameworks
 
-See [UserService.java](https://github.com/hackorama/mcore/blob/master/samples/src/main/java/m/core/samples/UserService.java)
+See [UserService.java](samples/src/main/java/m/core/samples/UserService.java)
 
 Service started with Sparkjava server and an in-memory database.
 
@@ -81,7 +81,7 @@ Service userService = new UserService().configureUsing(new SpringServer("User Se
 
 For this there is no service code changes needed.
 
-If you check the [UserService.java](https://github.com/hackorama/mcore/blob/master/samples/src/main/java/m/core/samples/UserService.java) there is no framework specific (Sparkjava/Spring Flux) packages imported into the service class, providing complete separation of service from the underlying frameworks.
+If you check the [UserService.java](samples/src/main/java/m/core/samples/UserService.java) there is no framework specific (Sparkjava/Spring Flux) packages imported into the service class, providing complete separation of service from the underlying frameworks.
 
 
 
