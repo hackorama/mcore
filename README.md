@@ -1,144 +1,87 @@
-# MCore
+# m.core Microservices Framework
 
 [![Build Status](https://travis-ci.org/hackorama/mcore.svg?branch=master)](https://travis-ci.org/hackorama/mcore)
 [![Code Cov](https://codecov.io/gh/hackorama/mcore/branch/master/graph/badge.svg)](https://codecov.io/gh/hackorama/mcore)
 
->[Demo](https://github.com/hackorama/mcore-demo)
+A microservices framework with complete separation of service code from underlying frameworks which can be interchanged without service code changes.
 
-Distributed Micro Service Design
+- Complete separation of each service from underlying web framework and data store framework through interfaces.
+- So different web frameworks and data stores can be easily used without changing the service code at all.
+- Services are composed fluently by injecting web, data, queue, cache and client implementation as needed.
+- Instead of auto incrementing sequence auto generated UUID is used for keys (to support distributed servers).
 
-## Framework Features and Status
+| Tier | Supported | Planned |
+| --- | --- | --- |
+| Web | Sparkjava, Spring Web Flux, Vert.x, Play |  |
+| Client | Unirest | Resilience4j |
+| Data | H2, Redis, MapsDB, MySQL, Postgresql, Sqlite | MongoDB, RocksDB, Sqlite, Firebird, Derby, HSQL |
+| Cache | Redis | Hazelcast, JCache |
+| Queue | Redis | RabbitMQ, Kafka, Hazelcast |
 
-### Web
+## Docs
 
-| Framework | Minimal | Most | Complete | Performance |
-| --- | --- | --- | --- | --- |
-| Sparkjava | :heavy_check_mark: | | | |
-| Spring | :heavy_check_mark: | | | |
-| Vert.x | :heavy_check_mark: | | | |
+[Javadoc](https://www.javadoc.io/doc/com.hackorama.m.core/mcore/0.1.0)
 
+## Packages
 
-### Data
+[com.hackorama.m.core:mcore:0.1.0](https://search.maven.org/artifact/com.hackorama.m.core/mcore/0.1.0/jar)
 
-| Framework | Minimal | Most | Complete |  Performance |
-| --- | --- | --- | --- | --- |
-| H2 |  | :heavy_check_mark: | | |
-| MongoDB | | | | |
-| Redis |  | :heavy_check_mark: | | |
-| MapsDB |  | :heavy_check_mark: | | |
-| MySQL |  :heavy_check_mark: | | | |
-| Postgresql |   :heavy_check_mark: | | | |
-| Sqlite | | | | |
-| Derby | | | | |
-| HSQL | | | | |
-| Firebird | | | | |
-
-### Cache
-
-| Framework | Minimal | Most | Complete |  Performance |
-| --- | --- | --- | --- | --- |
-| Redis | :heavy_check_mark: | | | |
-| Hazelcast |  |  |  |  |
-| JCache |  |  |  |  |
-
-### Queue
-
-| Framework | Minimal | Most | Complete |  Performance |
-| --- | --- | --- | --- | --- |
-| RabbitMQ |  |  |  |  |
-| Kafka |  |  |  |  |
-| Redis |  |  |  |  |
-| Hazelcast |  |  |  |  |
-
-### Client
-
-| Framework | Minimal | Most | Complete |  Performance |
-| --- | --- | --- | --- | --- |
-| Unirest |  | :heavy_check_mark: |  |  |
-| Hystrix |  |  |  |  |
-| Resilience4j |  |  |  |  |
+Signed with PGP key: D791 8556 0576 7757 6235 6402 6C13 01F5 1B93 B750 mcore@hackorama.com
 
 ## Build
 
-Requires Java 8 or later in path and web access for pulling in the maven dependencies.
+`./gradlew build`
+
+## Code
+
+### Simple service
+
+See [HelloService.java](mcore/blob/master/samples/src/main/java/m/core/samples/HelloService.java), more [samples](mcore/blob/master/samples/src/main/java/m/core/samples).
 
 ```
-$ git clone git@github.com:hackorama/mcore.git
-$ cd mcore
-```
-
-If you are behind a corp web proxy, please uncomment and add the proxy servers in gradle.properties.
-
-Without the proxy set, you will see build errors failing to download the Maven dependencies, like “Could not determine the dependencies of task …”, “Unable to load Maven meta-data from https://jcenter.bintray.com …”)
-
-```
-$ vi gradle.properties
+dependencies {
+    implementation 'com.hackorama.m.core:mcore:0.1.0'
+}
 ```
 
 ```
-$ ./gradlew build
+new Service() {
+    private Response hello(Request request) {
+        if (request.getPathParams().containsKey("name")) {
+            return new Response("Hello " + request.getPathParams().get("name"));
+        }
+        return new Response("Hello world");
+    }
+    @Override
+    public void configure() {
+        GET("/hello", this::hello);
+        GET("/hello/{name}", this::hello);
+    }
+
+}.configureUsing(new SparkServer("Hello")).start();
 ```
 
-## Develop
+### Launching service using different frameworks
 
-Build an Eclipse project
+See [UserService.java](https://github.com/hackorama/mcore/blob/master/samples/src/main/java/m/core/samples/UserService.java)
 
-```
-$ ./gradlew eclipse
-```
-
-Import project into Eclipse
-
-
-File -> Import -> Existing Projects into Workspace
-
-## Design
-
-Approach Pragmatic adoption of Twelve-Factor App, SOLID, YAGNI, DRY principles in the design.
-
-### Service design
-
-Complete separation of each service from underlying web framework and data store framework through interfaces.
-So different web frameworks and data stores can be easily used without changing the service code at all.
-
-Services are composed fluently by injecting web, data and client implementation as needed.
-
-Provides implementation of [three different web frameworks](src/main/java/com/hackorama/mcore/server) to choose from Spark, Spring Web Flux, Vert.x.
+Service started with Sparkjava server and an in-memory database.
 
 ```
-Service helloService = new HelloService().configureUsing(new SparkServer("hello")).configureUsing(new MapdbDataStore());
+Service userService = new UserService().configureUsing(new SparkServer("User Service"))
+                .configureUsing(new MemoryDataStore()).start();
 ```
-A service manager based on external configuration automatically starts each service. With no configuration provided starts all services in the same server for quick testing.
 
-### Data design
+Same service can also be started with Spring Flux web server and a database like Postgresql/MySQL using JDBC
 
-Instead of auto incrementing sequence we are using application generated UUID as the key which will be better for distributed servers.
+```
+Service userService = new UserService().configureUsing(new SpringServer("User Service"))
+                .configureUsing(new JDBCDataStore()).start();
+```
 
-Using an in memory data store implementation by default. A [MapDB](src/main/java/com/hackorama/mcore/data/mapdb) and [JDBC](src/main/java/com/hackorama/mcore/data/jdbc) (tested with MySQL, Postgres, H2) data stores are also implemented.
+For this there is no service code changes needed.
 
-Plans to support MongoDB, RocksDB in future.
+If you check the [UserService.java](https://github.com/hackorama/mcore/blob/master/samples/src/main/java/m/core/samples/UserService.java) there is no framework specific (Sparkjava/Spring Flux) packages imported into the service class, providing complete separation of service from the underlying frameworks.
 
-#### Data Cache
-
-Plans to implement a generic caching interface with support planned for Redis, Hazelcast etc.
-
-#### Data Message Queue
-
-Plans to implement a generic message queue interface with support planned for RabbitMQ, Kafka etc.
-
-
-## Testing
-
-Integrated into Gradle build
-
-- SpotBugs : build/reports/spotbugs/main.html (0 errors)
-- JUnit : build/reports/tests/test/index.html (100%)
-- Coverage: build/reports/jacoco/test/html/index.html (83%)
-
-## To Do
-
-- Complete Java Doc in code and generate the Java Docs in Gradle build
-- Add OpenAPI definitions and create API interactive dashboard with help
-- Include Postman file for API testing
 
 
