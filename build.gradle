@@ -110,7 +110,26 @@ dependencies {
     api 'com.typesafe.play:play-java_2.12:2.6.15' // rest framework
     api 'com.typesafe.play:play_2.12:2.6.15' // rest framework
 
+    // Micronaut
+    annotationProcessor platform("io.micronaut:micronaut-bom:1.2.0")
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    api platform("io.micronaut:micronaut-bom:1.2.0")
+    api "io.micronaut:micronaut-inject"
+    api "io.swagger.core.v3:swagger-annotations"
+    api "io.micronaut:micronaut-validation"
+    api "io.micronaut:micronaut-runtime"
+    api "io.micronaut:micronaut-http-server-netty"
+    api "io.micronaut:micronaut-http-client"
+
     testImplementation 'junit:junit:4.12'
+}
+
+// Micronaut
+shadowJar.dependsOn assemble // Micronaut annotation processing https://docs.micronaut.io/latest/guide/index.html#deployingApp
+shadowJar { // Micronaut resources into shadow jar https://docs.micronaut.io/latest/guide/index.html#functionCLI
+    mergeServiceFiles()
 }
 
 task sourcesJar(type: Jar) {
