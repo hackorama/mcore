@@ -17,7 +17,6 @@ public class KafkaQueueTest {
     private static DataQueue queue;
     private static boolean serverConnectionIsAvailable;
     private static boolean serverIntegrationTestsIsEnabled;
-
     private static void closeQueues() throws InterruptedException {
         if (queue != null) {
             // wait for any errors from consumer threads
