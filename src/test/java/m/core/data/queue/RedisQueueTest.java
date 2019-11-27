@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,27 +15,36 @@ import m.core.data.redis.RedisDataStoreCacheQueue;
 public class RedisQueueTest {
 
     private static DataQueue queue;
-    private static boolean serverIntegrationTestsIsEnabled;
     private static boolean serverConnectionIsAvailable;
+    private static boolean serverIntegrationTestsIsEnabled;
+    private static void closeQueues() throws InterruptedException {
+        if (queue != null) {
+            // wait for any errors from consumer threads
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+            queue.close();
+        }
+    }
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         serverIntegrationTestsIsEnabled = TestService.getEnv("REDIS_TEST");
-        try {
-            queue = new RedisDataStoreCacheQueue();
-            serverConnectionIsAvailable = true;
-        } catch (Exception e) {
-            if (serverIntegrationTestsIsEnabled) {
+        if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
+            System.out.println("Skipping data tests since REDIS_TEST server is not available");
+            org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
+        } else {
+            try {
+                queue = new RedisDataStoreCacheQueue();
+                serverConnectionIsAvailable = true;
+            } catch (Exception e) {
                 fail("Redis queue connection failed"); // Fail fast instead of each testing failing
+                e.printStackTrace();
             }
         }
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        if (queue != null) {
-            queue.close();
-        }
+        closeQueues();
     }
 
     private String receivedMessage = "";
@@ -52,8 +60,9 @@ public class RedisQueueTest {
         String publishedMessage = "hello test one";
         queue.consume("test_one", this::testHandler);
         queue.publish("test_one", publishedMessage);
-        TimeUnit.MILLISECONDS.sleep(100); // wait for handler invocation
-        assertEquals(receivedMessage, publishedMessage);
+        // wait for handler invocation
+        Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        assertEquals(publishedMessage, receivedMessage);
     }
 
     @Test
@@ -61,15 +70,9 @@ public class RedisQueueTest {
         queue.publish("test", "hello");
     }
 
-    @Before
-    public void setUp() throws Exception {
-        if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
-            org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
-        }
-    }
-
     @After
     public void tearDown() throws Exception {
+        closeQueues();
     }
 
     public boolean testHandler(String message) {
