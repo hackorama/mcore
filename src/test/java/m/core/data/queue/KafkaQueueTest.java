@@ -10,9 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import m.core.common.TestService;
-import m.core.data.redis.RedisDataStoreCacheQueue;
+import m.core.data.kafka.KafkaDataQueue;
 
-public class RedisQueueTest {
+public class KafkaQueueTest {
 
     private static DataQueue queue;
     private static boolean serverConnectionIsAvailable;
@@ -27,16 +27,16 @@ public class RedisQueueTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        serverIntegrationTestsIsEnabled = TestService.getEnv("REDIS_TEST");
+        serverIntegrationTestsIsEnabled = TestService.getEnv("KAFKA_TEST");
         if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
-            System.out.println("Skipping data tests since REDIS_TEST server is not available");
+            System.out.println("Skipping data tests since KAFKA_TEST server is not available");
             org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
         } else {
             try {
-                queue = new RedisDataStoreCacheQueue();
+                queue = new KafkaDataQueue();
                 serverConnectionIsAvailable = true;
             } catch (Exception e) {
-                fail("Redis queue connection failed"); // Fail fast instead of each testing failing
+                fail("Kafka queue connection failed"); // Fail fast instead of each testing failing
                 e.printStackTrace();
             }
         }
@@ -50,8 +50,8 @@ public class RedisQueueTest {
     private String receivedMessage = "";
 
     @Test
-    public void addingConsumer_ExpectsNoErrors() {
-        queue.consume("test", this::testHandler);
+    public void addingConsumer_ExpectsNoErrors() throws InterruptedException {
+        queue.consume("test-2", this::testHandler);
     }
 
     @Test
@@ -60,13 +60,13 @@ public class RedisQueueTest {
         String publishedMessage = "hello test one";
         queue.consume("test_one", this::testHandler);
         queue.publish("test_one", publishedMessage);
-        // wait for handler invocation
+        // wait for handler invocation and any errors from publisher/consumer threads
         Thread.sleep(TimeUnit.SECONDS.toMillis(1));
         assertEquals(publishedMessage, receivedMessage);
     }
 
     @Test
-    public void publishingMessage_ExpectsNoErrros() {
+    public void publishingMessage_ExpectsNoErrros() throws InterruptedException {
         queue.publish("test", "hello");
     }
 
