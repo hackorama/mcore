@@ -70,11 +70,6 @@ public class RedisQueueTest {
         queue.publish("test", "hello");
     }
 
-    @After
-    public void tearDown() throws Exception {
-        closeQueues();
-    }
-
     public boolean testHandler(String message) {
         receivedMessage = message;
         return true;
