@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,14 +32,16 @@ public class RedisQueueTest {
         if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
             System.out.println("Skipping data tests since REDIS_TEST server is not available");
             org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
-        } else {
-            try {
-                queue = new RedisDataStoreCacheQueue();
-                serverConnectionIsAvailable = true;
-            } catch (Exception e) {
-                fail("Redis queue connection failed"); // Fail fast instead of each testing failing
-                e.printStackTrace();
-            }
+        }
+    }
+
+    private static void openQueues() {
+        try {
+            queue = new RedisDataStoreCacheQueue();
+            serverConnectionIsAvailable = true;
+        } catch (Exception e) {
+            fail("Redis queue connection failed"); // Fail fast instead of each testing failing
+            e.printStackTrace();
         }
     }
 
@@ -68,6 +71,16 @@ public class RedisQueueTest {
     @Test
     public void publishingMessage_ExpectsNoErrros() {
         queue.publish("test", "hello");
+    }
+
+    @Before
+    public void setup() throws Exception {
+        openQueues();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        closeQueues();
     }
 
     public boolean testHandler(String message) {

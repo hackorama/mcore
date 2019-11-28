@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -17,6 +18,7 @@ public class KafkaQueueTest {
     private static DataQueue queue;
     private static boolean serverConnectionIsAvailable;
     private static boolean serverIntegrationTestsIsEnabled;
+
     private static void closeQueues() throws InterruptedException {
         if (queue != null) {
             // wait for any errors from consumer threads
@@ -25,20 +27,17 @@ public class KafkaQueueTest {
         }
     }
 
+    private static void openQueues() {
+        queue = new KafkaDataQueue();
+    }
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         serverIntegrationTestsIsEnabled = TestService.getEnv("KAFKA_TEST");
+        serverIntegrationTestsIsEnabled = true;
         if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
             System.out.println("Skipping data tests since KAFKA_TEST server is not available");
             org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
-        } else {
-            try {
-                queue = new KafkaDataQueue();
-                serverConnectionIsAvailable = true;
-            } catch (Exception e) {
-                fail("Kafka queue connection failed"); // Fail fast instead of each testing failing
-                e.printStackTrace();
-            }
         }
     }
 
@@ -68,6 +67,11 @@ public class KafkaQueueTest {
     @Test
     public void publishingMessage_ExpectsNoErrros() throws InterruptedException {
         queue.publish("test", "hello");
+    }
+
+    @Before
+    public void setup() throws Exception {
+        openQueues();
     }
 
     @After
