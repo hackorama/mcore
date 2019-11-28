@@ -34,7 +34,6 @@ public class KafkaQueueTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         serverIntegrationTestsIsEnabled = TestService.getEnv("KAFKA_TEST");
-        serverIntegrationTestsIsEnabled = true;
         if (!serverIntegrationTestsIsEnabled) { // when not enabled, run tests only when there is a connection
             System.out.println("Skipping data tests since KAFKA_TEST server is not available");
             org.junit.Assume.assumeTrue(serverConnectionIsAvailable);
