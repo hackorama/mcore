@@ -14,6 +14,12 @@ before_script:
   - export PG_TEST=ENABLED
   - psql -c 'CREATE DATABASE "test";' -U postgres
   - export REDIS_TEST=ENABLED
+  - wget http://www.us.apache.org/dist/kafka/2.3.1/kafka_2.12-2.3.1.tgz -O kafka.tgz
+  - mkdir -p kafka && tar xzf kafka.tgz -C kafka --strip-components 1
+  - nohup bash -c "cd kafka && bin/zookeeper-server-start.sh config/zookeeper.properties &"
+  - nohup bash -c "cd kafka && bin/kafka-server-start.sh config/server.properties &"
+  - sleep 5
+  - export KAFKA_TEST=ENABLED
   - chmod +x gradlew
 
 # Removing assemble step https://github.com/travis-ci/travis-ci/issues/8667
@@ -24,5 +30,4 @@ script: travis_wait ./gradlew --console=plain check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-
+  
