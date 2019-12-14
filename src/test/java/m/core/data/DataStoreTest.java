@@ -10,31 +10,46 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import spark.utils.StringUtils;
+
+import m.core.common.TestService;
+
 public class DataStoreTest {
 
-    protected boolean isOptional;
-    protected boolean failedConnection;
     protected DataStore dataStore;
+
+    @Before
+    public void setup() throws Exception {
+        if (StringUtils.isBlank(getType()) || TestService.getEnv(getType())) {
+            try {
+                createDataStore();
+            } catch (Exception e) {
+                System.out.println("Failed creating data store " + getType());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Skipping data tests since " + getType() + " server is not available");
+            org.junit.Assume.assumeTrue(false);
+        }
+    }
 
     protected void createDataStore() throws SQLException {
         dataStore = new MemoryDataStore();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        createDataStore();
+    protected String getType() {
+        return "";
     }
 
     @After
     public void tearDown() throws Exception {
-        clearTestData();
+        if (dataStore != null) {
+            clearTestData();
+        }
     }
 
 
     public void clearTestData() {
-        if(isOptional && failedConnection) {
-            return;
-        }
         clearTestData("TEST");
         clearTestData("MULTI_TEST");
         clearTestData("MULTI_TABLE_ONE");
@@ -54,11 +69,6 @@ public class DataStoreTest {
 
     @Test
     public void datastore_insertedMultiKeyValues_matchesOnGettingByKey() {
-
-        if(isOptional && failedConnection) {
-            return;
-        }
-
         dataStore.putMulti("MULTI_TEST", "ONE", "1_1");
         dataStore.putMulti("MULTI_TEST", "TWO", "2_1");
         dataStore.putMulti("MULTI_TEST", "TWO", "2_2");
@@ -126,16 +136,10 @@ public class DataStoreTest {
         assertTrue(dataStore.getMulti("MULTI_TABLE_TWO", "1_0").contains("two_four"));
         assertTrue(dataStore.getMulti("MULTI_TABLE_TWO", "1_0").contains("two_five"));
         assertTrue(dataStore.getMulti("MULTI_TABLE_TWO", "1_0").contains("two_six"));
-
     }
 
     @Test
     public void datastore_insertedValues_matchesOnGettingByKey() {
-
-        if(isOptional && failedConnection) {
-            return;
-        }
-
         dataStore.put("TEST", "ONE", "UNO");
         dataStore.put("TEST", "TWO", "DOS");
         dataStore.put("TEST", "THREE", "TRES");
@@ -198,38 +202,22 @@ public class DataStoreTest {
         assertTrue(dataStore.getByValue("TABLE_TWO", "two_same").contains("1_4"));
         assertTrue(dataStore.getByValue("TABLE_TWO", "two_same").contains("1_5"));
         assertTrue(dataStore.getByValue("TABLE_ONE", "one_same").contains("1_6"));
-
     }
 
     @Test (expected = RuntimeException.class)
     public void datastore_usingSameTableNameForMultiKey_shouldNotBeAllowed() {
-
-        if(isOptional && failedConnection) {
-            throw new RuntimeException("Expected");
-        }
-
         dataStore.put("TABLE_SINGLE", "1_1", "one_one");
         dataStore.putMulti("TABLE_SINGLE", "1_1", "one_one");
     }
 
     @Test (expected = RuntimeException.class)
     public void datastore_usingSameTableNameForSingleKey_shouldNotBeAllowed() {
-
-        if(isOptional && failedConnection) {
-            throw new RuntimeException("Expected");
-        }
-
         dataStore.putMulti("TABLE_MULTI", "1_1", "one_one");
         dataStore.put("TABLE_MULTI", "1_1", "one_one");
     }
 
     @Test
     public void datastore_usingUnknownTable_shouldBeHandled() {
-
-        if(isOptional && failedConnection) {
-            return;
-        }
-
         dataStore.get("NON_VALID", "invalid");
         dataStore.getMulti("NON_VALID", "invalid");
         dataStore.get("NON_VALID");
