@@ -25,8 +25,6 @@ public class MongoDataStore implements DataStore {
     private String db = "test"; // MongoDB default test database name by convention
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
-    private Set<String> multiKeyStores = new HashSet<String>();
-    private Set<String> singleKeyStores = new HashSet<String>();
 
     public MongoDataStore() {
         mongoClient = new MongoClient();
@@ -47,20 +45,6 @@ public class MongoDataStore implements DataStore {
 
     public MongoDataStore(String db, String host, int port) {
         mongoClient = new MongoClient(host, port);
-    }
-
-    private void checkStoreConflicts(String name, boolean isMulti) {
-        if (isMulti) {
-            if (singleKeyStores.contains(name)) {
-                throw new RuntimeException("Another store already exists with the same name " + name);
-            }
-            multiKeyStores.add(name);
-        } else {
-            if (multiKeyStores.contains(name)) {
-                throw new RuntimeException("Another store already exists with the same name " + name);
-            }
-            singleKeyStores.add(name);
-        }
     }
 
     @Override
@@ -144,7 +128,6 @@ public class MongoDataStore implements DataStore {
 
     @Override
     public void put(String store, String key, String value) {
-        checkStoreConflicts(store, false);
         if (contains(store, key)) {
             MongoCollection<Document> collection = mongoDatabase.getCollection(store);
             collection.updateOne(Filters.eq("K", key), Updates.set("V", value));
@@ -157,7 +140,6 @@ public class MongoDataStore implements DataStore {
 
     @Override
     public void putMulti(String store, String key, String value) {
-        checkStoreConflicts(store, true);
         MongoCollection<Document> collection = mongoDatabase.getCollection(store);
         Document document = new Document("K", key).append("V", value);
         collection.insertOne(document);
