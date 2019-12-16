@@ -8,14 +8,14 @@ import m.core.data.redis.RedisDataStoreCacheQueue;
 
 public class Queue {
 
-    public static boolean consumer(String message) {
-        System.out.println("Recived: " + message);
-        return true;
-    }
-
     public static void main(String[] args) throws InterruptedException {
         use(new KafkaDataQueue());
         use(new RedisDataStoreCacheQueue());
+    }
+
+    public static boolean consumer(String message) {
+        System.out.println("Received: " + message);
+        return true;
     }
 
     private static void use(DataQueue queue) throws InterruptedException {
