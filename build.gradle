@@ -98,6 +98,7 @@ dependencies {
     api 'org.redisson:redisson:3.3.0' // client for key value store
     api 'org.mongodb:mongo-java-driver:3.9.1' // client for doc store
     api 'org.apache.kafka:kafka-clients:2.3.1' // client for data queue
+    api 'org.apache.pulsar:pulsar-client:2.4.2' // client for data queue
 
     api 'com.sparkjava:spark-core:2.8.0' // rest framework
     api ('org.springframework.boot:spring-boot-starter-webflux:2.1.2.RELEASE') { // rest framework
