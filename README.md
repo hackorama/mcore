@@ -14,7 +14,7 @@ A microservices framework with complete separation of service code from underlyi
 | --- | --- | --- |
 | Web | Sparkjava, Spring Web Flux, Vert.x, Play | Micronaut |
 | Client | Unirest | Resilience4j |
-| Data | H2, Redis, MapsDB, MySQL, Postgresql, Sqlite | MongoDB, RocksDB, Sqlite, Firebird, Derby, HSQL |
+| Data | MongoDB, MySQL, Postgresql, Sqlite, H2, Redis, MapsDB  | RocksDB, Sqlite, Firebird, Derby, HSQL |
 | Cache | Redis | Hazelcast, JCache |
 | Queue | Redis, Kafka, Pulsar | RabbitMQ, Hazelcast |
 
