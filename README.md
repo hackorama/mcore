@@ -16,7 +16,7 @@ A microservices framework with complete separation of service code from underlyi
 | Client | Unirest | Resilience4j |
 | Data | H2, Redis, MapsDB, MySQL, Postgresql, Sqlite | MongoDB, RocksDB, Sqlite, Firebird, Derby, HSQL |
 | Cache | Redis | Hazelcast, JCache |
-| Queue | Redis, Kafka | RabbitMQ, Hazelcast |
+| Queue | Redis, Kafka, Pulsar | RabbitMQ, Hazelcast |
 
 ## Docs
 
